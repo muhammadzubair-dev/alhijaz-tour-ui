@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+}
+
+.ant-menu-item {
+  border-radius: 4px !important;
+}
+
+.ant-menu-item-selected {
+  border-right: 5px solid #fff;
+}
