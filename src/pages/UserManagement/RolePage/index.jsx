@@ -1,67 +1,59 @@
-import { apiDeactivateUser, apiFetchUsers } from '@/services/userService';
-import getSortOrder from '@/utils/getSortOrder';
-import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
-import moment from 'moment';
-import { useState } from 'react';
-import FormUser from './FormUser';
 import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
+import { apiDeleteUserRole, apiFetchUsersRoles } from '@/services/userService';
+import getSortOrder from '@/utils/getSortOrder';
+import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, MenuUnfoldOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
+import moment from 'moment';
+import { useState } from 'react';
+import FormRole from './FormRole';
+import ListMenu from './ListMenu';
 
-function getRandomHexColor() {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-}
-
-const UserPage = () => {
+const RolePage = () => {
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
     subtitle: ''
   })
-  const [filterUsers, setFilterUsers] = useState({
+  const [filterRoles, setFilterRoles] = useState({
     page: 1,
     limit: 10,
     sortBy: null,
     sortOrder: null,
-    username: '',
     name: '',
     type: '',
     isActive: null,
+    platform: null,
   })
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(null);
   const [api, contextHolder] = notification.useNotification();
-  const { data: dataUsers, refetch: refetchUsers } = useQuery({
-    queryKey: ['users', filterUsers.page, filterUsers.limit, filterUsers.sortBy, filterUsers.sortOrder],
-    queryFn: () => apiFetchUsers(filterUsers),
+  const { data: dataRoles, refetch: refetchRoles } = useQuery({
+    queryKey: ['roles', filterRoles.page, filterRoles.limit, filterRoles.sortBy, filterRoles.sortOrder],
+    queryFn: () => apiFetchUsersRoles(filterRoles),
   });
 
-  const deactivateUserMutation = useMutation({
-    mutationFn: (data) => apiDeactivateUser(data),
+  const deleteRoleMutation = useMutation({
+    mutationFn: (data) => apiDeleteUserRole(data),
     onSuccess: (data, variable) => {
       api.open({
-        message: 'User Berhasil Dinonaktifkan',
-        description: `Akun pengguna dengan username ${variable.username} telah berhasil dinonaktifkan dan tidak dapat lagi mengakses sistem.`,
+        message: 'Role Berhasil Dihapus',
+        description: `Role ${variable.name} telah berhasil dihapus dan tidak dapat lagi mengakses sistem.`,
         showProgress: true,
         pauseOnHover: true,
       });
-      queryClient.invalidateQueries(['users'])
+      queryClient.invalidateQueries(['roles'])
     }
   })
 
   const handleCloseForm = () => {
-    setSelectedUser(null)
+    setSelectedRole(null)
     setOpenForm(false)
   }
 
   const handleOpenFormEdit = (data) => {
-    setSelectedUser(data)
+    setSelectedRole(data)
     setOpenForm(true)
   }
 
@@ -73,29 +65,36 @@ const UserPage = () => {
   }
 
   const handleChangeFilter = (e) => {
-    setFilterUsers((prevState) => ({
+    setFilterRoles((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value
     }))
   }
 
   const handleChangeType = (value) => {
-    setFilterUsers((prevState) => ({
+    setFilterRoles((prevState) => ({
       ...prevState,
       type: value
     }))
   }
 
   const handleChangeStatus = (value) => {
-    setFilterUsers((prevState) => ({
+    setFilterRoles((prevState) => ({
       ...prevState,
       isActive: value
     }))
   }
 
+  const handleChangePlatform = (value) => {
+    setFilterRoles((prevState) => ({
+      ...prevState,
+      platform: value
+    }))
+  }
+
   const handleTableChange = (pagination, filters, sorter) => {
     const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
-    setFilterUsers(prev => ({
+    setFilterRoles(prev => ({
       ...prev,
       page: pagination.current,
       limit: pagination.pageSize,
@@ -105,38 +104,29 @@ const UserPage = () => {
   };
 
   const handleSubmit = () => {
-    refetchUsers(filterUsers)
+    refetchRoles(filterRoles)
   }
 
-  const handleDeactivateUser = (id, username) => {
-    deactivateUserMutation.mutate({ id, username })
+  const handleDeleteRole = ({ id, name }) => {
+    deleteRoleMutation.mutate({ id, name })
   }
 
   const columns = [
     {
-      title: 'Avatar',
-      width: 100,
-      dataIndex: 'username',
-      key: 'username',
-      align: 'center',
-      render: (value) => <Avatar style={{ backgroundColor: getRandomHexColor() }}>{value?.[0].toUpperCase()}</Avatar>
-    },
-    {
-      title: 'Username',
-      width: 100,
-      dataIndex: 'username',
-      key: 'username',
-      fixed: 'left',
-      sorter: true,
-      sortOrder: getSortOrder(filterUsers.sortBy, 'username', filterUsers.sortOrder)
-    },
-    {
-      title: 'Name',
+      title: 'Role',
       width: 100,
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      sortOrder: getSortOrder(filterUsers.sortBy, 'name', filterUsers.sortOrder)
+      sortOrder: getSortOrder(filterRoles.sortBy, 'name', filterRoles.sortOrder)
+    },
+    {
+      title: 'Description',
+      width: 100,
+      dataIndex: 'description',
+      key: 'description',
+      sorter: true,
+      sortOrder: getSortOrder(filterRoles.sortBy, 'description', filterRoles.sortOrder)
     },
     {
       title: 'Tipe',
@@ -146,11 +136,12 @@ const UserPage = () => {
       render: (value) => value === '1' ? 'Agent' : 'Staff'
     },
     {
-      title: 'Banned',
-      dataIndex: 'bannedUntil',
-      key: 'bannedUntil',
+      title: 'Platform',
       width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-'
+      dataIndex: 'platform',
+      key: 'platform',
+      sorter: true,
+      render: (value) => value === '0' ? 'Travel' : '-'
     },
     {
       title: 'Aktif',
@@ -193,14 +184,17 @@ const UserPage = () => {
       width: 100,
       render: (values) => (
         <Space>
+          <Tooltip title="Menu">
+            <Button color='geekblue' variant='text' shape="circle" size='small' icon={<MenuUnfoldOutlined />} onClick={() => handleOpenFormEdit(values)} />
+          </Tooltip>
           <Tooltip title="Edit">
             <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
           </Tooltip>
           <Tooltip title="Delete">
             <Popconfirm
-              title={`Nonaktifkan username ${values.username} ?`}
+              title={`Hapus role ${values.name} ?`}
               placement='bottomRight'
-              onConfirm={() => handleDeactivateUser(values.id)}
+              onConfirm={() => handleDeleteRole(values)}
               okText="Yes"
               cancelText="No"
             >
@@ -217,8 +211,7 @@ const UserPage = () => {
       {contextHolder}
       <Flex justify='space-between' gap={32}>
         <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
-          <Input placeholder='Username' style={{ maxWidth: 120 }} name='username' allowClear onChange={handleChangeFilter} />
-          <Input placeholder='Name' style={{ maxWidth: 120 }} name='name' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Role' style={{ maxWidth: 120 }} name='name' allowClear onChange={handleChangeFilter} />
           <Select
             allowClear
             style={{ width: 120 }}
@@ -232,12 +225,21 @@ const UserPage = () => {
           />
           <Select
             allowClear
+            placeholder="Platform"
+            style={{ width: 120 }}
+            onChange={handleChangePlatform}
+            options={[
+              { value: '0', label: 'Travel' },
+            ]}
+          />
+          <Select
+            allowClear
             placeholder="Status"
             style={{ width: 120 }}
             onChange={handleChangeStatus}
             options={[
-              { value: true, label: 'Aktif' },
-              { value: false, label: 'Tidak Aktif' },
+              { value: 'true', label: 'Aktif' },
+              { value: 'false', label: 'Tidak Aktif' },
             ]}
           />
 
@@ -245,29 +247,30 @@ const UserPage = () => {
 
         </Flex>
         <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New User
+          New Role
         </Button>
       </Flex>
       <Table
         rowKey='id'
         size='middle'
         columns={columns}
-        dataSource={dataUsers?.data}
+        dataSource={dataRoles?.data}
         scroll={{ x: 1500, y: `calc(100vh - 380px)` }}
         sticky={{ offsetHeader: 64 }}
         onChange={handleTableChange}
         pagination={{
-          total: dataUsers?.paging?.total,
+          total: dataRoles?.paging?.total,
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          pageSize: filterUsers.limit,
+          pageSize: filterRoles.limit,
           showSizeChanger: true,
           pageSizeOptions: [10, 25, 50, 100],
         }}
       />
-      <FormUser open={openForm} data={selectedUser} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
+      <FormRole open={openForm} data={selectedRole} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
       <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
+      {/* <ListMenu /> */}
     </div>
   );
 };
 
-export default UserPage;
+export default RolePage;

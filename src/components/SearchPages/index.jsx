@@ -48,7 +48,7 @@ const SearchPages = () => {
       onSelect={onSelect}
       onSearch={handleSearch}
     >
-      <Input.Search color='#d89000' placeholder="Search Pages" enterButton />
+      <Input.Search color='#d89000' placeholder="Search Menu" enterButton />
     </AutoComplete>
   );
 };

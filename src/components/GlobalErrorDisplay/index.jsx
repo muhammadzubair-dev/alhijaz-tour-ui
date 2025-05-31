@@ -26,7 +26,7 @@ const GlobalErrorDisplay = () => {
       closable={false}
       keyboard={false}
       footer={null}
-      width={600}
+    // width={600}
     // onCancel={handleClose} // Bisa juga tutup dari onCancel jika closable true
     >
       <Result

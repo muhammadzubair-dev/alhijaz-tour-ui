@@ -1,3 +1,4 @@
+import logo from '@/assets/logo.png';
 import { SearchPages, SwitchTheme } from '@/components';
 import convertPathToBreadcrumb from '@/utils/convertPathToBreadcrumb';
 import {
@@ -7,8 +8,7 @@ import {
   UserOutlined
 } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Button, Divider, Flex, Layout, Menu, Space, theme, Typography } from 'antd';
-import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import logo from '@/assets/logo.png';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const { Header, Content, Footer, Sider } = Layout;
 const { useToken } = theme;
