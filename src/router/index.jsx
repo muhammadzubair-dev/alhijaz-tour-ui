@@ -13,7 +13,7 @@ const RolePage = lazy(() => import('@/pages/UserManagement/RolePage'));
 const MenuPage = lazy(() => import('@/pages/UserManagement/MenuPage'));
 const BankPage = lazy(() => import('@/pages/DataMaster/BankPage'));
 const FeePage = lazy(() => import('@/pages/DataMaster/FeePage'));
-const SocialMediaPage = lazy(() => import('@/pages/DataMaster/SocialMediaPage'));
+const SocialMediaPage = lazy(() => import('@/pages/DataMaster/SosmedPage'));
 
 const AppRouter = () => (
   <Suspense fallback={<PageLoader />}>

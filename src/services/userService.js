@@ -2,6 +2,7 @@ import axiosInstance from '@/lib/axios'
 import cleanObject from '@/utils/cleanObj';
 import objToQueryString from '@/utils/objToQueryString';
 
+// USERS
 export const apiFetchUsers = async (query) => {
   const response = await axiosInstance.get(`/users${objToQueryString(query)}`);
   return response.data;
@@ -23,6 +24,7 @@ export const apiEditUser = async (payload) => {
   return response.data;
 };
 
+// USERS ROLES
 export const apiFetchUsersRoles = async (query) => {
   const response = await axiosInstance.get(`/users/roles${objToQueryString(query)}`);
   return response.data;
