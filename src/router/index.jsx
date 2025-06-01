@@ -7,6 +7,7 @@ import ProtectedRoute from './ProtectedRoute';
 
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const UserPage = lazy(() => import('@/pages/UserManagement/UserPage'));
 const AgentPage = lazy(() => import('@/pages/UserManagement/AgentPage'));
 const RolePage = lazy(() => import('@/pages/UserManagement/RolePage'));
@@ -18,6 +19,8 @@ const SocialMediaPage = lazy(() => import('@/pages/DataMaster/SosmedPage'));
 const AppRouter = () => (
   <Suspense fallback={<PageLoader />}>
     <Routes>
+
+      <Route path="/login" element={<LoginPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<DashboardLayout />}>
