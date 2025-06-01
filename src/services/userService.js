@@ -2,7 +2,7 @@ import axiosInstance from '@/lib/axios'
 import cleanObject from '@/utils/cleanObj';
 import objToQueryString from '@/utils/objToQueryString';
 
-// USERS
+// User
 export const apiFetchUsers = async (query) => {
   const response = await axiosInstance.get(`/users${objToQueryString(query)}`);
   return response.data;
@@ -24,7 +24,7 @@ export const apiEditUser = async (payload) => {
   return response.data;
 };
 
-// USERS ROLES
+// User Role
 export const apiFetchUsersRoles = async (query) => {
   const response = await axiosInstance.get(`/users/roles${objToQueryString(query)}`);
   return response.data;
@@ -46,3 +46,13 @@ export const apiDeleteUserRole = async ({ id }) => {
   return response.data;
 };
 
+// User Agent
+export const apiFetchUsersAgents = async (query) => {
+  const response = await axiosInstance.get(`/users/agents${objToQueryString(query)}`);
+  return response.data;
+};
+
+export const apiCreateAgent = async (payload) => {
+  const response = await axiosInstance.post('/users/agent', cleanObject(payload));
+  return response.data;
+};

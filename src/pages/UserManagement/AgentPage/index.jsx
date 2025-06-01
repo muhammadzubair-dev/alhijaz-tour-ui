@@ -1,58 +1,58 @@
-import { apiDeactivateUser, apiFetchUsers } from '@/services/userService';
+import { ResultSuccess } from '@/components';
+import queryClient from '@/lib/queryClient';
+import { apiDeleteMasterBank } from '@/services/masterService';
+import { apiFetchUsersAgents } from '@/services/userService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
 import moment from 'moment';
 import { useState } from 'react';
-import FormUser from './FormUser';
-import { ResultSuccess } from '@/components';
-import queryClient from '@/lib/queryClient';
+import FormAgent from './FormAgent';
 
-const UserPage = () => {
+const AgentPage = () => {
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
     subtitle: ''
   })
-  const [filterUsers, setFilterUsers] = useState({
+  const [filterAgents, setFilterAgents] = useState({
     page: 1,
     limit: 10,
     sortBy: null,
     sortOrder: null,
-    username: '',
+    agentCode: '',
     name: '',
-    type: '',
     isActive: null,
   })
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedAgent, setSelectedAgent] = useState(null);
   const [api, contextHolder] = notification.useNotification();
-  const { data: dataUsers, refetch: refetchUsers } = useQuery({
-    queryKey: ['users', filterUsers.page, filterUsers.limit, filterUsers.sortBy, filterUsers.sortOrder],
-    queryFn: () => apiFetchUsers(filterUsers),
+  const { data: dataAgents, refetch: refetchAgents } = useQuery({
+    queryKey: ['agents', filterAgents.page, filterAgents.limit, filterAgents.sortBy, filterAgents.sortOrder],
+    queryFn: () => apiFetchUsersAgents(filterAgents),
   });
 
-  const deactivateUserMutation = useMutation({
-    mutationFn: (data) => apiDeactivateUser(data),
+  const deleteAgentMutation = useMutation({
+    mutationFn: (data) => apiDeleteMasterBank(data),
     onSuccess: (data, variable) => {
       api.open({
-        message: 'User Berhasil Dinonaktifkan',
-        description: `Akun pengguna dengan username ${variable.username} telah berhasil dinonaktifkan dan tidak dapat lagi mengakses sistem.`,
+        message: 'Agent Berhasil Dihapus',
+        description: `Agent ${variable.name} telah berhasil dihapus dan tidak dapat lagi mengakses sistem.`,
         showProgress: true,
         pauseOnHover: true,
       });
-      queryClient.invalidateQueries(['users'])
+      queryClient.invalidateQueries(['agents'])
     }
   })
 
   const handleCloseForm = () => {
-    setSelectedUser(null)
+    setSelectedAgent(null)
     setOpenForm(false)
   }
 
   const handleOpenFormEdit = (data) => {
-    setSelectedUser(data)
+    setSelectedAgent(data)
     setOpenForm(true)
   }
 
@@ -64,21 +64,14 @@ const UserPage = () => {
   }
 
   const handleChangeFilter = (e) => {
-    setFilterUsers((prevState) => ({
+    setFilterAgents((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value
     }))
   }
 
-  const handleChangeType = (value) => {
-    setFilterUsers((prevState) => ({
-      ...prevState,
-      type: value
-    }))
-  }
-
   const handleChangeStatus = (value) => {
-    setFilterUsers((prevState) => ({
+    setFilterAgents((prevState) => ({
       ...prevState,
       isActive: value
     }))
@@ -86,7 +79,7 @@ const UserPage = () => {
 
   const handleTableChange = (pagination, filters, sorter) => {
     const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
-    setFilterUsers(prev => ({
+    setFilterAgents(prev => ({
       ...prev,
       page: pagination.current,
       limit: pagination.pageSize,
@@ -96,52 +89,70 @@ const UserPage = () => {
   };
 
   const handleSubmit = () => {
-    refetchUsers(filterUsers)
+    refetchAgents(filterAgents)
   }
 
-  const handleDeactivateUser = (id, username) => {
-    deactivateUserMutation.mutate({ id, username })
+  const handleDeleteAgent = ({ id, name }) => {
+    deleteAgentMutation.mutate({ id, name })
   }
 
   const columns = [
     {
       title: 'Avatar',
       width: 100,
-      dataIndex: 'username',
-      key: 'username',
+      dataIndex: 'name',
+      key: 'name',
       align: 'center',
       render: (value) => <Avatar>{value?.[0].toUpperCase()}</Avatar>
     },
     {
-      title: 'Username',
-      width: 100,
-      dataIndex: 'username',
-      key: 'username',
-      fixed: 'left',
-      sorter: true,
-      sortOrder: getSortOrder(filterUsers.sortBy, 'username', filterUsers.sortOrder)
-    },
-    {
-      title: 'Name',
-      width: 100,
+      title: 'Nama Agent',
+      width: 150,
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      sortOrder: getSortOrder(filterUsers.sortBy, 'name', filterUsers.sortOrder)
+      sortOrder: getSortOrder(filterAgents.sortBy, 'name', filterAgents.sortOrder)
     },
     {
-      title: 'Tipe',
-      dataIndex: 'type',
-      key: 'type',
-      width: 100,
-      render: (value) => value === '1' ? 'Agent' : 'Staff'
+      title: 'Handphone',
+      width: 150,
+      dataIndex: 'phone',
+      key: 'phone',
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'phone', filterAgents.sortOrder)
     },
     {
-      title: 'Banned',
-      dataIndex: 'bannedUntil',
-      key: 'bannedUntil',
-      width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-'
+      title: 'Email',
+      width: 200,
+      dataIndex: 'email',
+      key: 'email',
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'email', filterAgents.sortOrder)
+    },
+    {
+      title: 'Identitas',
+      width: 150,
+      dataIndex: 'identityType',
+      key: 'identityType',
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'identityType', filterAgents.sortOrder),
+      render: (value) => value === '0' ? 'KTP' : '-'
+    },
+    {
+      title: 'Bank',
+      width: 150,
+      dataIndex: 'bankName',
+      key: 'bankName',
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'bankName', filterAgents.sortOrder),
+    },
+    {
+      title: 'No Rekening',
+      width: 150,
+      dataIndex: 'accountNumber',
+      key: 'accountNumber',
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'accountNumber', filterAgents.sortOrder),
     },
     {
       title: 'Aktif',
@@ -149,33 +160,43 @@ const UserPage = () => {
       key: 'isActive',
       width: 100,
       align: 'center',
-      render: (value) => value ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />
+      render: (value) => value ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />,
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'isActive', filterAgents.sortOrder)
     },
     {
       title: 'Updated By',
       dataIndex: 'updatedBy',
       key: 'updatedBy',
-      width: 100,
+      width: 120,
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'updatedBy', filterAgents.sortOrder)
     },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
       key: 'createdBy',
-      width: 100,
+      width: 120,
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'createdBy', filterAgents.sortOrder)
     },
     {
       title: 'Updated At',
+      width: 150,
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      width: 100,
-      render: (value) => moment(value).format('YYYY-MM-DD HH:mm')
+      render: (value) => moment(value).format('YYYY-MM-DD HH:mm'),
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'updatedAt', filterAgents.sortOrder)
     },
     {
       title: 'Created At',
+      width: 150,
       dataIndex: 'createdAt',
       key: 'createdAt',
-      width: 100,
-      render: (value) => moment(value).format('YYYY-MM-DD HH:mm')
+      render: (value) => moment(value).format('YYYY-MM-DD HH:mm'),
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'createdAt', filterAgents.sortOrder)
     },
     {
       title: 'Action',
@@ -189,9 +210,9 @@ const UserPage = () => {
           </Tooltip>
           <Tooltip title="Delete">
             <Popconfirm
-              title={`Nonaktifkan username ${values.username} ?`}
+              title={`Hapus agent ${values.name} ?`}
               placement='bottomRight'
-              onConfirm={() => handleDeactivateUser(values.id)}
+              onConfirm={() => handleDeleteAgent(values)}
               okText="Yes"
               cancelText="No"
             >
@@ -208,57 +229,45 @@ const UserPage = () => {
       {contextHolder}
       <Flex justify='space-between' gap={32}>
         <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
-          <Input placeholder='Username' style={{ maxWidth: 120 }} name='username' allowClear onChange={handleChangeFilter} />
-          <Input placeholder='Name' style={{ maxWidth: 120 }} name='name' allowClear onChange={handleChangeFilter} />
-          <Select
-            allowClear
-            style={{ width: 120 }}
-            onChange={handleChangeType}
-            name='type'
-            placeholder="Tipe"
-            options={[
-              { value: '1', label: 'Agent' },
-              { value: '0', label: 'Staff' },
-            ]}
-          />
+          <Input placeholder='Kode Agent' style={{ maxWidth: 120 }} name='agent_code' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Agent' style={{ maxWidth: 120 }} name='name' allowClear onChange={handleChangeFilter} />
           <Select
             allowClear
             placeholder="Status"
             style={{ width: 120 }}
             onChange={handleChangeStatus}
             options={[
-              { value: true, label: 'Aktif' },
-              { value: false, label: 'Tidak Aktif' },
+              { value: 'true', label: 'Aktif' },
+              { value: 'false', label: 'Tidak Aktif' },
             ]}
           />
-
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
         <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New User
+          New Agent
         </Button>
       </Flex>
       <Table
         rowKey='id'
         size='middle'
         columns={columns}
-        dataSource={dataUsers?.data}
+        dataSource={dataAgents?.data}
         scroll={{ x: 1500, y: `calc(100vh - 380px)` }}
         sticky={{ offsetHeader: 64 }}
         onChange={handleTableChange}
         pagination={{
-          total: dataUsers?.paging?.total,
+          total: dataAgents?.paging?.total,
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          pageSize: filterUsers.limit,
+          pageSize: filterAgents.limit,
           showSizeChanger: true,
           pageSizeOptions: [10, 25, 50, 100],
         }}
       />
-      <FormUser open={openForm} data={selectedUser} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
+      <FormAgent open={openForm} data={selectedAgent} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
       <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
     </div>
   );
 };
 
-export default UserPage;
+export default AgentPage;
