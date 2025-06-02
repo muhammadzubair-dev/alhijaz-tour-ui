@@ -14,6 +14,11 @@ export const apiFetchUsers = async (query) => {
   return response.data;
 };
 
+export const apiFetchCurrentUser = async () => {
+  const response = await axiosInstance.get(`/users/current`);
+  return response.data;
+};
+
 export const apiCreateUser = async (payload) => {
   const response = await axiosInstance.post('/users', cleanObject(payload));
   return response.data;

@@ -2,13 +2,15 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Checkbox, Flex, Form, Input } from 'antd';
 import logo from '@/assets/logo.png';
 import { Controller, useForm } from 'react-hook-form';
-import { useMutation } from '@tanstack/react-query';
-import { apiUserLogin } from '@/services/userService';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiUserLogin, apiFetchCurrentUser } from '@/services/userService';
 import useAuthStore from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const LoginPage = () => {
   const loginSuccess = useAuthStore((state) => state.loginSuccess);
+  const setUserProfile = useAuthStore((state) => state.setUserProfile);
   const navigate = useNavigate()
   const {
     control,
@@ -23,17 +25,33 @@ const LoginPage = () => {
     },
   });
 
+  const { refetch: refetchUser, isSuccess: isSuccessFetchUser, data: dataUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: apiFetchCurrentUser,
+    enabled: false,
+
+  });
+
   const loginUserMutation = useMutation({
     mutationFn: apiUserLogin,
-    onSuccess: (response, variable) => {
-      loginSuccess(variable.username, response.data.token)
-      navigate('/')
+    onSuccess: (response) => {
+      loginSuccess({}, response.data.token)
+      refetchUser();
     },
   });
 
   const onSubmit = (values) => {
     loginUserMutation.mutate({ username: values.username, password: values.password })
   };
+
+  useEffect(() => {
+    if (isSuccessFetchUser && dataUser?.data) {
+      setUserProfile(dataUser.data);
+      const from = location.state?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessFetchUser, dataUser?.data]);
 
   return (
     <div

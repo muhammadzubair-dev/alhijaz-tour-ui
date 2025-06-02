@@ -3,6 +3,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import '@ant-design/v5-patch-for-react-19';
 import { Suspense, lazy } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
@@ -20,7 +21,9 @@ const AppRouter = () => (
   <Suspense fallback={<PageLoader />}>
     <Routes>
 
-      <Route path="/login" element={<LoginPage />} />
+      <Route element={<GuestRoute />}>
+        <Route path="/login" element={<LoginPage />} />
+      </Route>
 
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<DashboardLayout />}>

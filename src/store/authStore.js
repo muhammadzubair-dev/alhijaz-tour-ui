@@ -24,10 +24,10 @@ const useAuthStore = create()(
         });
       },
 
-      // setUserProfile: (profileData) =>
-      //   set((state) => ({
-      //     user: state.user ? { ...state.user, ...profileData } : null,
-      //   })),
+      setUserProfile: (profileData) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, ...profileData } : null,
+        })),
     }),
     {
       name: 'auth-storage-ts',

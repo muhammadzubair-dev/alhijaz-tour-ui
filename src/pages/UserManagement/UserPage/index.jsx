@@ -168,7 +168,7 @@ const UserPage = () => {
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       width: 100,
-      render: (value) => moment(value).format('YYYY-MM-DD HH:mm')
+      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-'
     },
     {
       title: 'Created At',
