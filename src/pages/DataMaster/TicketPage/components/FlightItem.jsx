@@ -1,6 +1,6 @@
 import { Card, Flex, Space, theme, Typography } from 'antd';
 import { FaPlane, FaPlaneArrival, FaPlaneDeparture } from "react-icons/fa6";
-import styles from './index.module.css';
+import styles from '../index.module.css';
 
 const FlightItem = ({ isArrival = false, data }) => {
   const { token } = theme.useToken()

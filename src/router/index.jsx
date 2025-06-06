@@ -18,6 +18,7 @@ const FeePage = lazy(() => import('@/pages/DataMaster/FeePage'));
 const SocialMediaPage = lazy(() => import('@/pages/DataMaster/SosmedPage'));
 const PackagePage = lazy(() => import('@/pages/DataMaster/Package'));
 const TicketPage = lazy(() => import('@/pages/DataMaster/TicketPage'));
+const NewTicketPage = lazy(() => import('@/pages/DataMaster/TicketPage/NewTicketPage'));
 
 const AppRouter = () => (
   <Suspense fallback={<PageLoader />}>
@@ -45,6 +46,7 @@ const AppRouter = () => (
             <Route path="social-media" element={<SocialMediaPage />} />
             <Route path="package" element={<PackagePage />} />
             <Route path="ticket" element={<TicketPage />} />
+            <Route path="ticket/new-ticket" element={<NewTicketPage />} />
           </Route>
         </Route>
       </Route>

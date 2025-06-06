@@ -1,404 +1,261 @@
-import { Label } from '@/components';
-import { PlusCircleFilled, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Col, DatePicker, Empty, Flex, Form, Input, InputNumber, Row, Select, Space, theme } from 'antd';
+import { ResultSuccess } from '@/components';
+import queryClient from '@/lib/queryClient';
+import { apiDeleteMasterBank } from '@/services/masterService';
+import { apiFetchTickets } from '@/services/ticketService';
+import getSortOrder from '@/utils/getSortOrder';
+import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
+import moment from 'moment';
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import FlightForm from './FlightForm';
-import FlightItem from './FlightItem';
-
-const defaultValues = {
-  transactionDate: null,
-  partnerId: null,
-  bookingCode: null,
-  dayPack: null,
-  seatPack: null
-}
+import { useNavigate } from 'react-router-dom';
 
 const TicketPage = () => {
-  const [flight, setFlight] = useState([])
-  const [flightForm, setFlightForm] = useState({
+  const navigate = useNavigate()
+  const [openForm, setOpenForm] = useState(false)
+  const [openResult, setOpenResult] = useState({
     open: false,
-    type: '',
-    flight: null
+    title: '',
+    subtitle: ''
   })
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm({
-    mode: 'onChange',
-    defaultValues
+  const [filterTickets, setFilterTickets] = useState({
+    page: 1,
+    limit: 10,
+    sortBy: null,
+    sortOrder: null,
+    bookingCode: '',
+    partnerName: '',
+    status: '',
+  })
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [api, contextHolder] = notification.useNotification();
+  const { data: dataTickets, refetch: refetchTickets } = useQuery({
+    queryKey: ['tickets', filterTickets.page, filterTickets.limit, filterTickets.sortBy, filterTickets.sortOrder],
+    queryFn: () => apiFetchTickets(filterTickets),
   });
 
-  const handleOpenFormFlight = (type, flight = null) => {
-    setFlightForm({
-      open: true,
-      type,
-      flight
-    })
+  const deleteTicketMutation = useMutation({
+    mutationFn: (data) => apiDeleteMasterBank(data),
+    onSuccess: (data, variable) => {
+      api.open({
+        message: 'Ticket Berhasil Dihapus',
+        description: `Ticket ${variable.name} telah berhasil dihapus dan tidak dapat lagi mengakses sistem.`,
+        showProgress: true,
+        pauseOnHover: true,
+      });
+      queryClient.invalidateQueries(['tickets'])
+    }
+  })
+
+  const handleCloseForm = () => {
+    setSelectedTicket(null)
+    setOpenForm(false)
   }
 
-  const handleCloseFormFlight = () => {
-    setFlightForm({
-      open: false,
-      type: ''
-    })
+  const handleOpenFormEdit = (data) => {
+    setSelectedTicket(data)
+    setOpenForm(true)
   }
 
-  const handleSaveFlight = (values) => {
-    setFlight((prevState) => ([
+  const handleOpenResult = (values) => {
+    setOpenResult((prevState) => ({
       ...prevState,
-      values
-    ]))
+      ...values
+    }))
   }
 
-  const onSubmit = (values) => {
-    console.log('values: ========> ', values)
-    // const payload = {
-    //   ...values,
-    //   isActive: values?.isActive === 'true',
-    //   ...(data?.id && { id: data.id }), // tambah id hanya jika ada
-    // };
+  const handleChangeFilter = (e) => {
+    setFilterTickets((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value
+    }))
+  }
 
-    // if (data) {
-    //   editBankMutation.mutate(payload);
-    // } else {
-    //   createBankMutation.mutate(payload);
-    // }
+  const handleChangeStatus = (value) => {
+    setFilterTickets((prevState) => ({
+      ...prevState,
+      status: value
+    }))
+  }
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
+    setFilterTickets(prev => ({
+      ...prev,
+      page: pagination.current,
+      limit: pagination.pageSize,
+      sortBy: singleSorter?.field || null,
+      sortOrder: singleSorter?.order ? (singleSorter.order === 'ascend' ? 'asc' : 'desc') : null,
+    }));
   };
 
-  const onError = (formErrors) => {
-    console.log('Error Form:', formErrors);
-    // Anda bisa melakukan sesuatu dengan error form di sini jika perlu
-  };
+  const handleSubmit = () => {
+    refetchTickets(filterTickets)
+  }
 
-  console.log('flight ============> ', flight)
+  const handleDeleteTicket = ({ id, name }) => {
+    deleteTicketMutation.mutate({ id, name })
+  }
+
+  const columns = [
+    {
+      title: 'Tanggal',
+      width: 100,
+      dataIndex: 'transactionDate',
+      key: 'transactionDate',
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'transactionDate', filterTickets.sortOrder),
+      render: (value) => moment(value).format('YYYY-MM-DD'),
+    },
+    {
+      title: 'Kode Booking',
+      width: 100,
+      dataIndex: 'bookingCode',
+      key: 'bookingCode',
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'bookingCode', filterTickets.sortOrder)
+    },
+    {
+      title: 'Supplier',
+      width: 100,
+      dataIndex: 'partnerName',
+      key: 'partnerName',
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'partnerName', filterTickets.sortOrder)
+    },
+    {
+      title: 'Paket Hari',
+      width: 100,
+      dataIndex: 'dayPack',
+      key: 'dayPack',
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'dayPack', filterTickets.sortOrder)
+    },
+    {
+      title: 'Total Seat',
+      width: 100,
+      dataIndex: 'seatPack',
+      key: 'seatPack',
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'seatPack', filterTickets.sortOrder),
+    },
+    {
+      title: 'Status',
+      width: 100,
+      dataIndex: 'status',
+      key: 'status',
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'status', filterTickets.sortOrder),
+      render: (value) => value === "1" ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />,
+    },
+    {
+      title: 'Updated By',
+      dataIndex: 'updatedBy',
+      key: 'updatedBy',
+      width: 100,
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'updatedBy', filterTickets.sortOrder)
+    },
+    {
+      title: 'Created By',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
+      width: 100,
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'createdBy', filterTickets.sortOrder)
+    },
+    {
+      title: 'Updated At',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      width: 100,
+      render: (value) => moment(value).format('YYYY-MM-DD HH:mm'),
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'updatedAt', filterTickets.sortOrder)
+    },
+    {
+      title: 'Created At',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 100,
+      render: (value) => moment(value).format('YYYY-MM-DD HH:mm'),
+      sorter: true,
+      sortOrder: getSortOrder(filterTickets.sortBy, 'createdAt', filterTickets.sortOrder)
+    },
+    {
+      title: 'Action',
+      key: 'operation',
+      fixed: 'right',
+      width: 100,
+      render: (values) => (
+        <Space>
+          <Tooltip title="Edit">
+            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Popconfirm
+              title={`Hapus ticket ${values.name} ?`}
+              placement='bottomRight'
+              onConfirm={() => handleDeleteTicket(values)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div>
-      <Form
-        layout='vertical'
-        onFinish={handleSubmit(onSubmit, onError)}
-      >
-        <Row gutter={16}>
-          <Col lg={6}>
-            <Form.Item
-              required
-              label="Tanggal Transaksi"
-              validateStatus={errors.transactionDate ? 'error' : ''}
-              help={errors.transactionDate?.message}
-            >
-              <Controller
-                name="transactionDate"
-                control={control}
-                rules={{
-                  required: 'Transaction Date tidak boleh kosong',
-                }}
-                render={({ field }) => (
-                  <div style={{ width: '100%' }}>
-                    <DatePicker
-                      {...field}
-                      placeholder="Pilih Tanggal"
-                      style={{ width: '100%' }} // ← penting
-                    />
-                  </div>
-                )}
-              />
-            </Form.Item>
-          </Col>
-          <Col lg={6}>
-            <Form.Item
-              required
-              label="Supplier"
-              validateStatus={errors.partnerId ? 'error' : ''}
-              help={errors.partnerId?.message}
-            >
-              <Controller
-                name="partnerId"
-                control={control}
-                rules={{
-                  required: 'Supplier tidak boleh kosong',
-                }}
-                render={({ field }) => (
-                  <div style={{ width: '100%' }}>
-                    <Select
-                      {...field}
-                      showSearch
-                      allowClear
-                      placeholder="Pilih Supplier"
-                      style={{ width: '100%' }} // ← penting
-                      options={[
-                        {
-                          value: 'jack',
-                          label: 'Jack',
-                        },
-                        {
-                          value: 'lucy',
-                          label: 'Lucy',
-                        },
-                        {
-                          value: 'tom',
-                          label: 'Tom',
-                        },
-                      ]}
-                    />
-                  </div>
-                )}
-              />
-            </Form.Item>
-          </Col>
-          <Col lg={6}>
-            <Form.Item
-              required
-              label="Kode Booking"
-              validateStatus={errors.bookingCode ? 'error' : ''}
-              help={errors.bookingCode?.message}
-            >
-              <Controller
-                name="bookingCode"
-                control={control}
-                rules={{
-                  required: 'Kode Booking tidak boleh kosong',
-                  minLength: {
-                    value: 3,
-                    message: 'Kode Booking minimal 3 karakter'
-                  },
-                  maxLength: {
-                    value: 10,
-                    message: 'Kode Booking maksimal 10 karakter'
-                  },
-                }}
-                render={({ field }) => (
-                  <Input
-                    {...field}
-                    allowClear
-                    placeholder="Masukkan Kode Booking"
-                  />
-                )}
-              />
-            </Form.Item>
-          </Col>
-          <Col lg={6}>
-            <Form.Item
-              required
-              label={<Label text="Paket" extraText="Hari" />}
-              validateStatus={errors.dayPack ? 'error' : ''}
-              help={errors.dayPack?.message}
-            >
-              <Controller
-                name="dayPack"
-                control={control}
-                rules={{
-                  required: 'Paket hari tidak boleh kosong',
-                  min: {
-                    value: 1,
-                    message: 'Minimal 1 hari'
-                  },
-                  max: {
-                    value: 100,
-                    message: 'Maksimal 100 hari'
-                  },
-                }}
-                render={({ field }) => (
-                  <div style={{ width: '100%' }}>
-                    <InputNumber
-                      {...field}
-                      // allowClear
-                      suffix="Hari"
-                      placeholder="Masukkan Jumlah Hari"
-                      style={{ width: '100%' }}
-                      onKeyPress={(e) => {
-                        if (!/[0-9]/.test(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </div>
-                )}
-              />
-            </Form.Item>
-          </Col>
+      {contextHolder}
+      <Flex justify='space-between' gap={32}>
+        <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
+          <Input placeholder='Kode Booking' style={{ maxWidth: 150 }} name='bookingCode' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Supplier' style={{ maxWidth: 120 }} name='partnerName' allowClear onChange={handleChangeFilter} />
+          <Select
+            allowClear
+            placeholder="Status"
+            style={{ width: 120 }}
+            onChange={handleChangeStatus}
+            options={[
+              { value: '1', label: 'Aktif' },
+              { value: '0', label: 'Tidak Aktif' },
+            ]}
+          />
+          <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
-          <Col lg={6}>
-            <Form.Item
-              required
-              label={<Label text="Total Seat" extraText="Pax" />}
-              validateStatus={errors.seatPack ? 'error' : ''}
-              help={errors.seatPack?.message}
-            >
-              <Controller
-                name="seatPack"
-                control={control}
-                rules={{
-                  required: 'Total Seat tidak boleh kosong',
-                  min: {
-                    value: 1,
-                    message: 'Minimal 1 Seat'
-                  },
-                  max: {
-                    value: 10000,
-                    message: 'Maksimal 10.000 Seat'
-                  },
-                }}
-                render={({ field }) => (
-                  <div style={{ width: '100%' }}>
-                    <InputNumber
-                      {...field}
-                      // allowClear
-                      suffix="Pax"
-                      placeholder="Masukkan Total Seat"
-                      style={{ width: '100%' }}
-                      formatter={(value) =>
-                        value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-                      }
-                      parser={(value) => value?.replace(/\./g, '')}
-                      onKeyPress={(e) => {
-                        if (!/[0-9]/.test(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </div>
-                )}
-              />
-            </Form.Item>
-          </Col>
-          <Col lg={6}>
-            <Form.Item
-              // required
-              label={<Label text="Materialisasi" extraText="Pax" />}
-              validateStatus={errors.materialisasi ? 'error' : ''}
-              help={errors.materialisasi?.message}
-            >
-              <Controller
-                name="materialisasi"
-                control={control}
-                rules={{
-                  // required: 'Materialisasi tidak boleh kosong',
-                  min: {
-                    value: 1,
-                    message: 'Minimal 1 Seat'
-                  },
-                  max: {
-                    value: 10000,
-                    message: 'Maksimal 10.000 Seat'
-                  },
-                }}
-                render={({ field }) => (
-                  <div style={{ width: '100%' }}>
-                    <InputNumber
-                      {...field}
-                      disabled
-                      // allowClear
-                      suffix="Pax"
-                      placeholder="Masukkan Jumlah Materialisasi"
-                      style={{ width: '100%' }}
-                      formatter={(value) =>
-                        value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-                      }
-                      parser={(value) => value?.replace(/\./g, '')}
-                      onKeyPress={(e) => {
-                        if (!/[0-9]/.test(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </div>
-                )}
-              />
-            </Form.Item>
-          </Col>
-          <Col lg={6}>
-            <Form.Item
-              // required
-              label={<Label text="Cancel" extraText="Pax" />}
-              validateStatus={errors.cancel ? 'error' : ''}
-              help={errors.cancel?.message}
-            >
-              <Controller
-                name="cancel"
-                control={control}
-                rules={{
-                  // required: 'Cancel tidak boleh kosong',
-                  min: {
-                    value: 1,
-                    message: 'Minimal 1 Pax'
-                  },
-                  max: {
-                    value: 10000,
-                    message: 'Maksimal 10.000 Pax'
-                  },
-                }}
-                render={({ field }) => (
-                  <div style={{ width: '100%' }}>
-                    <InputNumber
-                      {...field}
-                      disabled
-                      // allowClear
-                      suffix="Pax"
-                      placeholder="Masukkan Jumlah Cancel"
-                      style={{ width: '100%' }}
-                      formatter={(value) =>
-                        value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-                      }
-                      parser={(value) => value?.replace(/\./g, '')}
-                      onKeyPress={(e) => {
-                        if (!/[0-9]/.test(e.key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </div>
-                )}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-
-        <Card
-          title="Penerbangan"
-          extra={
-            <Space>
-              <Button color="primary" variant="outlined" icon={<PlusCircleFilled />} onClick={() => handleOpenFormFlight('Departure')}>
-                Departure
-              </Button>
-              <Button color="primary" variant="outlined" icon={<PlusCircleFilled />} onClick={() => handleOpenFormFlight('Return')}>
-                Return
-              </Button>
-            </Space>}>
-          {/* <Empty description="Tidak ada Penerbangan" /> */}
-          <Flex vertical gap={8}>
-            {/* <FlightItem />
-            <FlightItem /> */}
-            {flight.length === 0 ? (
-              <Empty description="Tidak ada Penerbangan" />
-            ) : (
-              flight.map((item) => (
-                <div onClick={() => handleOpenFormFlight('Departure', item)}>
-                  <FlightItem key={item.id} data={item} />
-                </div>
-              ))
-            )}
-          </Flex>
-        </Card >
-        <Flex justify='flex-end' style={{ marginTop: 16 }}>
-          <Button type="primary" htmlType="submit">
-            Simpan
-          </Button>
         </Flex>
-
-
-      </Form>
-      <FlightForm
-        open={flightForm.open}
-        type={flightForm.type}
-        data={flightForm.flight}
-        onClose={handleCloseFormFlight}
-        onSaveFlight={handleSaveFlight}
+        <Button
+          variant='solid'
+          color='green'
+          icon={<PlusOutlined />}
+          onClick={() => navigate('/data-master/ticket/new-ticket')}
+        >
+          New Ticket
+        </Button>
+      </Flex>
+      <Table
+        rowKey='id'
+        size='middle'
+        columns={columns}
+        dataSource={dataTickets?.data}
+        scroll={{ x: 1500, y: `calc(100vh - 380px)` }}
+        sticky={{ offsetHeader: 64 }}
+        onChange={handleTableChange}
+        pagination={{
+          total: dataTickets?.paging?.total,
+          showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+          pageSize: filterTickets.limit,
+          showSizeChanger: true,
+          pageSizeOptions: [10, 25, 50, 100],
+        }}
       />
-    </div >
-  )
-}
+      <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
+    </div>
+  );
+};
 
-export default TicketPage
+export default TicketPage;
