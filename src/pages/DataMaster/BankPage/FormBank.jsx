@@ -116,7 +116,7 @@ const FormBank = ({ open, onCloseForm, onOpenResult, data }) => {
               },
               maxLength: {
                 value: 10,
-                message: 'Description maksimal 10 karakter'
+                message: 'Kode Bank maksimal 10 karakter'
               },
               pattern: {
                 value: /^[0-9]+$/,

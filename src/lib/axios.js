@@ -3,7 +3,7 @@ import useGlobalErrorStore from '@/store/errorStore';
 import useAuthStore from '@/store/authStore'; // Untuk contoh logout pada 401
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:3000/api', // JSONPlaceholder untuk posts
+  baseURL: 'http://localhost:3000/api',// JSONPlaceholder untuk posts
   // baseURL: 'https://fakestoreapi.com', // Untuk auth (perlu disesuaikan servicenya)
 });
 

@@ -37,6 +37,7 @@ const items = [
     getItem('Region', '/data-master/region'),
     getItem('Hotel', '/data-master/hotel'),
     getItem('Package', '/data-master/package'),
+    getItem('Ticket', '/data-master/ticket'),
     getItem('Airlines', '/data-master/airlines'),
     getItem('Partner', '/data-master/partner'),
     getItem('Document', '/data-master/document'),
