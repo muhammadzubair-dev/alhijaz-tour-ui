@@ -1,0 +1,6 @@
+.uploadWrapper :global(.ant-upload-list-item-container) {
+  width: 100% !important;
+  height: 105 !important;
+  object-fit: contain;
+  /* border-radius: 4px; */
+}

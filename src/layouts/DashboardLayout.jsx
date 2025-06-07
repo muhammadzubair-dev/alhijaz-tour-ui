@@ -121,16 +121,22 @@ const DashboardLayout = () => {
           }
           style={{ margin: '16px' }}
         />
-        <Content style={{ margin: '0 16px 0' }}>
+        <Content style={{ margin: '0 32px 0' }}>
           <div
             style={{
-              padding: 24,
+              padding: 28,
               minHeight: 360,
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
+
             }}
           >
-            <Outlet />
+            <div style={{
+              height: 'calc(100vh - 240px)',
+              overflow: 'auto',
+            }}>
+              <Outlet />
+            </div>
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>

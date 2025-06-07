@@ -355,7 +355,6 @@ const NewTicketPage = () => {
             </Form.Item>
           </Col>
         </Row>
-
         <Card
           title="Penerbangan"
           extra={
@@ -387,8 +386,6 @@ const NewTicketPage = () => {
             Simpan
           </Button>
         </Flex>
-
-
       </Form>
       <FlightForm
         open={flightForm.open}
