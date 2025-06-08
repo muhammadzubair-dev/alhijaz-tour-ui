@@ -24,6 +24,36 @@ import HotelRooms from './HotelRooms';
 import styles from './index.module.css';
 import getBase64 from '@/utils/getbase64';
 import checkFormatImage from '@/utils/checkFormatImage';
+import moment from 'moment';
+import { apiCreatePackage } from '@/services/masterService';
+import { useMutation } from '@tanstack/react-query';
+
+const defaultValue = {
+  transactionDate: null,
+  seat: null,
+  maturityPassportDelivery: null,
+  maturityRepayment: null,
+  manasikDatetime: null,
+  manasikPrice: null,
+  adminPrice: null,
+  pcrPrice: null,
+  equipmentHandlingPrice: null,
+  checkInMadinah: null,
+  checkInMekkah: null,
+  checkOutMadinah: null,
+  checkOutMekkah: null,
+  isPromo: null,
+  waGroup: null,
+  notes: null,
+  tourLead: null,
+  gatheringTime: null,
+  airportRallyPoint: null,
+  status: '1',
+  itinerary: [],
+  brochure: [],
+  manasikInvitation: [],
+  departureInfo: []
+}
 
 const Package = () => {
   const {
@@ -31,38 +61,29 @@ const Package = () => {
     handleSubmit,
     formState: { errors },
     setValue,
+    reset
   } = useForm({
     mode: 'onChange',
-    defaultValues: {
-      transactionDate: null,
-      seat: null,
-      maturityPassportDelivery: null,
-      maturityrepayment: null,
-      manasikDatetime: null,
-      manasikPrice: null,
-      adminPrice: null,
-      pcrPrice: null,
-      equipmentHandlingPrice: null,
-      checkInMadinah: null,
-      checkInMekkah: null,
-      checkOutMadinah: null,
-      checkOutMekkah: null,
-      isPromo: null,
-      waGroup: null,
-      notes: null,
-      tourLead: null,
-      gatheringTime: null,
-      airportRallyPoint: null,
-      status: '1',
-      itinerary: [],
-      brochure: [],
-      manasikInvitation: [],
-      departureInfo: []
-    },
+    defaultValues: defaultValue,
   });
 
+  const [hotelRooms, setHotelRooms] = useState([])
   const [previewImage, setPreviewImage] = useState('');
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  const createPackageMutation = useMutation({
+    mutationFn: apiCreatePackage,
+    onSuccess: (data, variable) => {
+      // reset();
+      // onCloseForm();
+      // queryClient.invalidateQueries(['sosmeds']);
+      // onOpenResult({
+      //   open: true,
+      //   title: 'Social Media Berhasil Ditambahkan',
+      //   subtitle: `Social Media baru dengan nama "${variable.name}" telah berhasil ditambahkan ke sistem.`,
+      // });
+    },
+  });
 
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {
@@ -112,9 +133,41 @@ const Package = () => {
     </Form.Item>
   );
 
+  const handleUpdateHotelRooms = (values) => {
+    setHotelRooms(prevState => ([
+      ...prevState,
+      values
+    ]))
+  }
+
+  const handleDeleteHotelRoom = (id) => {
+    setHotelRooms(prevState => (prevState.filter(item => item.packageTypeId !== id)))
+  }
+
   const onSubmit = (data) => {
     console.log('Form submitted:', data);
-    message.success('Form berhasil disubmit!');
+    console.log('Form submitted2:', hotelRooms);
+    const newData = {
+      ...data,
+      hotelRooms,
+      checkInMadinah: moment(data.checkInMadinah.toDate()).format('YYYY-MM-DD'),
+      checkInMekkah: moment(data.checkInMekkah.toDate()).format('YYYY-MM-DD'),
+      checkOutMadinah: moment(data.checkOutMadinah.toDate()).format('YYYY-MM-DD'),
+      checkOutMekkah: moment(data.checkOutMekkah.toDate()).format('YYYY-MM-DD'),
+      gatheringTime: moment(data.gatheringTime.toDate()).format('YYYY-MM-DD HH:mm:ss'),
+      manasikDatetime: moment(data.manasikDatetime.toDate()).format('YYYY-MM-DD HH:mm:ss'),
+      maturityPassportDelivery: moment(data.maturityPassportDelivery.toDate()).format('YYYY-MM-DD'),
+      maturityRepayment: moment(data.maturityRepayment.toDate()).format('YYYY-MM-DD'),
+      // data yang kurang
+      id: 'JBU002',
+      name: 'Paket Tung Tung',
+      ticket: 2,
+      transactionDate: '2025-08-10',
+      tourLead: 'JAM001'
+    }
+    console.log(JSON.stringify(newData, null, 2))
+    // message.success('Form berhasil disubmit!');
+    createPackageMutation.mutate(newData)
   };
 
   return (
@@ -221,11 +274,11 @@ const Package = () => {
           <Form.Item
             required
             label={<Label text="Pelunasan" extraText="Jatuh Tempo" />}
-            validateStatus={errors.maturityrepayment ? 'error' : ''}
-            help={errors.maturityrepayment?.message}
+            validateStatus={errors.maturityRepayment ? 'error' : ''}
+            help={errors.maturityRepayment?.message}
           >
             <Controller
-              name="maturityrepayment"
+              name="maturityRepayment"
               control={control}
               rules={{
                 required: 'Jatuh Tempo Pelunasan wajib diisi',
@@ -503,7 +556,11 @@ const Package = () => {
         </Col>
       </Row>
 
-      <HotelRooms />
+      <HotelRooms
+        hotelRooms={hotelRooms}
+        onUpdateHotelRoom={handleUpdateHotelRooms}
+        onDeleteHotelRoom={handleDeleteHotelRoom}
+      />
 
       <Row gutter={16} style={{ maxWidth: 1240, marginTop: 24 }}>
         {/* Madinah */}

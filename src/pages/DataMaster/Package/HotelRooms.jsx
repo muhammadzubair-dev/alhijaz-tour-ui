@@ -5,12 +5,12 @@ import { FaPlus } from "react-icons/fa";
 import HotelRoomsForm from './HotelRoomsForm';
 import toRupiah from '@/utils/toRupiah';
 
-const HotelRooms = () => {
+const HotelRooms = ({ hotelRooms, onUpdateHotelRoom, onDeleteHotelRoom }) => {
   const [openFormHotelRooms, setOpenHotelRooms] = useState({
     open: false,
     data: null
   })
-  const [hotelRooms, setHotelRooms] = useState([])
+  // const [hotelRooms, setHotelRooms] = useState([])
 
   const handleOpenForm = () => {
     setOpenHotelRooms({
@@ -26,16 +26,16 @@ const HotelRooms = () => {
     })
   }
 
-  const handleUpdateHotelRooms = (values) => {
-    setHotelRooms(prevState => ([
-      ...prevState,
-      values
-    ]))
-  }
+  // const handleUpdateHotelRooms = (values) => {
+  //   setHotelRooms(prevState => ([
+  //     ...prevState,
+  //     values
+  //   ]))
+  // }
 
-  const handleDeleteHotelRoom = (id) => {
-    setHotelRooms(prevState => (prevState.filter(item => item.packageTypeId !== id)))
-  }
+  // const handleDeleteHotelRoom = (id) => {
+  //   setHotelRooms(prevState => (prevState.filter(item => item.packageTypeId !== id)))
+  // }
 
   const columns = [
     {
@@ -82,7 +82,7 @@ const HotelRooms = () => {
             <Popconfirm
               title={`Hapus paket ${values.paket} ?`}
               placement='bottomRight'
-              onConfirm={() => handleDeleteHotelRoom(values.key)}
+              onConfirm={() => onDeleteHotelRoom(values.key)}
               okText="Yes"
               cancelText="No"
             >
@@ -111,7 +111,7 @@ const HotelRooms = () => {
       <HotelRoomsForm
         onCloseForm={handleCloseForm}
         hotelRooms={hotelRooms}
-        onUpdateHotelRooms={handleUpdateHotelRooms}
+        onUpdateHotelRooms={onUpdateHotelRoom}
         open={openFormHotelRooms.open}
       />
     </>

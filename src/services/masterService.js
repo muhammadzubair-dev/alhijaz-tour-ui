@@ -45,3 +45,41 @@ export const apiDeleteMasterSosmed = async ({ id }) => {
   const response = await axiosInstance.delete(`/master/sosmed/${id}`);
   return response.data;
 };
+
+// Package
+export const apiCreatePackage = async (body) => {
+  const formData = new FormData();
+
+  // Append all scalar fields
+  Object.entries(body).forEach(([key, value]) => {
+    // Lewatkan file & array khusus
+    if (
+      ['itinerary', 'brochure', 'manasikInvitation', 'departureInfo', 'hotelRooms'].includes(key)
+    )
+      return;
+
+    formData.append(key, value);
+  });
+
+  // Append file fields (ambil file asli dari `originFileObj`)
+  const appendFile = (fieldName, fileArr) => {
+    if (fileArr && fileArr.length > 0 && fileArr[0].originFileObj) {
+      formData.append(fieldName, fileArr[0].originFileObj);
+    }
+  };
+
+  appendFile('itinerary', body.itinerary);
+  appendFile('brochure', body.brochure);
+  appendFile('manasikInvitation', body.manasikInvitation);
+  appendFile('departureInfo', body.departureInfo);
+
+  // Append hotelRooms as JSON string
+  formData.append('hotelRooms', JSON.stringify(body.hotelRooms));
+
+  const response = await axiosInstance.post('/master/package', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
