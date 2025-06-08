@@ -1,12 +1,10 @@
-import { apiFetchCities, apiFetchCityHotels, apiFetchPackageTypes, apiFetchRoomTypes } from '@/services/lovService';
-import { CloseCircleOutlined } from '@ant-design/icons';
+import { apiFetchCities, apiFetchCityHotels, apiFetchPackageRooms, apiFetchPackageTypes } from '@/services/lovService';
+import toRupiah from '@/utils/toRupiah';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Flex, Form, Input, InputNumber, Modal, Select, Space, Tag, Typography } from 'antd'
-import React, { useState } from 'react'
+import { Button, Flex, Form, InputNumber, message, Modal, Select, Space, Tag } from 'antd';
+import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { FaMinus, FaPlus } from 'react-icons/fa';
-import { FaMinimize } from 'react-icons/fa6';
-import { IoIosRemoveCircle } from "react-icons/io";
+import { FaPlus } from 'react-icons/fa';
 
 const defaultValues = {
   packageTypeId: null,
@@ -16,7 +14,7 @@ const defaultValues = {
   roomPrice: null
 }
 
-const HotelRoomsForm = ({ onCloseForm, open }) => {
+const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) => {
   const [hotels, setHotels] = useState([])
   const [rooms, setRooms] = useState([])
   const {
@@ -24,6 +22,8 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
     handleSubmit,
     formState: { errors },
     reset,
+    setError,
+    clearErrors,
     resetField,
     watch
   } = useForm({
@@ -31,14 +31,16 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
     defaultValues
   });
   const cityId = watch('cityId');
+  const packageId = watch('packageTypeId');
 
   const { data: dataPackageTypes } = useQuery({
     queryKey: ['lov-package-types'],
     queryFn: apiFetchPackageTypes,
   });
   const { data: dataRoomTypes } = useQuery({
-    queryKey: ['lov-room-types'],
-    queryFn: apiFetchRoomTypes,
+    queryKey: ['lov-room-types', packageId],
+    queryFn: () => apiFetchPackageRooms(packageId),
+    enabled: !!packageId,
   });
   const { data: dataCities } = useQuery({
     queryKey: ['lov-cities'],
@@ -50,19 +52,18 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
     enabled: !!cityId,
   });
 
-  const optionPackageTypes = dataPackageTypes ? dataPackageTypes.data : []
+  const optionPackageTypes = dataPackageTypes ? dataPackageTypes.data.filter(item => !hotelRooms.some(item2 => item.id === item2.packageTypeId)) : []
   const optionRoomTypes = dataRoomTypes ? dataRoomTypes.data : []
   const optionCities = dataCities ? dataCities.data.filter(city => !hotels.some((hotel) => hotel.cityId === city.id)) : []
   const optionCityHotels = dataCityHotels ? dataCityHotels.data : []
 
   const handleAddHotel = (hotel) => {
-    setHotels((prevState) => ([
-      ...prevState,
-      hotel
-    ]))
+    if (!hotel.cityId || !hotel.hotelId) return;
+
+    setHotels((prevState) => [...prevState, hotel]);
     resetField('cityId');
     resetField('hotelId');
-  }
+  };
 
   const handleRemoveHotel = (cityId) => {
     setHotels((prevState) => prevState.filter((state) => state.cityId !== cityId))
@@ -81,19 +82,50 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
     setRooms((prevState) => prevState.filter((state) => state.roomId !== roomId))
   }
 
-  const onSubmit = (values) => {
-    console.log('values: ========> ', values)
-    // const payload = {
-    //   ...values,
-    //   isActive: values?.isActive === 'true',
-    //   ...(data?.id && { id: data.id }), // tambah id hanya jika ada
-    // };
+  const handleCloseForm = () => {
+    onCloseForm()
+    setHotels([])
+    setRooms([])
+    reset();
+  }
 
-    // if (data) {
-    //   editBankMutation.mutate(payload);
-    // } else {
-    //   createBankMutation.mutate(payload);
-    // }
+  const onSubmit = (values) => {
+    if (hotels.length === 0) {
+      setError('cityId', {
+        type: 'manual',
+        message: 'Silakan tambahkan minimal 1 hotel',
+      });
+      return;
+    }
+    if (rooms.length === 0) {
+      setError('roomId', {
+        type: 'manual',
+        message: 'Silakan tambahkan minimal 1 tipe kamar',
+      });
+      return;
+    }
+    clearErrors(['cityId', 'roomId']);
+
+    const newData = {
+      packageTypeId: values.packageTypeId,
+      packageTypeName: dataPackageTypes?.data.find(item => item.id === values.packageTypeId)?.name,
+      hotels: hotels.map((item) => ({
+        cityId: item.cityId,
+        cityName: dataCities?.data.find(item2 => item2.id === item.cityId)?.name,
+        hotelId: item.hotelId.split('|')?.[0],
+        hotelName: item.hotelId.split('|')?.[1],
+      })),
+      rooms: rooms.map(item => ({
+        ...item,
+        roomName: dataRoomTypes?.data.find(item2 => item2.id === item.roomId)?.name
+      }))
+    }
+
+    onUpdateHotelRooms(newData);
+    setHotels([])
+    setRooms([])
+    reset();
+    message.success('Sukses menambahkan paket kamar hotel baru')
   };
 
   const onError = (formErrors) => {
@@ -101,14 +133,11 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
     // Anda bisa melakukan sesuatu dengan error form di sini jika perlu
   };
 
-  console.log('1 ===========> ', dataRoomTypes?.data)
-  console.log('2 ===========> ', rooms)
-
   return (
     <Modal
       title="Tambahkan Paket Hotel Rooms"
       closable={{ 'aria-label': 'Custom Close Button' }}
-      onCancel={onCloseForm}
+      onCancel={handleCloseForm}
       open={open}
       footer={null}
     >
@@ -149,17 +178,16 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
         </Form.Item>
 
         <Form.Item
-          required
           validateStatus={errors.cityId || errors.hotelId ? 'error' : ''}
           help={`${errors.cityId?.message || ''} ${errors.hotelId?.message || ''}`}
           style={{ marginBottom: hotels.length === 0 ? 24 : 0 }}
           label="Hotel"
+          required
         >
           <Space.Compact style={{ width: '100%' }}>
             <Controller
               name="cityId"
               control={control}
-              rules={{ required: 'Kota wajib diisi' }}
               render={({ field }) => (
                 <Select
                   {...field}
@@ -175,7 +203,6 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
             <Controller
               name="hotelId"
               control={control}
-              rules={{ required: 'Hotel wajib diisi' }}
               render={({ field }) => (
                 <Select
                   {...field}
@@ -232,7 +259,6 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
             <Controller
               name="roomId"
               control={control}
-              rules={{ required: 'Tipe kamar wajib dipilih' }}
               render={({ field }) => (
                 <Select
                   {...field}
@@ -248,7 +274,6 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
             <Controller
               name="roomPrice"
               control={control}
-              rules={{ required: 'Harga kamar wajib diisi' }}
               render={({ field }) => (
                 <InputNumber
                   {...field}
@@ -292,7 +317,7 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
                     >
                       {dataRoomTypes.data.find(item => item.id === room.roomId)?.name}:
                       <span style={{ fontWeight: 700 }}>
-                        {' '} {room.roomPrice}
+                        {' '} {toRupiah(room.roomPrice || 0)}
                       </span>
                     </Tag>
                   ))
@@ -302,7 +327,10 @@ const HotelRoomsForm = ({ onCloseForm, open }) => {
           )
         }
 
-        <Flex justify='flex-end' style={{ marginTop: 16 }}>
+        <Flex justify='flex-end' gap={16} style={{ marginTop: 16 }}>
+          <Button onClick={handleCloseForm}>
+            Close
+          </Button>
           <Button type="primary" htmlType="submit">
             Simpan
           </Button>

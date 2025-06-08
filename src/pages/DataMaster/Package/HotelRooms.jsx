@@ -3,14 +3,39 @@ import { Button, Popconfirm, Space, Table, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { FaPlus } from "react-icons/fa";
 import HotelRoomsForm from './HotelRoomsForm';
-
-
+import toRupiah from '@/utils/toRupiah';
 
 const HotelRooms = () => {
   const [openFormHotelRooms, setOpenHotelRooms] = useState({
     open: false,
     data: null
   })
+  const [hotelRooms, setHotelRooms] = useState([])
+
+  const handleOpenForm = () => {
+    setOpenHotelRooms({
+      ...openFormHotelRooms,
+      open: true
+    })
+  }
+
+  const handleCloseForm = () => {
+    setOpenHotelRooms({
+      ...openFormHotelRooms,
+      open: false
+    })
+  }
+
+  const handleUpdateHotelRooms = (values) => {
+    setHotelRooms(prevState => ([
+      ...prevState,
+      values
+    ]))
+  }
+
+  const handleDeleteHotelRoom = (id) => {
+    setHotelRooms(prevState => (prevState.filter(item => item.packageTypeId !== id)))
+  }
 
   const columns = [
     {
@@ -25,8 +50,8 @@ const HotelRooms = () => {
       render: (values) => (
         <>
           {values.map(value => (
-            <div>
-              <Typography.Text style={{ fontWeight: 700 }}>{value.city}</Typography.Text>, {value.name}
+            <div key={value.hotelId}>
+              <Typography.Text style={{ fontWeight: 700 }}>{value.cityName}</Typography.Text>, {value.hotelName}
             </div>
           ))}
         </>
@@ -39,31 +64,25 @@ const HotelRooms = () => {
       render: (values) => (
         <>
           {values.map(value => (
-            <div>
-              {value.type}, <Typography.Text style={{ fontWeight: 700, color: 'green' }}>{value.name}</Typography.Text>,
+            <div key={value.roomId}>
+              {value.roomName}, <Typography.Text style={{ fontWeight: 700, color: 'green' }}>Rp{toRupiah(value.roomPrice)}</Typography.Text>,
             </div>
           ))}
         </>
       )
     },
     {
-      title: () => <Button color='primary' variant='outlined' icon={<FaPlus />}>Paket Kamar Hotel</Button>,
+      title: () => <Button color='primary' variant='outlined' onClick={handleOpenForm} icon={<FaPlus />}>Paket Kamar Hotel</Button>,
       key: 'operation',
       fixed: 'right',
       width: 100,
       render: (values) => (
         <Space>
-          <Tooltip title="Edit">
-            <Button
-              color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />}
-            // onClick={() => handleOpenFormEdit(values)}
-            />
-          </Tooltip>
           <Tooltip title="Delete">
             <Popconfirm
-              title={`Hapus paket ${values.name} ?`}
+              title={`Hapus paket ${values.paket} ?`}
               placement='bottomRight'
-              // onConfirm={() => handleDeleteSosmed(values)}
+              onConfirm={() => handleDeleteHotelRoom(values.key)}
               okText="Yes"
               cancelText="No"
             >
@@ -74,28 +93,27 @@ const HotelRooms = () => {
       ),
     },
   ];
-  const data = [
-    {
-      key: '1',
-      paket: 'Standard',
-      hotels: [{ id: 1, city: 'Madinah', name: 'California' }, { id: 2, city: 'Cairo', name: 'Messiah' }],
-      rooms: [{ id: 1, type: 'Single', name: '$2.000' }, { id: 1, type: 'Double', name: '$3.000' }, { id: 1, type: 'Triple', name: '$ 5.000' }],
-    },
-    {
-      key: '2',
-      paket: 'Uhud',
-      hotels: [{ id: 1, city: 'Madinah', name: 'California' }],
-      rooms: [{ id: 1, type: 'Single', name: '$2.000' }],
-    },
-  ];
+
+  const dataForTable = hotelRooms.map(item => ({
+    key: item.packageTypeId,
+    paket: item.packageTypeName,
+    hotels: item.hotels,
+    rooms: item.rooms
+  }))
+
   return (
     <>
       <Table
         pagination={false}
         columns={columns}
-        dataSource={data}
+        dataSource={dataForTable}
       />
-      <HotelRoomsForm onCloseForm={() => { }} open={true} />
+      <HotelRoomsForm
+        onCloseForm={handleCloseForm}
+        hotelRooms={hotelRooms}
+        onUpdateHotelRooms={handleUpdateHotelRooms}
+        open={openFormHotelRooms.open}
+      />
     </>
   )
 }

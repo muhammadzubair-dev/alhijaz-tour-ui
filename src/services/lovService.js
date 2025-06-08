@@ -20,3 +20,8 @@ export const apiFetchCityHotels = async (cityId) => {
   const response = await axiosInstance.get(`/lov/cities/${cityId}/hotels`);
   return response.data;
 };
+
+export const apiFetchPackageRooms = async (packageId) => {
+  const response = await axiosInstance.get(`/lov/package/${packageId}/rooms`);
+  return response.data;
+};
