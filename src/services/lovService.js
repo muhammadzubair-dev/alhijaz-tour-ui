@@ -25,3 +25,8 @@ export const apiFetchPackageRooms = async (packageId) => {
   const response = await axiosInstance.get(`/lov/package/${packageId}/rooms`);
   return response.data;
 };
+
+export const apiFetchJamaah = async () => {
+  const response = await axiosInstance.get(`/lov/jamaah`);
+  return response.data;
+};

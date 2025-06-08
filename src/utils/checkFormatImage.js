@@ -1,14 +1,18 @@
 import { message } from "antd";
 
 const checkFormatImage = (file) => {
-  const isValidType =
-    file.type === 'image/jpeg' ||
-    file.type === 'image/png' ||
-    file.type === 'image/jpg';
+  const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/jpg',
+    'application/pdf', // ✅ tambahkan PDF
+  ];
+
+  const isValidType = allowedTypes.includes(file.type);
   const isValidSize = file.size / 1024 / 1024 < 1; // 1MB
 
   if (!isValidType) {
-    message.error('File harus berupa gambar JPG, JPEG, atau PNG!');
+    message.error('File harus berupa JPG, JPEG, PNG, atau PDF!');
   }
   if (!isValidSize) {
     message.error('Ukuran file tidak boleh lebih dari 1MB!');
@@ -17,4 +21,4 @@ const checkFormatImage = (file) => {
   return isValidType && isValidSize;
 };
 
-export default checkFormatImage
+export default checkFormatImage;

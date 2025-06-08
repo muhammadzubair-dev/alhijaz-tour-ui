@@ -65,7 +65,7 @@ const HotelRooms = ({ hotelRooms, onUpdateHotelRoom, onDeleteHotelRoom }) => {
         <>
           {values.map(value => (
             <div key={value.roomId}>
-              {value.roomName}, <Typography.Text style={{ fontWeight: 700, color: 'green' }}>Rp{toRupiah(value.roomPrice)}</Typography.Text>,
+              {value.roomName} = <Typography.Text style={{ fontWeight: 700, color: 'green' }}>Rp{toRupiah(value.roomPrice)}</Typography.Text>
             </div>
           ))}
         </>

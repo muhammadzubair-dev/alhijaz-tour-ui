@@ -26,7 +26,8 @@ import getBase64 from '@/utils/getbase64';
 import checkFormatImage from '@/utils/checkFormatImage';
 import moment from 'moment';
 import { apiCreatePackage } from '@/services/masterService';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiFetchJamaah } from '@/services/lovService';
 
 const defaultValue = {
   transactionDate: null,
@@ -66,6 +67,12 @@ const Package = () => {
     mode: 'onChange',
     defaultValues: defaultValue,
   });
+  const { data: dataLovJamaah } = useQuery({
+    queryKey: ['lov-jamaah'],
+    queryFn: apiFetchJamaah,
+  });
+
+  const optionJamaah = dataLovJamaah?.data || [];
 
   const [hotelRooms, setHotelRooms] = useState([])
   const [previewImage, setPreviewImage] = useState('');
@@ -159,16 +166,18 @@ const Package = () => {
       maturityPassportDelivery: moment(data.maturityPassportDelivery.toDate()).format('YYYY-MM-DD'),
       maturityRepayment: moment(data.maturityRepayment.toDate()).format('YYYY-MM-DD'),
       // data yang kurang
-      id: 'JBU002',
+      // id: 'JBU002',
       name: 'Paket Tung Tung',
       ticket: 2,
       transactionDate: '2025-08-10',
-      tourLead: 'JAM001'
+      // tourLead: 'JAM001'
     }
     console.log(JSON.stringify(newData, null, 2))
     // message.success('Form berhasil disubmit!');
     createPackageMutation.mutate(newData)
   };
+
+  console.log('optionJamaah ===========>', optionJamaah)
 
   return (
     <Form
@@ -491,12 +500,7 @@ const Package = () => {
                     allowClear
                     placeholder="Pilih Tour Leader"
                     style={{ width: '100%' }} // ← penting
-                    options={[
-                      {
-                        value: 'Skibidi',
-                        label: 'Skibidi',
-                      },
-                    ]}
+                    options={optionJamaah.map((item) => ({ value: item.jamaahCode, label: item.jamaahName }))}
                   />
                 </div>
               )}
