@@ -1,5 +1,10 @@
 import { Label } from '@/components';
+import { apiFetchJamaah, apiFetchLovTickets } from '@/services/lovService';
+import { apiCreatePackage } from '@/services/masterService';
+import checkFormatImage from '@/utils/checkFormatImage';
+import getBase64 from '@/utils/getbase64';
 import { PlusOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   Button,
   Col,
@@ -14,22 +19,17 @@ import {
   Space,
   TimePicker,
   Typography,
-  Upload,
-  message,
+  Upload
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
+import moment from 'moment';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import HotelRooms from './HotelRooms';
 import styles from './index.module.css';
-import getBase64 from '@/utils/getbase64';
-import checkFormatImage from '@/utils/checkFormatImage';
-import moment from 'moment';
-import { apiCreatePackage } from '@/services/masterService';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { apiFetchJamaah } from '@/services/lovService';
 
 const defaultValue = {
+  name: null,
   transactionDate: null,
   seat: null,
   maturityPassportDelivery: null,
@@ -71,8 +71,13 @@ const Package = () => {
     queryKey: ['lov-jamaah'],
     queryFn: apiFetchJamaah,
   });
+  const { data: dataLovTickets } = useQuery({
+    queryKey: ['lov-tickets'],
+    queryFn: apiFetchLovTickets,
+  });
 
   const optionJamaah = dataLovJamaah?.data || [];
+  const optionTickets = dataLovTickets?.data || [];
 
   const [hotelRooms, setHotelRooms] = useState([])
   const [previewImage, setPreviewImage] = useState('');
@@ -152,11 +157,10 @@ const Package = () => {
   }
 
   const onSubmit = (data) => {
-    console.log('Form submitted:', data);
-    console.log('Form submitted2:', hotelRooms);
     const newData = {
       ...data,
       hotelRooms,
+      transactionDate: moment(data.transactionDate.toDate()).format('YYYY-MM-DD'),
       checkInMadinah: moment(data.checkInMadinah.toDate()).format('YYYY-MM-DD'),
       checkInMekkah: moment(data.checkInMekkah.toDate()).format('YYYY-MM-DD'),
       checkOutMadinah: moment(data.checkOutMadinah.toDate()).format('YYYY-MM-DD'),
@@ -165,19 +169,9 @@ const Package = () => {
       manasikDatetime: moment(data.manasikDatetime.toDate()).format('YYYY-MM-DD HH:mm:ss'),
       maturityPassportDelivery: moment(data.maturityPassportDelivery.toDate()).format('YYYY-MM-DD'),
       maturityRepayment: moment(data.maturityRepayment.toDate()).format('YYYY-MM-DD'),
-      // data yang kurang
-      // id: 'JBU002',
-      name: 'Paket Tung Tung',
-      ticket: 2,
-      transactionDate: '2025-08-10',
-      // tourLead: 'JAM001'
     }
-    console.log(JSON.stringify(newData, null, 2))
-    // message.success('Form berhasil disubmit!');
     createPackageMutation.mutate(newData)
   };
-
-  console.log('optionJamaah ===========>', optionJamaah)
 
   return (
     <Form
@@ -185,6 +179,93 @@ const Package = () => {
       onFinish={handleSubmit(onSubmit)}
     >
       <Row gutter={16} style={{ maxWidth: 1240 }}>
+
+        <Col lg={8}>
+          <Form.Item
+            required
+            label="Nama Paket"
+            validateStatus={errors.name ? 'error' : ''}
+            help={errors.name?.message}
+          >
+            <Controller
+              name="name"
+              control={control}
+              rules={{
+                required: 'Nama Paket tidak boleh kosong',
+                minLength: {
+                  value: 3,
+                  message: 'Nama Paket minimal 3 karakter'
+                },
+                maxLength: {
+                  value: 20,
+                  message: 'Nama Paket maksimal 20 karakter'
+                },
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  allowClear
+                  placeholder="Masukkan Nama Paket"
+                />
+              )}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col lg={8}>
+          <Form.Item
+            required
+            label="Tiket"
+            validateStatus={errors.ticket ? 'error' : ''}
+            help={errors.ticket?.message}
+          >
+            <Controller
+              name="ticket"
+              control={control}
+              rules={{
+                required: 'Ticket tidak boleh kosong',
+              }}
+              render={({ field }) => (
+                <div style={{ width: '100%' }}>
+                  <Select
+                    {...field}
+                    showSearch
+                    allowClear
+                    placeholder="Pilih Tiket"
+                    style={{ width: '100%' }} // ← penting
+                    options={optionTickets.map((item) => ({ value: item.id, label: item.bookingCode }))}
+                  />
+                </div>
+              )}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col md={8}>
+          <Form.Item
+            required
+            label={<Label text="Tanggal Transaksi" extraText="Jatuh Tempo" />}
+            validateStatus={errors.transactionDate ? 'error' : ''}
+            help={errors.transactionDate?.message}
+          >
+            <Controller
+              name="transactionDate"
+              control={control}
+              rules={{
+                required: 'Tanggal Transaksi wajib diisi',
+              }}
+              render={({ field }) => (
+                <DatePicker
+                  {...field}
+                  onChange={(date) => field.onChange(date)}
+                  style={{ width: '100%' }}
+                  placeholder="Pilih tanggal"
+                />
+              )}
+            />
+          </Form.Item>
+        </Col>
+
         <Col lg={24}>
 
           {/* Format file: JPG, JPEG, PNG. Maks. ukuran: 1MB */}

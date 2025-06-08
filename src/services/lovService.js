@@ -30,3 +30,8 @@ export const apiFetchJamaah = async () => {
   const response = await axiosInstance.get(`/lov/jamaah`);
   return response.data;
 };
+
+export const apiFetchLovTickets = async () => {
+  const response = await axiosInstance.get(`/lov/tickets`);
+  return response.data;
+};
