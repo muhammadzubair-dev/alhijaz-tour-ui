@@ -1,6 +1,6 @@
 import { Label, ResultSuccess } from '@/components';
 import { apiFetchJamaah, apiFetchLovTickets } from '@/services/lovService';
-import { apiCreatePackage } from '@/services/masterService';
+import { apiCreatePackage, apiFetchPackageDetail } from '@/services/masterService';
 import checkFormatImage from '@/utils/checkFormatImage';
 import getBase64 from '@/utils/getbase64';
 import { PlusOutlined } from '@ant-design/icons';
@@ -24,12 +24,13 @@ import {
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import HotelRooms from './components/HotelRooms';
 import styles from './index.module.css';
 import queryClient from '@/lib/queryClient';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 const defaultValue = {
   name: null,
@@ -58,13 +59,13 @@ const defaultValue = {
   departureInfo: []
 }
 
-const NewPackagePage = () => {
+const EditPackagePage = () => {
   const {
     control,
     handleSubmit,
     formState: { errors },
     setValue,
-    reset,
+    reset
   } = useForm({
     mode: 'onChange',
     defaultValues: defaultValue,
@@ -78,7 +79,12 @@ const NewPackagePage = () => {
     queryFn: apiFetchLovTickets,
   });
   const navigate = useNavigate()
-  
+  const { idPackage } = useParams();
+  const { data: dataPackageDetails } = useQuery({
+    queryKey: ['package-detail', idPackage],
+    queryFn: () => apiFetchPackageDetail(idPackage),
+  });
+
   const optionJamaah = dataLovJamaah?.data || [];
   const optionTickets = dataLovTickets?.data || [];
 
@@ -195,6 +201,58 @@ const NewPackagePage = () => {
     createPackageMutation.mutate(newData)
   };
 
+  const buildAntdFileFromUrl = (url, name) => {
+    if (!url) return [];
+    return [
+      {
+        uid: name,
+        name: name,
+        status: 'done',
+        url: url,
+      }
+    ];
+  };
+
+  useEffect(() => {
+    if (dataPackageDetails?.data) {
+      const {
+        hotelRooms,
+        maturityPassportDelivery,
+        maturityRepayment,
+        manasikDatetime,
+        gatheringTime,
+        checkInMadinah,
+        checkOutMadinah,
+        checkInMekkah,
+        checkOutMekkah,
+        isPromo,
+        itinerary,
+        brochure,
+        manasikInvitation,
+        departureInfo,
+        ...remainingValues
+      } = dataPackageDetails.data
+      reset({
+        ...defaultValue,
+        ...remainingValues,
+        maturityPassportDelivery: dayjs(maturityPassportDelivery),
+        maturityRepayment: dayjs(maturityRepayment),
+        manasikDatetime: dayjs(manasikDatetime),
+        gatheringTime: dayjs(gatheringTime),
+        checkInMadinah: dayjs(checkInMadinah),
+        checkOutMadinah: dayjs(checkOutMadinah),
+        checkInMekkah: dayjs(checkInMekkah),
+        checkOutMekkah: dayjs(checkOutMekkah),
+        isPromo: isPromo ? 'true' : 'false',
+        itinerary: buildAntdFileFromUrl(itinerary, itinerary.split('/').pop()),
+        brochure: buildAntdFileFromUrl(brochure, brochure.split('/').pop()),
+        manasikInvitation: buildAntdFileFromUrl(manasikInvitation, manasikInvitation.split('/').pop()),
+        departureInfo: buildAntdFileFromUrl(departureInfo, departureInfo.split('/').pop()),
+      });
+      setHotelRooms(hotelRooms)
+    }
+  }, [dataPackageDetails, reset]);
+
   return (
     <>
       <Form
@@ -265,8 +323,6 @@ const NewPackagePage = () => {
           </Col>
 
           <Col lg={24}>
-
-            {/* Format file: JPG, JPEG, PNG. Maks. ukuran: 1MB */}
             <Flex gap={16} align='flex-end'>
               {renderUploadField('brochure', 'Brosur')}
               {renderUploadField('itinerary', 'Itinerary')}
@@ -897,4 +953,4 @@ const NewPackagePage = () => {
   );
 };
 
-export default NewPackagePage;
+export default EditPackagePage;
