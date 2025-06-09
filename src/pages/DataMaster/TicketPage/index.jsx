@@ -1,7 +1,6 @@
 import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
-import { apiDeleteMasterBank } from '@/services/masterService';
-import { apiFetchTickets } from '@/services/ticketService';
+import { apiDeleteTicket, apiFetchTickets } from '@/services/ticketService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -12,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 
 const TicketPage = () => {
   const navigate = useNavigate()
-  const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
@@ -27,7 +25,6 @@ const TicketPage = () => {
     partnerName: '',
     status: '',
   })
-  const [selectedTicket, setSelectedTicket] = useState(null);
   const [api, contextHolder] = notification.useNotification();
   const { data: dataTickets, refetch: refetchTickets } = useQuery({
     queryKey: ['tickets', filterTickets.page, filterTickets.limit, filterTickets.sortBy, filterTickets.sortOrder],
@@ -35,27 +32,17 @@ const TicketPage = () => {
   });
 
   const deleteTicketMutation = useMutation({
-    mutationFn: (data) => apiDeleteMasterBank(data),
+    mutationFn: (data) => apiDeleteTicket(data),
     onSuccess: (data, variable) => {
       api.open({
-        message: 'Ticket Berhasil Dihapus',
-        description: `Ticket ${variable.name} telah berhasil dihapus dan tidak dapat lagi mengakses sistem.`,
+        message: 'Tiket Berhasil Dihapus',
+        description: `Tiket dengan kode booking "${variable.bookingCode}" telah berhasil dihapus dari sistem dan tidak dapat digunakan kembali.`,
         showProgress: true,
         pauseOnHover: true,
       });
       queryClient.invalidateQueries(['tickets'])
     }
   })
-
-  const handleCloseForm = () => {
-    setSelectedTicket(null)
-    setOpenForm(false)
-  }
-
-  const handleOpenFormEdit = (data) => {
-    setSelectedTicket(data)
-    setOpenForm(true)
-  }
 
   const handleOpenResult = (values) => {
     setOpenResult((prevState) => ({
@@ -93,8 +80,8 @@ const TicketPage = () => {
     refetchTickets(filterTickets)
   }
 
-  const handleDeleteTicket = ({ id, name }) => {
-    deleteTicketMutation.mutate({ id, name })
+  const handleDeleteTicket = ({ id, bookingCode }) => {
+    deleteTicketMutation.mutate({ id, bookingCode })
   }
 
   const columns = [
@@ -183,30 +170,37 @@ const TicketPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterTickets.sortBy, 'createdAt', filterTickets.sortOrder)
     },
-    // {
-    //   title: 'Action',
-    //   key: 'operation',
-    //   fixed: 'right',
-    //   width: 100,
-    //   render: (values) => (
-    //     <Space>
-    //       <Tooltip title="Edit">
-    //         <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-    //       </Tooltip>
-    //       <Tooltip title="Delete">
-    //         <Popconfirm
-    //           title={`Hapus ticket ${values.name} ?`}
-    //           placement='bottomRight'
-    //           onConfirm={() => handleDeleteTicket(values)}
-    //           okText="Yes"
-    //           cancelText="No"
-    //         >
-    //           <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-    //         </Popconfirm>
-    //       </Tooltip>
-    //     </Space>
-    //   ),
-    // },
+    {
+      title: 'Action',
+      key: 'operation',
+      fixed: 'right',
+      width: 100,
+      render: (values) => (
+        <Space>
+          <Tooltip title="Edit">
+            <Button
+              color='blue'
+              variant='text'
+              shape="circle"
+              size='small'
+              icon={<EditOutlined />}
+              onClick={() => navigate(`/data-master/ticket/${values.id}`)}
+            />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Popconfirm
+              title={`Hapus ticket ${values.bookingCode} ?`}
+              placement='bottomRight'
+              onConfirm={() => handleDeleteTicket(values)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip>
+        </Space>
+      ),
+    },
   ];
 
   return (

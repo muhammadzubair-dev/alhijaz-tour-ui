@@ -1,16 +1,16 @@
 import { Label, ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
 import { apiFetchLovPartners } from '@/services/lovService';
-import { apiCreateTicket, apiFetchDetailTicket } from '@/services/ticketService';
+import { apiFetchDetailTicket, apiUpdateTicket } from '@/services/ticketService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Card, Col, DatePicker, Empty, Flex, Form, Input, InputNumber, Row, Select, Space } from 'antd';
+import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FaPlus } from 'react-icons/fa6';
 import { useNavigate, useParams } from 'react-router-dom';
 import FlightForm from './components/FlightForm';
 import FlightItem from './components/FlightItem';
-import dayjs from 'dayjs';
 
 const defaultValues = {
   transactionDate: null,
@@ -51,16 +51,16 @@ const EditTicketPage = () => {
     queryKey: ['lov-partners'],
     queryFn: apiFetchLovPartners,
   });
-  const createTicketMutation = useMutation({
-    mutationFn: apiCreateTicket,
+  const updateTicketMutation = useMutation({
+    mutationFn: (data) => apiUpdateTicket(idTicket, data),
     onSuccess: (data, variable) => {
       reset();
       setFlight([])
       queryClient.invalidateQueries(['tickets']);
       setOpenResult({
         open: true,
-        title: 'Ticket Berhasil Ditambahkan',
-        subtitle: `Ticket baru dengan kode booking "${variable.bookingCode}" telah berhasil ditambahkan ke sistem.`,
+        title: 'Ticket Berhasil Diubah',
+        subtitle: `Tiket dengan kode booking "${variable.bookingCode}" telah berhasil diperbarui di dalam sistem.`,
       });
     },
   });
@@ -97,23 +97,12 @@ const EditTicketPage = () => {
   }
 
   const onSubmit = (values) => {
+    const { id: _, ...valuesWithoutId } = values
     const newData = {
-      ...values,
+      ...valuesWithoutId,
       flight
     }
-    createTicketMutation.mutate(newData)
-    console.log(JSON.stringify(newData, null, 2))
-    // const payload = {
-    //   ...values,
-    //   isActive: values?.isActive === 'true',
-    //   ...(data?.id && { id: data.id }), // tambah id hanya jika ada
-    // };
-
-    // if (data) {
-    //   editBankMutation.mutate(payload);
-    // } else {
-    //   createBankMutation.mutate(payload);
-    // }
+    updateTicketMutation.mutate(newData)
   };
 
   const onError = (formErrors) => {
@@ -162,7 +151,7 @@ const EditTicketPage = () => {
                     <DatePicker
                       {...field}
                       placeholder="Pilih Tanggal"
-                      style={{ width: '100%' }} // ← penting
+                      style={{ width: '100%' }}
                     />
                   </div>
                 )}
@@ -189,7 +178,7 @@ const EditTicketPage = () => {
                       showSearch
                       allowClear
                       placeholder="Pilih Supplier"
-                      style={{ width: '100%' }} // ← penting
+                      style={{ width: '100%' }}
                       options={optionPartners.map(item => ({
                         value: item.id,
                         label: item.name
@@ -256,7 +245,6 @@ const EditTicketPage = () => {
                   <div style={{ width: '100%' }}>
                     <InputNumber
                       {...field}
-                      // allowClear
                       suffix="Hari"
                       placeholder="Masukkan Jumlah Hari"
                       style={{ width: '100%' }}
@@ -297,7 +285,6 @@ const EditTicketPage = () => {
                   <div style={{ width: '100%' }}>
                     <InputNumber
                       {...field}
-                      // allowClear
                       suffix="Pax"
                       placeholder="Masukkan Total Seat"
                       style={{ width: '100%' }}
@@ -318,7 +305,6 @@ const EditTicketPage = () => {
           </Col>
           <Col lg={6}>
             <Form.Item
-              // required
               label={<Label text="Materialisasi" extraText="Pax" />}
               validateStatus={errors.materialisasi ? 'error' : ''}
               help={errors.materialisasi?.message}
@@ -327,7 +313,6 @@ const EditTicketPage = () => {
                 name="materialisasi"
                 control={control}
                 rules={{
-                  // required: 'Materialisasi tidak boleh kosong',
                   min: {
                     value: 1,
                     message: 'Minimal 1 Seat'
@@ -342,7 +327,6 @@ const EditTicketPage = () => {
                     <InputNumber
                       {...field}
                       disabled
-                      // allowClear
                       suffix="Pax"
                       placeholder="Masukkan Jumlah Materialisasi"
                       style={{ width: '100%' }}
@@ -363,7 +347,6 @@ const EditTicketPage = () => {
           </Col>
           <Col lg={6}>
             <Form.Item
-              // required
               label={<Label text="Cancel" extraText="Pax" />}
               validateStatus={errors.cancel ? 'error' : ''}
               help={errors.cancel?.message}
@@ -372,7 +355,6 @@ const EditTicketPage = () => {
                 name="cancel"
                 control={control}
                 rules={{
-                  // required: 'Cancel tidak boleh kosong',
                   min: {
                     value: 1,
                     message: 'Minimal 1 Pax'
@@ -387,7 +369,6 @@ const EditTicketPage = () => {
                     <InputNumber
                       {...field}
                       disabled
-                      // allowClear
                       suffix="Pax"
                       placeholder="Masukkan Jumlah Cancel"
                       style={{ width: '100%' }}

@@ -16,3 +16,13 @@ export const apiFetchDetailTicket = async (id) => {
   const response = await axiosInstance.get(`/tickets/${id}`);
   return response.data;
 };
+
+export const apiUpdateTicket = async (id, payload) => {
+  const response = await axiosInstance.put(`/tickets/${id}`, cleanObject(payload));
+  return response.data;
+};
+
+export const apiDeleteTicket = async ({ id }) => {
+  const response = await axiosInstance.delete(`/tickets/${id}`);
+  return response.data;
+};
