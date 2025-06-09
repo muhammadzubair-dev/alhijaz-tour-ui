@@ -1,4 +1,5 @@
 import queryClient from '@/lib/queryClient';
+import { apiFetchLovAgents, apiFetchLovBanks, apiFetchLovUserAgent } from '@/services/lovService';
 import { apiEditMasterBank, apiFetchMasterBanks } from '@/services/masterService';
 import { apiCreateAgent, apiFetchUsers } from '@/services/userService';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -32,23 +33,33 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
   });
 
   const { data: dataUsers } = useQuery({
-    queryKey: ['users', '1000'],
-    queryFn: () => apiFetchUsers({ limit: 1000 }),
+    queryKey: ['lov-users-agent'],
+    queryFn: apiFetchLovUserAgent,
   });
 
   const { data: dataBanks } = useQuery({
-    queryKey: ['banks', '1000'],
-    queryFn: () => apiFetchMasterBanks({ limit: 1000 }),
+    queryKey: ['lov-banks'],
+    queryFn: apiFetchLovBanks,
   });
 
-  const optionUser = dataUsers?.data?.map((user) => ({
+  const { data: dataAgents } = useQuery({
+    queryKey: ['lov-agents'],
+    queryFn: apiFetchLovAgents,
+  });
+
+  const optionUser = (dataUsers?.data || [])?.map((user) => ({
     value: user.id,
     label: user.name
   }))
 
-  const optionBank = dataBanks?.data?.map((bank) => ({
+  const optionBank = (dataBanks?.data || [])?.map((bank) => ({
     value: bank.id,
     label: bank.name
+  }))
+
+  const optionAgent = (dataAgents?.data || [])?.map((agent) => ({
+    value: agent.id,
+    label: agent.name
   }))
 
   const createAgentMutation = useMutation({
@@ -301,7 +312,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
           <Controller
             name="coordinatorId"
             control={control}
-            render={({ field }) => <Select {...field} placeholder="Pilih Koordinator" showSearch allowClear optionFilterProp="label" options={optionUser} />}
+            render={({ field }) => <Select {...field} placeholder="Pilih Koordinator" showSearch allowClear optionFilterProp="label" options={optionAgent} />}
           />
         </Form.Item>
 
@@ -313,7 +324,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
           <Controller
             name="leadId"
             control={control}
-            render={({ field }) => <Select {...field} placeholder="Pilih Lead Koordinator" showSearch allowClear optionFilterProp="label" options={optionUser} />}
+            render={({ field }) => <Select {...field} placeholder="Pilih Lead Koordinator" showSearch allowClear optionFilterProp="label" options={optionAgent} />}
           />
         </Form.Item>
 

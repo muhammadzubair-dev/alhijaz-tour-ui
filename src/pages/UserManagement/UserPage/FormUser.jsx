@@ -23,13 +23,15 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
   const createUserMutation = useMutation({
     mutationFn: apiCreateUser,
     onSuccess: (data, variable) => {
+      console.log(data)
       reset();
       onCloseForm();
       queryClient.invalidateQueries(['users']);
       onOpenResult({
-        open: true,
+        extra: data.data.password,
         title: 'User Berhasil Ditambahkan',
-        subtitle: `User baru dengan username "${variable.username}" telah berhasil ditambahkan ke sistem.`,
+        subtitle: `Pengguna baru dengan username "${variable.username}" telah berhasil ditambahkan ke sistem. Berikut adalah kata sandi sementara yang dapat digunakan untuk login.`,
+        open: true,
       });
     },
   });
@@ -52,9 +54,9 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
 
   const onSubmit = (values) => {
     if (data) {
-      editUserMutation.mutate({ ...values, id: data.id })
+      editUserMutation.mutate({ id: data.id, name: values.name, username: values.username })
     } else {
-      createUserMutation.mutate(values)
+      createUserMutation.mutate({ name: values.name, username: values.username })
     }
 
   };
@@ -143,7 +145,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
           />
         </Form.Item>
 
-        <Form.Item
+        {/* <Form.Item
           label="Tipe"
           required
           validateStatus={errors.type ? 'error' : ''}
@@ -157,7 +159,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
             }}
             render={({ field }) => <Radio.Group {...field} options={[{ value: '0', label: "Staff" }, { value: '1', label: "Agent" }]} />}
           />
-        </Form.Item>
+        </Form.Item> */}
 
         <Flex gap={16} justify='flex-end'>
           <Button color="default" variant="filled" onClick={onCloseForm} loading={isLoading}>

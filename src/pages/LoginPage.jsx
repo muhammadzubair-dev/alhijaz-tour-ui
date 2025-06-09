@@ -35,7 +35,7 @@ const LoginPage = () => {
   const loginUserMutation = useMutation({
     mutationFn: apiUserLogin,
     onSuccess: (response) => {
-      loginSuccess({}, response.data.token)
+      loginSuccess(response.data.token)
       refetchUser();
     },
   });

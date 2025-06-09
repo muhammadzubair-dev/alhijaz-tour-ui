@@ -24,7 +24,7 @@ axiosInstance.interceptors.response.use(
   (response) => response, // Semua status 2xx akan lewat sini
   (error) => {
     const { setError } = useGlobalErrorStore.getState();
-    const { logoutUser } = useAuthStore.getState(); // Contoh untuk 401
+    const { logout } = useAuthStore.getState(); // Contoh untuk 401
 
     if (error.response) {
       const status = error.response.status;
@@ -35,7 +35,7 @@ axiosInstance.interceptors.response.use(
 
       if (status === 401) {
         // Penanganan khusus 401 (Unauthorized)
-        logoutUser(); // Logout pengguna
+        logout(); // Logout pengguna
         // setError({ // Bisa juga tampilkan pesan custom sebelum redirect
         //   status: 401,
         //   title: 'Sesi Berakhir',

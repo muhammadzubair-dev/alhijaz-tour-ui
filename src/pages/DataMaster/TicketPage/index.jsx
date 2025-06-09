@@ -243,7 +243,7 @@ const TicketPage = () => {
         size='middle'
         columns={columns}
         dataSource={dataTickets?.data}
-        scroll={{ x: 1500, y: `calc(100vh - 390px)` }}
+        scroll={{ x: 1500, y: `calc(100vh - 400px)` }}
         sticky={{ offsetHeader: 64 }}
         onChange={handleTableChange}
         pagination={{

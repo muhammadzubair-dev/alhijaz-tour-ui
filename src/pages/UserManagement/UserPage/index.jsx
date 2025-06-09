@@ -2,7 +2,7 @@ import { apiDeactivateUser, apiFetchUsers } from '@/services/userService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
+import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tag, Tooltip, Typography } from 'antd';
 import moment from 'moment';
 import { useState } from 'react';
 import FormUser from './FormUser';
@@ -14,7 +14,8 @@ const UserPage = () => {
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
-    subtitle: ''
+    subtitle: '',
+    extra: ''
   })
   const [filterUsers, setFilterUsers] = useState({
     page: 1,
@@ -134,7 +135,7 @@ const UserPage = () => {
       dataIndex: 'type',
       key: 'type',
       width: 100,
-      render: (value) => value === '1' ? 'Agent' : 'Staff'
+      render: (value) => value === '1' ? 'Agent' : value === '0' ? 'Staff' : '-'
     },
     {
       title: 'Banned',
@@ -244,7 +245,7 @@ const UserPage = () => {
         size='middle'
         columns={columns}
         dataSource={dataUsers?.data}
-        scroll={{ x: 1500, y: `calc(100vh - 390px)` }}
+        scroll={{ x: 1500, y: `calc(100vh - 400px)` }}
         sticky={{ offsetHeader: 64 }}
         onChange={handleTableChange}
         pagination={{
@@ -256,7 +257,15 @@ const UserPage = () => {
         }}
       />
       <FormUser open={openForm} data={selectedUser} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
-      <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
+      <ResultSuccess
+        open={openResult}
+        onOpenResult={handleOpenResult}
+        extra={(
+          <Tag color="blue">
+            <Typography.Paragraph style={{ margin: 8 }} copyable>{openResult.extra}</Typography.Paragraph>
+          </Tag>
+        )}
+      />
     </div>
   );
 };

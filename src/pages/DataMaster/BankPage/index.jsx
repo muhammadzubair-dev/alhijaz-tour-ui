@@ -211,7 +211,7 @@ const BankPage = () => {
         size='middle'
         columns={columns}
         dataSource={dataBanks?.data}
-        scroll={{ x: 1500, y: `calc(100vh - 390px)` }}
+        scroll={{ x: 1500, y: `calc(100vh - 400px)` }}
         sticky={{ offsetHeader: 64 }}
         onChange={handleTableChange}
         pagination={{

@@ -134,8 +134,6 @@ const AgentPage = () => {
       width: 150,
       dataIndex: 'identityType',
       key: 'identityType',
-      sorter: true,
-      sortOrder: getSortOrder(filterAgents.sortBy, 'identityType', filterAgents.sortOrder),
       render: (value) => value === '0' ? 'KTP' : '-'
     },
     {
@@ -170,7 +168,8 @@ const AgentPage = () => {
       key: 'updatedBy',
       width: 120,
       sorter: true,
-      sortOrder: getSortOrder(filterAgents.sortBy, 'updatedBy', filterAgents.sortOrder)
+      sortOrder: getSortOrder(filterAgents.sortBy, 'updatedBy', filterAgents.sortOrder),
+      render: (value) => value || '-'
     },
     {
       title: 'Created By',
@@ -185,7 +184,7 @@ const AgentPage = () => {
       width: 150,
       dataIndex: 'updatedAt',
       key: 'updatedAt',
-      render: (value) => moment(value).format('YYYY-MM-DD HH:mm'),
+      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
       sorter: true,
       sortOrder: getSortOrder(filterAgents.sortBy, 'updatedAt', filterAgents.sortOrder)
     },
@@ -253,7 +252,7 @@ const AgentPage = () => {
         size='middle'
         columns={columns}
         dataSource={dataAgents?.data}
-        scroll={{ x: 1500, y: `calc(100vh - 390px)` }}
+        scroll={{ x: 1500, y: `calc(100vh - 400px)` }}
         sticky={{ offsetHeader: 64 }}
         onChange={handleTableChange}
         pagination={{

@@ -1,37 +1,32 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 
-const useAuthStore = create()(
+const useAuthStore = create(
   persist(
     (set) => ({
-      user: null,
       token: null,
       isAuthenticated: false,
+      user: null,
 
-      loginSuccess: (userData, authToken) => {
-        set({
-          user: userData,
-          token: authToken,
-          isAuthenticated: true,
-        });
+      loginSuccess: (token) => {
+        set({ token, isAuthenticated: false });
       },
 
-      logoutUser: () => {
-        set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-        });
+      setUserProfile: (profile) => {
+        set({ user: profile, isAuthenticated: true });
       },
 
-      setUserProfile: (profileData) =>
-        set((state) => ({
-          user: state.user ? { ...state.user, ...profileData } : null,
-        })),
+      logout: () => {
+        set({ token: null, user: null, isAuthenticated: false });
+      },
     }),
     {
-      name: 'auth-storage-ts',
-      storage: createJSONStorage(() => localStorage),
+      name: 'auth-storage', // nama key di localStorage
+      partialize: (state) => ({
+        token: state.token,
+        user: state.user,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );

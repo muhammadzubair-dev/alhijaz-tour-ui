@@ -50,3 +50,18 @@ export const apiFetchLovPartners = async () => {
   const response = await axiosInstance.get(`/lov/partners`);
   return response.data;
 };
+
+export const apiFetchLovUserAgent = async () => {
+  const response = await axiosInstance.get(`/lov/user-agent`);
+  return response.data;
+};
+
+export const apiFetchLovBanks = async () => {
+  const response = await axiosInstance.get(`/lov/banks`);
+  return response.data;
+};
+
+export const apiFetchLovAgents = async () => {
+  const response = await axiosInstance.get(`/lov/agents`);
+  return response.data;
+};
