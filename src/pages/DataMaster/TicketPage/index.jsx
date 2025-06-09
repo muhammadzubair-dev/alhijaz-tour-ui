@@ -154,7 +154,8 @@ const TicketPage = () => {
       key: 'updatedBy',
       width: 100,
       sorter: true,
-      sortOrder: getSortOrder(filterTickets.sortBy, 'updatedBy', filterTickets.sortOrder)
+      sortOrder: getSortOrder(filterTickets.sortBy, 'updatedBy', filterTickets.sortOrder),
+      render: (value) => value || '-'
     },
     {
       title: 'Created By',
@@ -169,7 +170,7 @@ const TicketPage = () => {
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       width: 100,
-      render: (value) => moment(value).format('YYYY-MM-DD HH:mm'),
+      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
       sorter: true,
       sortOrder: getSortOrder(filterTickets.sortBy, 'updatedAt', filterTickets.sortOrder)
     },
@@ -182,30 +183,30 @@ const TicketPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterTickets.sortBy, 'createdAt', filterTickets.sortOrder)
     },
-    {
-      title: 'Action',
-      key: 'operation',
-      fixed: 'right',
-      width: 100,
-      render: (values) => (
-        <Space>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus ticket ${values.name} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeleteTicket(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
-      ),
-    },
+    // {
+    //   title: 'Action',
+    //   key: 'operation',
+    //   fixed: 'right',
+    //   width: 100,
+    //   render: (values) => (
+    //     <Space>
+    //       <Tooltip title="Edit">
+    //         <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+    //       </Tooltip>
+    //       <Tooltip title="Delete">
+    //         <Popconfirm
+    //           title={`Hapus ticket ${values.name} ?`}
+    //           placement='bottomRight'
+    //           onConfirm={() => handleDeleteTicket(values)}
+    //           okText="Yes"
+    //           cancelText="No"
+    //         >
+    //           <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+    //         </Popconfirm>
+    //       </Tooltip>
+    //     </Space>
+    //   ),
+    // },
   ];
 
   return (

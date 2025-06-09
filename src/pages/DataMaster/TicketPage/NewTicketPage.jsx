@@ -1,8 +1,13 @@
-import { Label } from '@/components';
-import { PlusCircleFilled } from '@ant-design/icons';
+import { Label, ResultSuccess } from '@/components';
+import queryClient from '@/lib/queryClient';
+import { apiFetchLovPartners } from '@/services/lovService';
+import { apiCreateTicket } from '@/services/ticketService';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Card, Col, DatePicker, Empty, Flex, Form, Input, InputNumber, Row, Select, Space } from 'antd';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { FaPlus } from 'react-icons/fa6';
+import { useNavigate } from 'react-router-dom';
 import FlightForm from './components/FlightForm';
 import FlightItem from './components/FlightItem';
 
@@ -15,11 +20,17 @@ const defaultValues = {
 }
 
 const NewTicketPage = () => {
+  const navigate = useNavigate()
   const [flight, setFlight] = useState([])
   const [flightForm, setFlightForm] = useState({
     open: false,
     type: '',
     flight: null
+  })
+  const [openResult, setOpenResult] = useState({
+    open: false,
+    title: '',
+    subtitle: ''
   })
   const {
     control,
@@ -30,6 +41,25 @@ const NewTicketPage = () => {
     mode: 'onChange',
     defaultValues
   });
+  const { data: dataLovPartners } = useQuery({
+    queryKey: ['lov-partners'],
+    queryFn: apiFetchLovPartners,
+  });
+  const createTicketMutation = useMutation({
+    mutationFn: apiCreateTicket,
+    onSuccess: (data, variable) => {
+      reset();
+      setFlight([])
+      queryClient.invalidateQueries(['tickets']);
+      setOpenResult({
+        open: true,
+        title: 'Ticket Berhasil Ditambahkan',
+        subtitle: `Ticket baru dengan kode booking "${variable.bookingCode}" telah berhasil ditambahkan ke sistem.`,
+      });
+    },
+  });
+
+  const optionPartners = dataLovPartners?.data || [];
 
   const handleOpenFormFlight = (type, flight = null) => {
     setFlightForm({
@@ -53,8 +83,20 @@ const NewTicketPage = () => {
     ]))
   }
 
+  const handleOpenResult = (values) => {
+    setOpenResult((prevState) => ({
+      ...prevState,
+      ...values
+    }))
+  }
+
   const onSubmit = (values) => {
-    console.log('values: ========> ', values)
+    const newData = {
+      ...values,
+      flight
+    }
+    createTicketMutation.mutate(newData)
+    console.log(JSON.stringify(newData, null, 2))
     // const payload = {
     //   ...values,
     //   isActive: values?.isActive === 'true',
@@ -72,8 +114,6 @@ const NewTicketPage = () => {
     console.log('Error Form:', formErrors);
     // Anda bisa melakukan sesuatu dengan error form di sini jika perlu
   };
-
-  console.log('flight ============> ', flight)
 
   return (
     <div>
@@ -128,20 +168,10 @@ const NewTicketPage = () => {
                       allowClear
                       placeholder="Pilih Supplier"
                       style={{ width: '100%' }} // ← penting
-                      options={[
-                        {
-                          value: 'jack',
-                          label: 'Jack',
-                        },
-                        {
-                          value: 'lucy',
-                          label: 'Lucy',
-                        },
-                        {
-                          value: 'tom',
-                          label: 'Tom',
-                        },
-                      ]}
+                      options={optionPartners.map(item => ({
+                        value: item.id,
+                        label: item.name
+                      }))}
                     />
                   </div>
                 )}
@@ -359,10 +389,10 @@ const NewTicketPage = () => {
           title="Penerbangan"
           extra={
             <Space>
-              <Button color="primary" variant="outlined" icon={<PlusCircleFilled />} onClick={() => handleOpenFormFlight('Departure')}>
+              <Button color="primary" variant="outlined" icon={<FaPlus />} onClick={() => handleOpenFormFlight('Departure')}>
                 Departure
               </Button>
-              <Button color="primary" variant="outlined" icon={<PlusCircleFilled />} onClick={() => handleOpenFormFlight('Return')}>
+              <Button color="primary" variant="outlined" icon={<FaPlus />} onClick={() => handleOpenFormFlight('Return')}>
                 Return
               </Button>
             </Space>}>
@@ -375,7 +405,7 @@ const NewTicketPage = () => {
             ) : (
               flight.map((item) => (
                 <div onClick={() => handleOpenFormFlight('Departure', item)}>
-                  <FlightItem key={item.id} data={item} />
+                  <FlightItem key={item.id} data={item} isArrival={item.type === 1} />
                 </div>
               ))
             )}
@@ -393,6 +423,15 @@ const NewTicketPage = () => {
         data={flightForm.flight}
         onClose={handleCloseFormFlight}
         onSaveFlight={handleSaveFlight}
+      />
+      <ResultSuccess
+        open={openResult}
+        onOpenResult={handleOpenResult}
+        extra={
+          <Button type="primary" key="console" onClick={() => navigate('/data-master/ticket')}>
+            List Ticket
+          </Button>
+        }
       />
     </div >
   )

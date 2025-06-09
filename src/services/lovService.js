@@ -35,3 +35,18 @@ export const apiFetchLovTickets = async () => {
   const response = await axiosInstance.get(`/lov/tickets`);
   return response.data;
 };
+
+export const apiFetchLovAirports = async () => {
+  const response = await axiosInstance.get(`/lov/airports`);
+  return response.data;
+};
+
+export const apiFetchLovAirlines = async () => {
+  const response = await axiosInstance.get(`/lov/airlines`);
+  return response.data;
+};
+
+export const apiFetchLovPartners = async () => {
+  const response = await axiosInstance.get(`/lov/partners`);
+  return response.data;
+};

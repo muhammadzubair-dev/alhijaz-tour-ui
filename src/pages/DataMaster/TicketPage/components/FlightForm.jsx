@@ -1,3 +1,5 @@
+import { apiFetchLovAirlines, apiFetchLovAirports } from '@/services/lovService';
+import { useQuery } from '@tanstack/react-query';
 import { Button, DatePicker, Flex, Form, Input, message, Modal, Popconfirm, Select, Space, theme, TimePicker } from 'antd';
 import moment from 'moment';
 import { useEffect } from 'react';
@@ -24,6 +26,17 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
     mode: 'onChange',
     defaultValues
   });
+  const { data: dataLovAirlines } = useQuery({
+    queryKey: ['lov-airlines'],
+    queryFn: apiFetchLovAirlines,
+  });
+  const { data: dataLovAirports } = useQuery({
+    queryKey: ['lov-airports'],
+    queryFn: apiFetchLovAirports,
+  });
+
+  const optionAirlines = dataLovAirlines?.data || [];
+  const optionAirports = dataLovAirports?.data || [];
 
   const handleClose = () => {
     onClose();
@@ -34,26 +47,18 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
     const formatted = {
       ...values,
       ...(data?.id ? { id: data.id } : { id: Date.now() }),
+      type: type === 'Departure' ? 0 : 1,
+      ticketAirlineName: optionAirlines.find(item => item.id === values.ticketAirline)?.name,
+      ticketFromName: optionAirports.find(item => item.code === values.ticketFrom)?.name,
+      ticketToName: optionAirports.find(item => item.code === values.ticketTo)?.name,
       ticketDate: values.ticketDate ? moment(values.ticketDate.toDate()).format('YYYY-MM-DD') : null,
       ticketEtd: values.ticketEtd ? moment(values.ticketEtd.toDate()).format('HH:mm') : null,
       ticketEta: values.ticketEta ? moment(values.ticketEta.toDate()).format('HH:mm') : null,
     };
-
+    console.log('values ====> ', formatted)
     reset()
     onSaveFlight(formatted)
     message.success('Berhasil menambahkan data Departure baru')
-    // console.log('values =>', formatted);
-    // const payload = {
-    //   ...values,
-    //   isActive: values?.isActive === 'true',
-    //   ...(data?.id && { id: data.id }), // tambah id hanya jika ada
-    // };
-
-    // if (data) {
-    //   editBankMutation.mutate(payload);
-    // } else {
-    //   createBankMutation.mutate(payload);
-    // }
   };
 
   const onError = (formErrors) => {
@@ -134,20 +139,10 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
                   allowClear
                   placeholder="Pilih Airlines"
                   style={{ width: '100%' }}
-                  options={[
-                    {
-                      value: 'Garuda Indonesia',
-                      label: 'Garuda Indonesia',
-                    },
-                    {
-                      value: 'Lion Air',
-                      label: 'Lion Air',
-                    },
-                    {
-                      value: 'Sriwijaya',
-                      label: 'Sriwijaya',
-                    },
-                  ]}
+                  options={optionAirlines.map(item => ({
+                    value: item.id,
+                    label: item.name
+                  }))}
                 />
               </div>
             )}
@@ -210,23 +205,11 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
                     allowClear
                     placeholder="Pilih Bandara"
                     style={{ width: '100%' }} // ← penting
-                    options={[
-                      {
-                        value: 'CGK',
-                        label: 'CGK',
-                        description: 'Soekarno Hatta'
-                      },
-                      {
-                        value: 'PDG',
-                        label: 'PDG',
-                        description: 'Padang Pariaman'
-                      },
-                      {
-                        value: 'HKG',
-                        label: 'HKG',
-                        description: 'Hongkong Airport'
-                      },
-                    ]}
+                    options={optionAirports.map(item => ({
+                      value: item.code,
+                      label: item.code,
+                      description: item.name
+                    }))}
                     optionRender={(option) => (
                       <div>
                         <div>{option.data.label}</div>
@@ -283,23 +266,11 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
                     allowClear
                     placeholder="Pilih Bandara"
                     style={{ width: '100%' }} // ← penting
-                    options={[
-                      {
-                        value: 'CGK',
-                        label: 'CGK',
-                        description: 'Soekarno Hatta'
-                      },
-                      {
-                        value: 'PDG',
-                        label: 'PDG',
-                        description: 'Padang Pariaman'
-                      },
-                      {
-                        value: 'HKG',
-                        label: 'HKG',
-                        description: 'Hongkong Airport'
-                      },
-                    ]}
+                    options={optionAirports.map(item => ({
+                      value: item.code,
+                      label: item.code,
+                      description: item.name
+                    }))}
                     optionRender={(option) => (
                       <div>
                         <div>{option.data.label}</div>

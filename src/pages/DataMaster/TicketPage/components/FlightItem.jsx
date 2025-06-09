@@ -22,28 +22,28 @@ const FlightItem = ({ isArrival = false, data }) => {
       }}
     >
       <Flex gap={24}>
-        <div style={{ padding: '8px 40px' }}>
+        <div style={{ padding: '8px 40px', width: 250, borderRight: `3px dashed ${token.colorWarningBorder}` }}>
           <Space>
             {isArrival ? <FaPlaneArrival /> : <FaPlaneDeparture />}
             <Typography.Text type='secondary' style={{ fontSize: 12, fontWeight: 600 }}>{isArrival ? 'Return' : 'Departure'}</Typography.Text>
           </Space>
-          <Typography.Title level={5} style={{ margin: 0, fontWeight: 800 }}>{data?.ticketAirline}</Typography.Title>
+          <Typography.Title level={5} style={{ margin: 0, fontWeight: 800 }}>{data?.ticketAirlineName}</Typography.Title>
           <Typography.Text type='secondary' style={{ fontSize: 10 }}>Flight No. </Typography.Text>
           <Typography.Text style={{ fontSize: 14 }}>{data?.flightNo}</Typography.Text>
         </div>
         <Flex justify='space-evenly' align='center' flex={1} style={{ padding: 8 }}>
           <Typography.Paragraph>{data?.ticketDate}</Typography.Paragraph>
           <Flex justify='center' align='center' gap={30}>
-            <div style={{ flex: 1 }}>
-              <Typography.Text>{data?.ticketFrom}</Typography.Text>
-              <Typography.Title level={5} style={{ margin: 0 }}>{data?.ticketEtd}</Typography.Title>
-              <Typography.Text type='secondary' style={{ fontSize: 10 }}>Cengkareng Jakarta</Typography.Text>
+            <div style={{ width: 150 }}>
+              <Typography.Text>{data?.ticketFrom}</Typography.Text> /{' '}
+              <Typography.Text type='secondary' style={{ fontSize: 12, marginTop: 0 }}>{data?.ticketFromName}</Typography.Text>
+              <Typography.Title level={5} style={{ margin: 0 }}><span>(ETD)</span> {data?.ticketEtd}</Typography.Title>
             </div>
             <FaPlane color={token.colorPrimary} />
-            <div style={{ flex: 1 }}>
-              <Typography.Text>{data?.ticketTo}</Typography.Text>
-              <Typography.Title level={5} style={{ margin: 0 }}>{data?.ticketEta}</Typography.Title>
-              <Typography.Text type='secondary' style={{ fontSize: 10 }}>Cengkareng Jakarta</Typography.Text>
+            <div style={{ width: 200 }}>
+              <Typography.Text>{data?.ticketTo}</Typography.Text>  /{' '}
+              <Typography.Text type='secondary' style={{ fontSize: 12, marginTop: 0 }}>{data?.ticketToName}</Typography.Text>
+              <Typography.Title level={5} style={{ margin: 0 }}><span>(ETA)</span> {data?.ticketEta}</Typography.Title>
             </div>
           </Flex>
         </Flex>
