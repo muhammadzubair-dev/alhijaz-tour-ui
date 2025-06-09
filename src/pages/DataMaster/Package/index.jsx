@@ -183,30 +183,37 @@ const PackagePage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterPackages.sortBy, 'createdAt', filterPackages.sortOrder)
     },
-    // {
-    //   title: 'Action',
-    //   key: 'operation',
-    //   fixed: 'right',
-    //   width: 100,
-    //   render: (values) => (
-    //     <Space>
-    //       <Tooltip title="Edit">
-    //         <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-    //       </Tooltip>
-    //       <Tooltip title="Delete">
-    //         <Popconfirm
-    //           title={`Hapus package ${values.name} ?`}
-    //           placement='bottomRight'
-    //           onConfirm={() => handleDeletePackage(values)}
-    //           okText="Yes"
-    //           cancelText="No"
-    //         >
-    //           <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-    //         </Popconfirm>
-    //       </Tooltip>
-    //     </Space>
-    //   ),
-    // },
+    {
+      title: 'Action',
+      key: 'operation',
+      fixed: 'right',
+      width: 100,
+      render: (values) => (
+        <Space>
+          <Tooltip title="Edit">
+            <Button
+              color='blue'
+              variant='text'
+              shape="circle"
+              size='small'
+              icon={<EditOutlined />}
+              onClick={() => navigate(`/data-master/package/${values.id}`)}
+            />
+          </Tooltip>
+          {/* <Tooltip title="Delete">
+            <Popconfirm
+              title={`Hapus package ${values.name} ?`}
+              placement='bottomRight'
+              onConfirm={() => handleDeletePackage(values)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip> */}
+        </Space>
+      ),
+    },
   ];
 
   return (

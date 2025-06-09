@@ -1,6 +1,7 @@
 import { Label, ResultSuccess } from '@/components';
+import queryClient from '@/lib/queryClient';
 import { apiFetchJamaah, apiFetchLovTickets } from '@/services/lovService';
-import { apiCreatePackage, apiFetchPackageDetail } from '@/services/masterService';
+import { apiFetchPackageDetail, apiUpdatePackage } from '@/services/masterService';
 import checkFormatImage from '@/utils/checkFormatImage';
 import getBase64 from '@/utils/getbase64';
 import { PlusOutlined } from '@ant-design/icons';
@@ -23,14 +24,13 @@ import {
   Upload
 } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
+import dayjs from 'dayjs';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { useNavigate, useParams } from 'react-router-dom';
 import HotelRooms from './components/HotelRooms';
 import styles from './index.module.css';
-import queryClient from '@/lib/queryClient';
-import { useNavigate, useParams } from 'react-router-dom';
-import dayjs from 'dayjs';
 
 const defaultValue = {
   name: null,
@@ -99,16 +99,16 @@ const EditPackagePage = () => {
   const [previewPdf, setPreviewPdf] = useState(false);
   const [pdfUrl, setPdfUrl] = useState('');
 
-  const createPackageMutation = useMutation({
-    mutationFn: apiCreatePackage,
+  const updatePackageMutation = useMutation({
+    mutationFn: (data) => apiUpdatePackage(idPackage, data),
     onSuccess: (data, variable) => {
       reset();
       setHotelRooms([])
       queryClient.invalidateQueries(['packages']);
       setOpenResult({
         open: true,
-        title: 'Package Berhasil Ditambahkan',
-        subtitle: `Package baru dengan nama "${variable.name}" telah berhasil ditambahkan ke sistem.`,
+        title: 'Update Paket Berhasil',
+        subtitle: `Paket "${variable.name}" telah berhasil diupdate. Semua perubahan telah disimpan.`,
       });
     },
   });
@@ -186,8 +186,10 @@ const EditPackagePage = () => {
   }
 
   const onSubmit = (data) => {
+    // eslint-disable-next-line no-unused-vars
+    const { id, bookingCode, ...remainingData } = data;
     const newData = {
-      ...data,
+      ...remainingData,
       hotelRooms,
       checkInMadinah: moment(data.checkInMadinah.toDate()).format('YYYY-MM-DD'),
       checkInMekkah: moment(data.checkInMekkah.toDate()).format('YYYY-MM-DD'),
@@ -198,7 +200,7 @@ const EditPackagePage = () => {
       maturityPassportDelivery: moment(data.maturityPassportDelivery.toDate()).format('YYYY-MM-DD'),
       maturityRepayment: moment(data.maturityRepayment.toDate()).format('YYYY-MM-DD'),
     }
-    createPackageMutation.mutate(newData)
+    updatePackageMutation.mutate(newData)
   };
 
   const buildAntdFileFromUrl = (url, name) => {
