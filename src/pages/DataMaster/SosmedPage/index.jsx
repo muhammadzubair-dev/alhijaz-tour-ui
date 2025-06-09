@@ -201,7 +201,7 @@ const SosmedPage = () => {
         size='middle'
         columns={columns}
         dataSource={dataSosmeds?.data}
-        scroll={{ x: 1500, y: `calc(100vh - 380px)` }}
+        scroll={{ x: 1500, y: `calc(100vh - 390px)` }}
         sticky={{ offsetHeader: 64 }}
         onChange={handleTableChange}
         pagination={{

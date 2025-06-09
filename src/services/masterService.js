@@ -83,3 +83,8 @@ export const apiCreatePackage = async (body) => {
   });
   return response.data;
 };
+
+export const apiFetchPackages = async (query) => {
+  const response = await axiosInstance.get(`/master/packages${objToQueryString(query)}`);
+  return response.data;
+};
