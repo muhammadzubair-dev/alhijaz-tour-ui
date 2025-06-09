@@ -126,6 +126,11 @@ export const apiFetchPackages = async (query) => {
   return response.data;
 };
 
+export const apiDeletePackage = async ({ id }) => {
+  const response = await axiosInstance.delete(`/master/package/${id}`);
+  return response.data;
+};
+
 export const apiFetchPackageDetail = async (packageId) => {
   const response = await axiosInstance.get(`/master/packages/${packageId}`);
   return response.data;

@@ -1,7 +1,6 @@
 import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
-import { apiDeleteMasterBank } from '@/services/masterService';
-import { apiFetchPackages } from '@/services/masterService';
+import { apiDeletePackage, apiFetchPackages } from '@/services/masterService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -12,7 +11,6 @@ import { useNavigate } from 'react-router-dom';
 
 const PackagePage = () => {
   const navigate = useNavigate()
-  const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
@@ -27,7 +25,6 @@ const PackagePage = () => {
     partnerName: '',
     status: '',
   })
-  const [selectedPackage, setSelectedPackage] = useState(null);
   const [api, contextHolder] = notification.useNotification();
   const { data: dataPackages, refetch: refetchPackages } = useQuery({
     queryKey: ['packages', filterPackages.page, filterPackages.limit, filterPackages.sortBy, filterPackages.sortOrder],
@@ -35,27 +32,17 @@ const PackagePage = () => {
   });
 
   const deletePackageMutation = useMutation({
-    mutationFn: (data) => apiDeleteMasterBank(data),
+    mutationFn: (data) => apiDeletePackage(data),
     onSuccess: (data, variable) => {
       api.open({
-        message: 'Package Berhasil Dihapus',
-        description: `Package ${variable.name} telah berhasil dihapus dan tidak dapat lagi mengakses sistem.`,
+        message: 'Paket Berhasil Dihapus',
+        description: `Paket "${variable.name}" telah berhasil dihapus dan tidak akan lagi tersedia di dalam sistem.`,
         showProgress: true,
         pauseOnHover: true,
       });
       queryClient.invalidateQueries(['packages'])
     }
   })
-
-  const handleCloseForm = () => {
-    setSelectedPackage(null)
-    setOpenForm(false)
-  }
-
-  const handleOpenFormEdit = (data) => {
-    setSelectedPackage(data)
-    setOpenForm(true)
-  }
 
   const handleOpenResult = (values) => {
     setOpenResult((prevState) => ({
@@ -127,8 +114,6 @@ const PackagePage = () => {
       width: 150,
       dataIndex: 'tourLead',
       key: 'tourLead',
-      // sorter: true,
-      // sortOrder: getSortOrder(filterPackages.sortBy, 'tourLead', filterPackages.sortOrder)
     },
     {
       title: 'Promo ?',
@@ -200,7 +185,7 @@ const PackagePage = () => {
               onClick={() => navigate(`/data-master/package/${values.id}`)}
             />
           </Tooltip>
-          {/* <Tooltip title="Delete">
+          <Tooltip title="Delete">
             <Popconfirm
               title={`Hapus package ${values.name} ?`}
               placement='bottomRight'
@@ -210,7 +195,7 @@ const PackagePage = () => {
             >
               <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
             </Popconfirm>
-          </Tooltip> */}
+          </Tooltip>
         </Space>
       ),
     },
@@ -222,8 +207,8 @@ const PackagePage = () => {
       <Flex justify='space-between' gap={32}>
         <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
           <Input placeholder='Cari ID' style={{ maxWidth: 150 }} name='id' allowClear onChange={handleChangeFilter} />
-          <Input placeholder='Nama Paket' style={{ maxWidth: 120 }} name='name' allowClear onChange={handleChangeFilter} />
-          <Input placeholder='Kode Booking' style={{ maxWidth: 120 }} name='bookingCode' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Nama Paket' style={{ maxWidth: 150 }} name='name' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Kode Booking' style={{ maxWidth: 150 }} name='bookingCode' allowClear onChange={handleChangeFilter} />
           <Select
             allowClear
             placeholder="Status"
