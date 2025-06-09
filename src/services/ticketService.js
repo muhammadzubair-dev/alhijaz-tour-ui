@@ -11,3 +11,8 @@ export const apiCreateTicket = async (payload) => {
   const response = await axiosInstance.post('/tickets', cleanObject(payload));
   return response.data;
 };
+
+export const apiFetchDetailTicket = async (id) => {
+  const response = await axiosInstance.get(`/tickets/${id}`);
+  return response.data;
+};

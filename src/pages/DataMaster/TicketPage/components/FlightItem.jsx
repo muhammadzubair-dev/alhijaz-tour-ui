@@ -1,6 +1,7 @@
 import { Card, Flex, Space, theme, Typography } from 'antd';
 import { FaPlane, FaPlaneArrival, FaPlaneDeparture } from "react-icons/fa6";
 import styles from '../index.module.css';
+import moment from 'moment';
 
 const FlightItem = ({ isArrival = false, data }) => {
   const { token } = theme.useToken()
@@ -32,7 +33,7 @@ const FlightItem = ({ isArrival = false, data }) => {
           <Typography.Text style={{ fontSize: 14 }}>{data?.flightNo}</Typography.Text>
         </div>
         <Flex justify='space-evenly' align='center' flex={1} style={{ padding: 8 }}>
-          <Typography.Paragraph>{data?.ticketDate}</Typography.Paragraph>
+          <Typography.Paragraph>{moment(data?.ticketDate).format('YYYY-MM-DD')}</Typography.Paragraph>
           <Flex justify='center' align='center' gap={30}>
             <div style={{ width: 150 }}>
               <Typography.Text>{data?.ticketFrom}</Typography.Text> /{' '}

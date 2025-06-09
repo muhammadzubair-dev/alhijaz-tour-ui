@@ -21,6 +21,7 @@ const NewPackagePage = lazy(() => import('@/pages/DataMaster/Package/NewPackageP
 const EditPackagePage = lazy(() => import('@/pages/DataMaster/Package/EditPackagePage'));
 const TicketPage = lazy(() => import('@/pages/DataMaster/TicketPage'));
 const NewTicketPage = lazy(() => import('@/pages/DataMaster/TicketPage/NewTicketPage'));
+const EditTicketPage = lazy(() => import('@/pages/DataMaster/TicketPage/EditTicketPage'));
 
 const AppRouter = () => (
   <Suspense fallback={<PageLoader />}>
@@ -50,6 +51,7 @@ const AppRouter = () => (
             <Route path="package/new-package" element={<NewPackagePage />} />
             <Route path="package/:idPackage" element={<EditPackagePage />} />
             <Route path="ticket" element={<TicketPage />} />
+            <Route path="ticket/:idTicket" element={<EditTicketPage />} />
             <Route path="ticket/new-ticket" element={<NewTicketPage />} />
           </Route>
         </Route>
