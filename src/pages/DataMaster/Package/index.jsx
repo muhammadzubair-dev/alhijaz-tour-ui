@@ -154,7 +154,8 @@ const PackagePage = () => {
       key: 'updatedBy',
       width: 100,
       sorter: true,
-      sortOrder: getSortOrder(filterPackages.sortBy, 'updatedBy', filterPackages.sortOrder)
+      sortOrder: getSortOrder(filterPackages.sortBy, 'updatedBy', filterPackages.sortOrder),
+      render: (value) => value ?? '-'
     },
     {
       title: 'Created By',
@@ -169,7 +170,7 @@ const PackagePage = () => {
       dataIndex: 'updatedAt',
       key: 'updatedAt',
       width: 100,
-      render: (value) => moment(value).format('YYYY-MM-DD HH:mm'),
+      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
       sorter: true,
       sortOrder: getSortOrder(filterPackages.sortBy, 'updatedAt', filterPackages.sortOrder)
     },
@@ -182,30 +183,30 @@ const PackagePage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterPackages.sortBy, 'createdAt', filterPackages.sortOrder)
     },
-    {
-      title: 'Action',
-      key: 'operation',
-      fixed: 'right',
-      width: 100,
-      render: (values) => (
-        <Space>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus package ${values.name} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeletePackage(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
-      ),
-    },
+    // {
+    //   title: 'Action',
+    //   key: 'operation',
+    //   fixed: 'right',
+    //   width: 100,
+    //   render: (values) => (
+    //     <Space>
+    //       <Tooltip title="Edit">
+    //         <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+    //       </Tooltip>
+    //       <Tooltip title="Delete">
+    //         <Popconfirm
+    //           title={`Hapus package ${values.name} ?`}
+    //           placement='bottomRight'
+    //           onConfirm={() => handleDeletePackage(values)}
+    //           okText="Yes"
+    //           cancelText="No"
+    //         >
+    //           <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+    //         </Popconfirm>
+    //       </Tooltip>
+    //     </Space>
+    //   ),
+    // },
   ];
 
   return (
@@ -213,8 +214,9 @@ const PackagePage = () => {
       {contextHolder}
       <Flex justify='space-between' gap={32}>
         <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
-          <Input placeholder='Kode Booking' style={{ maxWidth: 150 }} name='bookingCode' allowClear onChange={handleChangeFilter} />
-          <Input placeholder='Supplier' style={{ maxWidth: 120 }} name='partnerName' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Cari ID' style={{ maxWidth: 150 }} name='id' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Nama Paket' style={{ maxWidth: 120 }} name='name' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Kode Booking' style={{ maxWidth: 120 }} name='bookingCode' allowClear onChange={handleChangeFilter} />
           <Select
             allowClear
             placeholder="Status"
