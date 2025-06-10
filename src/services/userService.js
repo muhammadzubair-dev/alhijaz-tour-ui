@@ -29,6 +29,11 @@ export const apiDeactivateUser = async ({ id }) => {
   return response.data;
 };
 
+export const apiDeleteUser = async ({ id }) => {
+  const response = await axiosInstance.delete(`/users/${id}`);
+  return response.data;
+};
+
 export const apiEditUser = async (payload) => {
   const { id, ...data } = payload
   const response = await axiosInstance.patch(`/users/${id}`, cleanObject(data));
@@ -65,5 +70,16 @@ export const apiFetchUsersAgents = async (query) => {
 
 export const apiCreateAgent = async (payload) => {
   const response = await axiosInstance.post('/users/agent', cleanObject(payload));
+  return response.data;
+};
+
+export const apiUpdateAgent = async (id, payload) => {
+  const { username: _, ...payloadWithoutUsername } = payload
+  const response = await axiosInstance.put(`/users/agent/${id}`, cleanObject(payloadWithoutUsername));
+  return response.data;
+};
+
+export const apiDeleteAgent = async ({ id }) => {
+  const response = await axiosInstance.delete(`/users/agent/${id}`);
   return response.data;
 };

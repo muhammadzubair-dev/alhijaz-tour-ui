@@ -1,7 +1,6 @@
 import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
-import { apiDeleteMasterBank } from '@/services/masterService';
-import { apiFetchUsersAgents } from '@/services/userService';
+import { apiDeleteAgent, apiFetchUsersAgents } from '@/services/userService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -34,11 +33,11 @@ const AgentPage = () => {
   });
 
   const deleteAgentMutation = useMutation({
-    mutationFn: (data) => apiDeleteMasterBank(data),
-    onSuccess: (data, variable) => {
+    mutationFn: (data) => apiDeleteAgent(data),
+    onSuccess: (data) => {
       api.open({
         message: 'Agent Berhasil Dihapus',
-        description: `Agent ${variable.name} telah berhasil dihapus dan tidak dapat lagi mengakses sistem.`,
+        description: `Agent ${data.data.username} telah berhasil dihapus dan tidak dapat lagi mengakses sistem.`,
         showProgress: true,
         pauseOnHover: true,
       });
@@ -98,8 +97,8 @@ const AgentPage = () => {
 
   const columns = [
     {
-      title: 'Avatar',
-      width: 100,
+      title: '',
+      width: 50,
       dataIndex: 'name',
       key: 'name',
       align: 'center',
@@ -114,6 +113,14 @@ const AgentPage = () => {
       sortOrder: getSortOrder(filterAgents.sortBy, 'name', filterAgents.sortOrder)
     },
     {
+      title: 'Username',
+      width: 120,
+      dataIndex: 'username',
+      key: 'username',
+      sorter: true,
+      sortOrder: getSortOrder(filterAgents.sortBy, 'username', filterAgents.sortOrder)
+    },
+    {
       title: 'Handphone',
       width: 150,
       dataIndex: 'phone',
@@ -123,7 +130,7 @@ const AgentPage = () => {
     },
     {
       title: 'Email',
-      width: 200,
+      width: 250,
       dataIndex: 'email',
       key: 'email',
       sorter: true,
@@ -131,7 +138,7 @@ const AgentPage = () => {
     },
     {
       title: 'Identitas',
-      width: 150,
+      width: 100,
       dataIndex: 'identityType',
       key: 'identityType',
       render: (value) => value === '0' ? 'KTP' : '-'

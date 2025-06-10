@@ -1,7 +1,6 @@
 import queryClient from '@/lib/queryClient';
 import { apiFetchLovAgents, apiFetchLovBanks, apiFetchLovUserAgent } from '@/services/lovService';
-import { apiEditMasterBank, apiFetchMasterBanks } from '@/services/masterService';
-import { apiCreateAgent, apiFetchUsers } from '@/services/userService';
+import { apiCreateAgent, apiUpdateAgent } from '@/services/userService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Form, Input, Modal, Select } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
@@ -47,6 +46,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
     queryFn: apiFetchLovAgents,
   });
 
+
   const optionUser = (dataUsers?.data || [])?.map((user) => ({
     value: user.id,
     label: user.name
@@ -57,35 +57,36 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
     label: bank.name
   }))
 
-  const optionAgent = (dataAgents?.data || [])?.map((agent) => ({
+  const currentUser = data?.id || '';
+  const optionAgent = (dataAgents?.data || [])?.filter((item) => item.id !== currentUser).map((agent) => ({
     value: agent.id,
     label: agent.name
   }))
 
   const createAgentMutation = useMutation({
     mutationFn: apiCreateAgent,
-    onSuccess: (data, variable) => {
+    onSuccess: (data) => {
       reset();
       onCloseForm();
-      queryClient.invalidateQueries(['banks']);
+      queryClient.invalidateQueries(['agents']);
       onOpenResult({
         open: true,
         title: 'Agent Berhasil Ditambahkan',
-        subtitle: `Agent dengan email "${variable.email}" telah berhasil ditambahkan ke sistem.`,
+        subtitle: `Agent dengan username "${data.data.username}" telah berhasil ditambahkan ke sistem.`,
       });
     },
   });
 
   const editAgentMutation = useMutation({
-    mutationFn: apiEditMasterBank,
+    mutationFn: (body) => apiUpdateAgent(data?.id, body),
     onSuccess: (data, variable) => {
       reset();
       onCloseForm();
-      queryClient.invalidateQueries(['banks']);
+      queryClient.invalidateQueries(['agents']);
       onOpenResult({
         open: true,
         title: 'Agent Berhasil Diubah',
-        subtitle: `Agent dengan email "${variable.email}" telah berhasil diubah.`,
+        subtitle: `Agent dengan username "${variable.username}" telah berhasil diubah.`,
       });
     },
   });
@@ -93,10 +94,10 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
   const isLoading = createAgentMutation.isPending || editAgentMutation.isPending
 
   const onSubmit = (values) => {
+    const { id: _id, balance: _balance, targetRemaining: _targetRemaining, ...body } = values
     const payload = {
-      ...values,
+      ...body,
       isActive: values?.isActive === 'true',
-      ...(data?.id && { id: data.id }), // tambah id hanya jika ada
     };
 
     if (data) {
@@ -114,6 +115,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
   useEffect(() => {
     if (data) {
       reset({
+        username: data.username,
         userId: data.userId,
         identityType: data.identityType,
         bankId: data.bankId,
@@ -148,6 +150,26 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
         onFinish={handleSubmit(onSubmit, onError)}
       >
         <Form.Item
+          label="Nama User"
+          required
+          validateStatus={errors.userId ? 'error' : ''}
+          help={errors.userId?.message}
+        >
+          <Controller
+            name="userId"
+            control={control}
+            rules={{
+              required: 'Nama User tidak boleh kosong',
+            }}
+            // render={({ field }) => }
+            render={({ field }) => data?.name ?
+              <Select value={data.userId} options={[{ value: data.userId, label: data.name }]} disabled />
+              :
+              <Select placeholder="Pilih User"  {...field} showSearch allowClear optionFilterProp="label" options={optionUser} />
+            }
+          />
+        </Form.Item>
+        <Form.Item
           label="Tipe Identitas"
           required
           validateStatus={errors.identityType ? 'error' : ''}
@@ -162,23 +184,6 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
             render={({ field }) => <Select placeholder="Pilih Tipe Identitas"  {...field} options={[{ value: '0', label: "KTP" }]} />}
           />
         </Form.Item>
-
-        <Form.Item
-          label="Nama User"
-          required
-          validateStatus={errors.userId ? 'error' : ''}
-          help={errors.userId?.message}
-        >
-          <Controller
-            name="userId"
-            control={control}
-            rules={{
-              required: 'Nama User tidak boleh kosong',
-            }}
-            render={({ field }) => <Select placeholder="Pilih User"  {...field} showSearch allowClear optionFilterProp="label" options={optionUser} />}
-          />
-        </Form.Item>
-
         <Form.Item
           label="Bank"
           required

@@ -1,4 +1,6 @@
-import { apiDeactivateUser, apiFetchUsers } from '@/services/userService';
+import { ResultSuccess } from '@/components';
+import queryClient from '@/lib/queryClient';
+import { apiDeleteUser, apiFetchUsers } from '@/services/userService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -6,8 +8,6 @@ import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, T
 import moment from 'moment';
 import { useState } from 'react';
 import FormUser from './FormUser';
-import { ResultSuccess } from '@/components';
-import queryClient from '@/lib/queryClient';
 
 const UserPage = () => {
   const [openForm, setOpenForm] = useState(false)
@@ -35,11 +35,11 @@ const UserPage = () => {
   });
 
   const deactivateUserMutation = useMutation({
-    mutationFn: (data) => apiDeactivateUser(data),
-    onSuccess: (data, variable) => {
+    mutationFn: (data) => apiDeleteUser(data),
+    onSuccess: (data) => {
       api.open({
-        message: 'User Berhasil Dinonaktifkan',
-        description: `Akun pengguna dengan username ${variable.username} telah berhasil dinonaktifkan dan tidak dapat lagi mengakses sistem.`,
+        message: 'User Berhasil Dihapus',
+        description: `Akun pengguna dengan username ${data.data.username} telah berhasil dihapus dan tidak dapat lagi mengakses sistem.`,
         showProgress: true,
         pauseOnHover: true,
       });
@@ -106,8 +106,8 @@ const UserPage = () => {
 
   const columns = [
     {
-      title: 'Avatar',
-      width: 100,
+      title: '',
+      width: 50,
       dataIndex: 'username',
       key: 'username',
       align: 'center',
@@ -124,7 +124,7 @@ const UserPage = () => {
     },
     {
       title: 'Name',
-      width: 100,
+      width: 150,
       dataIndex: 'name',
       key: 'name',
       sorter: true,
@@ -141,7 +141,7 @@ const UserPage = () => {
       title: 'Banned',
       dataIndex: 'bannedUntil',
       key: 'bannedUntil',
-      width: 100,
+      width: 50,
       render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-'
     },
     {
@@ -190,7 +190,7 @@ const UserPage = () => {
           </Tooltip>
           <Tooltip title="Delete">
             <Popconfirm
-              title={`Nonaktifkan username ${values.username} ?`}
+              title={`Hapus Username ${values.username} ?`}
               placement='bottomRight'
               onConfirm={() => handleDeactivateUser(values.id)}
               okText="Yes"

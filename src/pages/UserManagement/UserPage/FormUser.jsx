@@ -1,7 +1,7 @@
 import queryClient from '@/lib/queryClient';
 import { apiCreateUser, apiEditUser } from '@/services/userService';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Flex, Form, Input, Modal, Radio } from 'antd';
+import { Button, Flex, Form, Input, Modal, Radio, Select } from 'antd';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -17,6 +17,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
       username: '',
       name: '',
       type: '',
+      isActive: 'true'
     },
   });
 
@@ -53,13 +54,26 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
   const isLoading = createUserMutation.isPending || editUserMutation.isPending
 
   const onSubmit = (values) => {
-    if (data) {
-      editUserMutation.mutate({ id: data.id, name: values.name, username: values.username })
+    const { name, username, isActive: isActiveRaw } = values;
+    const isActive = String(isActiveRaw).toLowerCase() === 'true';
+    if (data?.id) {
+      // Edit user
+      editUserMutation.mutate({
+        id: data.id,
+        name,
+        username,
+        isActive,
+      });
     } else {
-      createUserMutation.mutate({ name: values.name, username: values.username })
+      // Create new user
+      createUserMutation.mutate({
+        name,
+        username,
+        isActive,
+      });
     }
-
   };
+
 
   const onError = (formErrors) => {
     console.log('Error Form:', formErrors);
@@ -72,19 +86,21 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
         username: data.username,
         name: data.name,
         type: data.type,
+        isActive: data.isActive ? 'true' : 'false'
       });
     } else {
       reset({
         username: '',
         name: '',
         type: '',
+        isActive: 'true'
       });
     }
   }, [data, reset]);
 
   return (
     <Modal
-      title="Add New User"
+      title={data ? 'Ubah data User' : 'Tambahkan User Baru'}
       closable={{ 'aria-label': 'Custom Close Button' }}
       onCancel={onCloseForm}
       open={open}
@@ -142,6 +158,22 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
               }
             }}
             render={({ field }) => <Input {...field} placeholder="Masukkan Nama" />}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Status"
+          required
+          validateStatus={errors.isActive ? 'error' : ''}
+          help={errors.isActive?.message}
+        >
+          <Controller
+            name="isActive"
+            control={control}
+            rules={{
+              required: 'Status tidak boleh kosong',
+            }}
+            render={({ field }) => <Select {...field} options={[{ value: 'true', label: "Aktif" }, { value: 'false', label: "Tidak Aktif" }]} />}
           />
         </Form.Item>
 
