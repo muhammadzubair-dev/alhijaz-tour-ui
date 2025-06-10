@@ -11,6 +11,7 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const UserPage = lazy(() => import('@/pages/UserManagement/UserPage'));
 const AgentPage = lazy(() => import('@/pages/UserManagement/AgentPage'));
+const UmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh'));
 const RolePage = lazy(() => import('@/pages/UserManagement/RolePage'));
 const MenuPage = lazy(() => import('@/pages/UserManagement/MenuPage'));
 const BankPage = lazy(() => import('@/pages/DataMaster/BankPage'));
@@ -43,6 +44,10 @@ const AppRouter = () => (
             <Route path="agent" element={<AgentPage />} />
             <Route path="role" element={<RolePage />} />
             <Route path="menu" element={<MenuPage />} />
+          </Route>
+
+          <Route path="pendaftaran">
+            <Route path="umroh" element={<UmrohPage />} />
           </Route>
 
           <Route path="data-master">

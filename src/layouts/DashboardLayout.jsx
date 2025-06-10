@@ -9,6 +9,7 @@ import {
   UserOutlined
 } from '@ant-design/icons';
 import { Avatar, Breadcrumb, Button, Divider, Flex, Layout, Menu, Space, theme, Typography } from 'antd';
+import { FaWpforms } from 'react-icons/fa6';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const { Header, Content, Footer, Sider } = Layout;
@@ -24,6 +25,12 @@ function getItem(label, key, icon, children) {
 }
 const items = [
   getItem('Dashboard', '/dashboard', <HomeOutlined />),
+  getItem('Pendatftaran', 'sub_pendaftaran', <FaWpforms />, [
+    getItem('Daftar Umroh', '/pendaftaran/umroh'),
+    // getItem('Agent', '/user-management/agent'),
+    // getItem('Role', '/user-management/role'),
+    // getItem('Menu', '/user-management/menu'),
+  ]),
   getItem('User Management', 'sub_user_management', <UserOutlined />, [
     getItem('User', '/user-management'),
     getItem('Agent', '/user-management/agent'),
