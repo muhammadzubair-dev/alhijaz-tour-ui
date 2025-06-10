@@ -63,6 +63,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
         name,
         username,
         isActive,
+        ...(values.type === 'Y' && { type: '0' })
       });
     } else {
       // Create new user
@@ -70,6 +71,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
         name,
         username,
         isActive,
+        ...(values.type === 'Y' && { type: '0' })
       });
     }
   };
@@ -85,14 +87,14 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
       reset({
         username: data.username,
         name: data.name,
-        type: data.type,
+        type: data.type === '0' ? 'Y' : 'N',
         isActive: data.isActive ? 'true' : 'false'
       });
     } else {
       reset({
         username: '',
         name: '',
-        type: '',
+        type: 'N',
         isActive: 'true'
       });
     }
@@ -131,7 +133,11 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
               maxLength: {
                 value: 20,
                 message: 'Username maksimal 20 karakter'
-              }
+              },
+              pattern: {
+                value: /^[a-z0-9]+$/, // hanya huruf kecil dan angka
+                message: 'Username hanya boleh huruf kecil dan angka, tanpa spasi atau karakter khusus',
+              },
             }}
             render={({ field }) => <Input {...field} placeholder="Masukkan Username" />}
           />
@@ -177,21 +183,22 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
           />
         </Form.Item>
 
-        {/* <Form.Item
-          label="Tipe"
+        <Form.Item
+          label="Staff ?"
           required
           validateStatus={errors.type ? 'error' : ''}
           help={errors.type?.message}
         >
           <Controller
             name="type"
+            disabled={data?.type === '1' || data?.type === '0'}
             control={control}
             rules={{
-              required: 'Tipe tidak boleh kosong',
+              required: 'Pilihan Staff tidak boleh kosong',
             }}
-            render={({ field }) => <Radio.Group {...field} options={[{ value: '0', label: "Staff" }, { value: '1', label: "Agent" }]} />}
+            render={({ field }) => <Radio.Group {...field} options={[{ value: 'N', label: "Tidak" }, { value: 'Y', label: "Ya" }]} />}
           />
-        </Form.Item> */}
+        </Form.Item>
 
         <Flex gap={16} justify='flex-end'>
           <Button color="default" variant="filled" onClick={onCloseForm} loading={isLoading}>

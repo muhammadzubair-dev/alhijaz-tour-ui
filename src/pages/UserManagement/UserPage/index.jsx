@@ -134,7 +134,7 @@ const UserPage = () => {
       title: 'Tipe',
       dataIndex: 'type',
       key: 'type',
-      width: 100,
+      width: 60,
       render: (value) => value === '1' ? 'Agent' : value === '0' ? 'Staff' : '-'
     },
     {
@@ -260,11 +260,11 @@ const UserPage = () => {
       <ResultSuccess
         open={openResult}
         onOpenResult={handleOpenResult}
-        extra={(
+        extra={openResult.extra ? (
           <Tag color="blue">
             <Typography.Paragraph style={{ margin: 8 }} copyable>{openResult.extra}</Typography.Paragraph>
           </Tag>
-        )}
+        ) : null}
       />
     </div>
   );
