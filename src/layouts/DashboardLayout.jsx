@@ -1,5 +1,6 @@
 import logo from '@/assets/logo.png';
 import { SearchPages, SwitchTheme } from '@/components';
+import useAuthStore from '@/store/authStore';
 import convertPathToBreadcrumb from '@/utils/convertPathToBreadcrumb';
 import {
   DatabaseOutlined,
@@ -26,24 +27,25 @@ const items = [
   getItem('User Management', 'sub_user_management', <UserOutlined />, [
     getItem('User', '/user-management'),
     getItem('Agent', '/user-management/agent'),
-    getItem('Role', '/user-management/role'),
-    getItem('Menu', '/user-management/menu'),
+    // getItem('Role', '/user-management/role'),
+    // getItem('Menu', '/user-management/menu'),
   ]),
   getItem('Data Master', 'sub_data_master', <DatabaseOutlined />, [
     getItem('Bank', '/data-master/bank'),
-    getItem('Social Media', '/data-master/social-media'),
-    getItem('Fee', '/data-master/fee'),
-    getItem('Jamaah', '/data-master/jamaah'),
-    getItem('Region', '/data-master/region'),
-    getItem('Hotel', '/data-master/hotel'),
-    getItem('Package', '/data-master/package'),
-    getItem('Ticket', '/data-master/ticket'),
-    getItem('Airlines', '/data-master/airlines'),
-    getItem('Partner', '/data-master/partner'),
-    getItem('Document', '/data-master/document'),
-    getItem('Product Type', '/data-master/product-type'),
-    getItem('Transportasi', '/data-master/transportasi'),
-    getItem('Zona', '/data-master/zona'),
+    getItem('Airport', '/data-master/airport'),
+    // getItem('Social Media', '/data-master/social-media'),
+    // getItem('Fee', '/data-master/fee'),
+    // getItem('Jamaah', '/data-master/jamaah'),
+    // getItem('Region', '/data-master/region'),
+    // getItem('Hotel', '/data-master/hotel'),
+    // getItem('Package', '/data-master/package'),
+    // getItem('Ticket', '/data-master/ticket'),
+    // getItem('Airlines', '/data-master/airlines'),
+    // getItem('Partner', '/data-master/partner'),
+    // getItem('Document', '/data-master/document'),
+    // getItem('Product Type', '/data-master/product-type'),
+    // getItem('Transportasi', '/data-master/transportasi'),
+    // getItem('Zona', '/data-master/zona'),
   ]),
 ];
 
@@ -51,6 +53,7 @@ const DashboardLayout = () => {
   const { token } = useToken();
   const navigate = useNavigate();
   const location = useLocation();
+  const user = useAuthStore((state) => state.user);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -85,8 +88,8 @@ const DashboardLayout = () => {
               <Flex style={{ margin: 20 }} align='center' gap={16}>
                 <Avatar size={48} src='https://api.dicebear.com/9.x/adventurer/svg?seed=Liam&backgroundColor=b6e3f4' style={{ flexShrink: 0 }} />
                 <Space direction='vertical' size={0} style={{ flex: 1 }}>
-                  <Typography.Text ellipsis={true} style={{ width: 125, color: 'rgb(255,255,255)' }}>Muhammad Zubair Xamrun</Typography.Text>
-                  <Typography.Text ellipsis={true} style={{ width: 125, color: 'rgba(255, 255, 255, 0.80)' }}>Admin</Typography.Text>
+                  <Typography.Text ellipsis={true} style={{ width: 125, color: 'rgb(255,255,255)' }}>{user.name}</Typography.Text>
+                  <Typography.Text ellipsis={true} style={{ width: 125, color: 'rgba(255, 255, 255, 0.80)' }}>{user.type === '1' ? 'Agent' : user.type === '0' ? 'Staff' : '-'}</Typography.Text>
                 </Space>
               </Flex>
               <div style={{ padding: '0 20px' }}>
@@ -145,4 +148,5 @@ const DashboardLayout = () => {
     </Layout >
   );
 };
+
 export default DashboardLayout;

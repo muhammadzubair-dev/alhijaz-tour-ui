@@ -135,3 +135,25 @@ export const apiFetchPackageDetail = async (packageId) => {
   const response = await axiosInstance.get(`/master/packages/${packageId}`);
   return response.data;
 };
+
+// Airport
+export const apiFetchAirports = async (query) => {
+  const response = await axiosInstance.get(`/master/airports${objToQueryString(query)}`);
+  return response.data;
+};
+
+export const apiCreateAirport = async (body) => {
+  const response = await axiosInstance.post('/master/airport', cleanObject(body));
+  return response.data;
+};
+
+export const apiEditAirport = async (payload) => {
+  const { code, ...data } = payload
+  const response = await axiosInstance.patch(`/master/airport/${code}`, cleanObject(data));
+  return response.data;
+};
+
+export const apiDeleteAirport = async ({ code }) => {
+  const response = await axiosInstance.delete(`/master/airport/${code}`);
+  return response.data;
+};

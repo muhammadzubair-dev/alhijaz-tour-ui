@@ -1,51 +1,51 @@
 import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
-import { apiDeleteMasterBank, apiFetchMasterBanks } from '@/services/masterService';
+import { apiDeleteAirport, apiFetchAirports } from '@/services/masterService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Input, message, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
 import moment from 'moment';
 import { useState } from 'react';
-import FormBank from './FormBank';
+import FormAirport from './FormAirport';
 
-const BankPage = () => {
+const AirportPage = () => {
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
     subtitle: ''
   })
-  const [filterBanks, setFilterBanks] = useState({
+  const [filterAirports, setFilterAirports] = useState({
     page: 1,
     limit: 10,
     sortBy: null,
     sortOrder: null,
-    bankCode: '',
+    code: '',
     name: '',
-    isActive: null,
+    status: null,
   })
-  const [selectedBank, setSelectedBank] = useState(null);
-  const { data: dataBanks, refetch: refetchBanks } = useQuery({
-    queryKey: ['banks', filterBanks.page, filterBanks.limit, filterBanks.sortBy, filterBanks.sortOrder],
-    queryFn: () => apiFetchMasterBanks(filterBanks),
+  const [selectedAirport, setSelectedAirport] = useState(null);
+  const { data: dataAirports, refetch: refetchAirports } = useQuery({
+    queryKey: ['airports', filterAirports.page, filterAirports.limit, filterAirports.sortBy, filterAirports.sortOrder],
+    queryFn: () => apiFetchAirports(filterAirports),
   });
 
-  const deleteBankMutation = useMutation({
-    mutationFn: (data) => apiDeleteMasterBank(data),
+  const deleteAirportMutation = useMutation({
+    mutationFn: (data) => apiDeleteAirport(data),
     onSuccess: (data, variable) => {
-      message.success(`Bank ${variable.name} telah berhasil dihapus`)
-      queryClient.invalidateQueries(['banks'])
+      message.success(`Airport ${variable.name} telah berhasil dihapus`)
+      queryClient.invalidateQueries(['airports'])
     }
   })
 
   const handleCloseForm = () => {
-    setSelectedBank(null)
+    setSelectedAirport(null)
     setOpenForm(false)
   }
 
   const handleOpenFormEdit = (data) => {
-    setSelectedBank(data)
+    setSelectedAirport(data)
     setOpenForm(true)
   }
 
@@ -57,22 +57,22 @@ const BankPage = () => {
   }
 
   const handleChangeFilter = (e) => {
-    setFilterBanks((prevState) => ({
+    setFilterAirports((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value
     }))
   }
 
   const handleChangeStatus = (value) => {
-    setFilterBanks((prevState) => ({
+    setFilterAirports((prevState) => ({
       ...prevState,
-      isActive: value
+      status: value
     }))
   }
 
   const handleTableChange = (pagination, filters, sorter) => {
     const singleSorter = Array.isArray(sorter) ? sorter[0] : sorter;
-    setFilterBanks(prev => ({
+    setFilterAirports(prev => ({
       ...prev,
       page: pagination.current,
       limit: pagination.pageSize,
@@ -82,39 +82,39 @@ const BankPage = () => {
   };
 
   const handleSubmit = () => {
-    refetchBanks(filterBanks)
+    refetchAirports(filterAirports)
   }
 
-  const handleDeleteBank = ({ id, name }) => {
-    deleteBankMutation.mutate({ id, name })
+  const handleDeleteAirport = ({ code, name }) => {
+    deleteAirportMutation.mutate({ code, name })
   }
 
   const columns = [
     {
-      title: 'Kode Bank',
+      title: 'Kode',
       width: 70,
-      dataIndex: 'bankCode',
-      key: 'bankCode',
+      dataIndex: 'code',
+      key: 'code',
       sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'bankCode', filterBanks.sortOrder)
+      sortOrder: getSortOrder(filterAirports.sortBy, 'code', filterAirports.sortOrder)
     },
     {
-      title: 'Bank',
+      title: 'Nama Airport',
       width: 100,
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'name', filterBanks.sortOrder)
+      sortOrder: getSortOrder(filterAirports.sortBy, 'name', filterAirports.sortOrder)
     },
     {
       title: 'Aktif',
-      dataIndex: 'isActive',
-      key: 'isActive',
+      dataIndex: 'status',
+      key: 'status',
       width: 70,
       align: 'center',
-      render: (value) => value ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />,
+      render: (value) => value === '1' ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />,
       sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'isActive', filterBanks.sortOrder)
+      sortOrder: getSortOrder(filterAirports.sortBy, 'status', filterAirports.sortOrder)
     },
     {
       title: 'Updated By',
@@ -122,7 +122,7 @@ const BankPage = () => {
       key: 'updatedBy',
       width: 100,
       sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'updatedBy', filterBanks.sortOrder),
+      sortOrder: getSortOrder(filterAirports.sortBy, 'updatedBy', filterAirports.sortOrder),
       render: (value) => value || '-'
     },
     {
@@ -131,7 +131,8 @@ const BankPage = () => {
       key: 'createdBy',
       width: 100,
       sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'createdBy', filterBanks.sortOrder)
+      sortOrder: getSortOrder(filterAirports.sortBy, 'createdBy', filterAirports.sortOrder),
+      render: (value) => value || '-'
     },
     {
       title: 'Updated At',
@@ -140,7 +141,7 @@ const BankPage = () => {
       width: 100,
       render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
       sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'updatedAt', filterBanks.sortOrder)
+      sortOrder: getSortOrder(filterAirports.sortBy, 'updatedAt', filterAirports.sortOrder)
     },
     {
       title: 'Created At',
@@ -149,7 +150,7 @@ const BankPage = () => {
       width: 100,
       render: (value) => moment(value).format('YYYY-MM-DD HH:mm'),
       sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'createdAt', filterBanks.sortOrder)
+      sortOrder: getSortOrder(filterAirports.sortBy, 'createdAt', filterAirports.sortOrder)
     },
     {
       title: 'Action',
@@ -163,9 +164,9 @@ const BankPage = () => {
           </Tooltip>
           <Tooltip title="Delete">
             <Popconfirm
-              title={`Hapus bank ${values.name} ?`}
+              title={`Hapus airport ${values.name} ?`}
               placement='bottomRight'
-              onConfirm={() => handleDeleteBank(values)}
+              onConfirm={() => handleDeleteAirport(values)}
               okText="Yes"
               cancelText="No"
             >
@@ -181,45 +182,45 @@ const BankPage = () => {
     <div>
       <Flex justify='space-between' gap={32}>
         <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
-          <Input placeholder='Kode Bank' style={{ maxWidth: 120 }} name='bank_code' allowClear onChange={handleChangeFilter} />
-          <Input placeholder='Bank' style={{ maxWidth: 120 }} name='name' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Kode' style={{ maxWidth: 120 }} name='code' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='Nama Airport' style={{ maxWidth: 150 }} name='name' allowClear onChange={handleChangeFilter} />
           <Select
             allowClear
             placeholder="Status"
             style={{ width: 120 }}
             onChange={handleChangeStatus}
             options={[
-              { value: 'true', label: 'Aktif' },
-              { value: 'false', label: 'Tidak Aktif' },
+              { value: '1', label: 'Aktif' },
+              { value: '0', label: 'Tidak Aktif' },
             ]}
           />
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
         <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New Bank
+          New Airport
         </Button>
       </Flex>
       <Table
-        rowKey='id'
+        rowKey='code'
         size='middle'
         columns={columns}
-        dataSource={dataBanks?.data}
+        dataSource={dataAirports?.data}
         scroll={{ x: 1500, y: `calc(100vh - 400px)` }}
         sticky={{ offsetHeader: 64 }}
         onChange={handleTableChange}
         pagination={{
-          total: dataBanks?.paging?.total,
+          total: dataAirports?.paging?.total,
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          pageSize: filterBanks.limit,
+          pageSize: filterAirports.limit,
           showSizeChanger: true,
           pageSizeOptions: [10, 25, 50, 100],
         }}
       />
-      <FormBank open={openForm} data={selectedBank} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
+      <FormAirport open={openForm} data={selectedAirport} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
       <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
     </div>
   );
 };
 
-export default BankPage;
+export default AirportPage;
