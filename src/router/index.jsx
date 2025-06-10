@@ -15,6 +15,7 @@ const RolePage = lazy(() => import('@/pages/UserManagement/RolePage'));
 const MenuPage = lazy(() => import('@/pages/UserManagement/MenuPage'));
 const BankPage = lazy(() => import('@/pages/DataMaster/BankPage'));
 const AirportPage = lazy(() => import('@/pages/DataMaster/AirportPage'));
+const AirlinePage = lazy(() => import('@/pages/DataMaster/AirlinePage'));
 const FeePage = lazy(() => import('@/pages/DataMaster/FeePage'));
 const SocialMediaPage = lazy(() => import('@/pages/DataMaster/SosmedPage'));
 const PackagePage = lazy(() => import('@/pages/DataMaster/Package'));
@@ -47,6 +48,7 @@ const AppRouter = () => (
           <Route path="data-master">
             <Route path="bank" element={<BankPage />} />
             <Route path="airport" element={<AirportPage />} />
+            <Route path="airline" element={<AirlinePage />} />
             <Route path="fee" element={<FeePage />} />
             <Route path="social-media" element={<SocialMediaPage />} />
             <Route path="package" element={<PackagePage />} />

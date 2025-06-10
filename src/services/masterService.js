@@ -157,3 +157,25 @@ export const apiDeleteAirport = async ({ code }) => {
   const response = await axiosInstance.delete(`/master/airport/${code}`);
   return response.data;
 };
+
+// Airline
+export const apiFetchAirlines = async (query) => {
+  const response = await axiosInstance.get(`/master/airlines${objToQueryString(query)}`);
+  return response.data;
+};
+
+export const apiCreateAirline = async (body) => {
+  const response = await axiosInstance.post('/master/airline', cleanObject(body));
+  return response.data;
+};
+
+export const apiEditAirline = async (payload) => {
+  const { id, ...data } = payload
+  const response = await axiosInstance.patch(`/master/airline/${id}`, cleanObject(data));
+  return response.data;
+};
+
+export const apiDeleteAirline = async ({ id }) => {
+  const response = await axiosInstance.delete(`/master/airline/${id}`);
+  return response.data;
+};
