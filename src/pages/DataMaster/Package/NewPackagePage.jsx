@@ -9,6 +9,7 @@ import {
   Button,
   Col,
   DatePicker,
+  Divider,
   Flex,
   Form,
   Image,
@@ -78,7 +79,7 @@ const NewPackagePage = () => {
     queryFn: apiFetchLovTickets,
   });
   const navigate = useNavigate()
-  
+
   const optionJamaah = dataLovJamaah?.data || [];
   const optionTickets = dataLovTickets?.data || [];
 
@@ -265,6 +266,8 @@ const NewPackagePage = () => {
             </Form.Item>
           </Col>
 
+          <Divider />
+
           <Col lg={24}>
 
             {/* Format file: JPG, JPEG, PNG. Maks. ukuran: 1MB */}
@@ -304,6 +307,8 @@ const NewPackagePage = () => {
               />
             </Modal>
           </Col>
+
+          <Divider />
 
           <Col md={8}>
             <Form.Item
@@ -652,6 +657,8 @@ const NewPackagePage = () => {
           </Col>
         </Row>
 
+        <Divider />
+
         <HotelRooms
           hotelRooms={hotelRooms}
           onUpdateHotelRoom={handleUpdateHotelRooms}
@@ -877,6 +884,8 @@ const NewPackagePage = () => {
           </Col>
         </Row>
 
+        <Divider />
+
         <Flex justify='flex-end' style={{ marginTop: 16 }}>
           <Button type="primary" htmlType="submit">
             Simpan
@@ -893,7 +902,6 @@ const NewPackagePage = () => {
         }
       />
     </>
-
   );
 };
 
