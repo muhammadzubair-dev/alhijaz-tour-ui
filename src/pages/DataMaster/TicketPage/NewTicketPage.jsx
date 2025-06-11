@@ -166,6 +166,7 @@ const NewTicketPage = () => {
                       {...field}
                       showSearch
                       allowClear
+                      optionFilterProp='label'
                       placeholder="Pilih Supplier"
                       style={{ width: '100%' }} // ← penting
                       options={optionPartners.map(item => ({

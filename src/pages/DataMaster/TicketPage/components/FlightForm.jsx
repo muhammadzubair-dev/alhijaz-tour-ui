@@ -137,6 +137,7 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
                   {...field}
                   showSearch
                   allowClear
+                  optionFilterProp='label'
                   placeholder="Pilih Airlines"
                   style={{ width: '100%' }}
                   options={optionAirlines.map(item => ({
@@ -203,6 +204,7 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Bandara"
                     style={{ width: '100%' }} // ← penting
                     options={optionAirports.map(item => ({
@@ -264,6 +266,7 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Bandara"
                     style={{ width: '100%' }} // ← penting
                     options={optionAirports.map(item => ({

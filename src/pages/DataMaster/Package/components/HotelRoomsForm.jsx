@@ -165,6 +165,7 @@ const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) =
                   {...field}
                   showSearch
                   allowClear
+                  optionFilterProp='label'
                   placeholder="Pilih Nama Paket"
                   style={{ width: '100%' }}
                   options={optionPackageTypes.map(item => ({
@@ -192,6 +193,9 @@ const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) =
                 <Select
                   {...field}
                   placeholder="Pilih Kota"
+                  optionFilterProp='label'
+                  allowClear
+                  showSearch
                   style={{ width: '40%' }}
                   options={optionCities.map(item => ({
                     value: item.id,
@@ -207,6 +211,9 @@ const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) =
                 <Select
                   {...field}
                   placeholder="Pilih Hotel"
+                  optionFilterProp='label'
+                  allowClear
+                  showSearch
                   style={{ width: '60%' }}
                   options={optionCityHotels.map(item => ({
                     value: `${item.id}|${item.name}`,
@@ -263,6 +270,9 @@ const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) =
                 <Select
                   {...field}
                   placeholder="Pilih Tipe"
+                  optionFilterProp='label'
+                  allowClear
+                  showSearch
                   style={{ width: '50%' }}
                   options={optionRoomTypes.map(room => ({
                     value: room.id,

@@ -179,7 +179,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
             rules={{
               required: 'Status tidak boleh kosong',
             }}
-            render={({ field }) => <Select {...field} options={[{ value: 'true', label: "Aktif" }, { value: 'false', label: "Tidak Aktif" }]} />}
+            render={({ field }) => <Select {...field} options={[{ value: 'true', label: "Aktif" }, { value: 'false', label: "Tidak Aktif" }]} allowClear />}
           />
         </Form.Item>
 

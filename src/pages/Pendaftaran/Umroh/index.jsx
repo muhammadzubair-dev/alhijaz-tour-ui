@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Label } from '@/components';
-import { apiFetchJamaahByIdentity } from '@/services/lovService';
+import { apiFetchJamaahByIdentity, apiFetchLovDistricts, apiFetchLovNeighborhoods, apiFetchLovProvinces, apiFetchLovSubDistricts } from '@/services/lovService';
 import checkFormatImage from '@/utils/checkFormatImage';
 import getBase64 from '@/utils/getbase64';
 import { PlusOutlined } from '@ant-design/icons';
@@ -11,7 +12,6 @@ import {
   Form,
   Input,
   InputNumber,
-  message,
   Modal,
   Row,
   Select,
@@ -19,9 +19,9 @@ import {
   Typography,
   Upload
 } from 'antd';
-import { useState, useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
 import dayjs from 'dayjs';
+import { useEffect, useRef, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 
 const defaultValue = {
   firstName: null,
@@ -33,6 +33,11 @@ const defaultValue = {
   gender: null,
   phoneNumber: null,
   marriedStatus: null,
+  province: null,
+  district: null,
+  subDistrict: null,
+  neighborhoods: null,
+  address: null,
   photoIdentity: []
 }
 
@@ -48,18 +53,59 @@ const UmrohPage = () => {
     mode: 'onChange',
     defaultValues: defaultValue,
   });
-  const identityNumber = watch('identityNumber')
+
+  const identityNumber = watch('identityNumber');
+  const province = watch('province');
+  const district = watch('district');
+  const subDistrict = watch('subDistrict');
+
+  const isFromJamaah = useRef({
+    province: false,
+    district: false,
+    subDistrict: false,
+    neighborhoods: false,
+  });
+
   const [previewImage, setPreviewImage] = useState('');
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewPdf, setPreviewPdf] = useState(false);
   const [pdfUrl, setPdfUrl] = useState('');
+
   const { data: resJamaah, refetch: refetchJamaah } = useQuery({
     queryKey: ['lov-jamaah', identityNumber],
     queryFn: () => apiFetchJamaahByIdentity(identityNumber),
-    enabled: false
+    enabled: false,
+  });
+
+  const { data: resProvinces } = useQuery({
+    queryKey: ['lov-provinces'],
+    queryFn: apiFetchLovProvinces,
+  });
+
+  const { data: resDistricts, refetch: refetchDistricts } = useQuery({
+    queryKey: ['lov-districts', province],
+    queryFn: () => apiFetchLovDistricts(province),
+    enabled: false,
+  });
+
+  const { data: resSubDistricts, refetch: refetchSubDistricts } = useQuery({
+    queryKey: ['lov-subdistricts', province, district],
+    queryFn: () => apiFetchLovSubDistricts(province, district),
+    enabled: false,
+  });
+
+  const { data: resNeighborhoods, refetch: refetchNeighborhoods } = useQuery({
+    queryKey: ['lov-neighborhoods', province, district, subDistrict],
+    queryFn: () =>
+      apiFetchLovNeighborhoods(province, district, subDistrict),
+    enabled: false,
   });
 
   const dataJamaah = resJamaah?.data;
+  const dataProvinces = resProvinces?.data || [];
+  const dataDistricts = resDistricts?.data || [];
+  const dataSubDistricts = resSubDistricts?.data || [];
+  const dataNeighborhoods = resNeighborhoods?.data || [];
 
   const handlePreview = async (file) => {
     const isPDF = file.url?.endsWith('.pdf') || file.name?.endsWith('.pdf');
@@ -76,6 +122,7 @@ const UmrohPage = () => {
     setPreviewOpen(true);
   };
 
+  // Load & autofill
   useEffect(() => {
     if (dataJamaah) {
       setValue('firstName', dataJamaah.firstName);
@@ -86,10 +133,53 @@ const UmrohPage = () => {
       setValue('birthPlace', dataJamaah.birthPlace);
       setValue('birthDate', dayjs(dataJamaah.birthDate));
       setValue('phoneNumber', dataJamaah.phoneNumber);
-      // Lanjut Besok yah
-    }
+      setValue('address', dataJamaah.address);
 
-  }, [dataJamaah, setValue])
+      isFromJamaah.current = {
+        province: true,
+        district: true,
+        subDistrict: true,
+        neighborhoods: true,
+      };
+
+      setValue('province', dataJamaah.province);
+    }
+  }, [dataJamaah, setValue]);
+
+  // Refetch by level
+  useEffect(() => {
+    if (province) refetchDistricts();
+  }, [province]);
+
+  useEffect(() => {
+    if (province && district) refetchSubDistricts();
+  }, [province, district]);
+
+  useEffect(() => {
+    if (province && district && subDistrict) refetchNeighborhoods();
+  }, [province, district, subDistrict]);
+
+  // Autofill lower levels
+  useEffect(() => {
+    if (resDistricts && isFromJamaah.current.district) {
+      setValue('district', dataJamaah?.district);
+      isFromJamaah.current.district = false;
+    }
+  }, [resDistricts]);
+
+  useEffect(() => {
+    if (resSubDistricts && isFromJamaah.current.subDistrict) {
+      setValue('subDistrict', dataJamaah?.subDistrict);
+      isFromJamaah.current.subDistrict = false;
+    }
+  }, [resSubDistricts]);
+
+  useEffect(() => {
+    if (resNeighborhoods && isFromJamaah.current.neighborhoods) {
+      setValue('neighborhoods', dataJamaah?.neighborhoods);
+      isFromJamaah.current.neighborhoods = false;
+    }
+  }, [resNeighborhoods]);
 
 
 
@@ -214,7 +304,6 @@ const UmrohPage = () => {
                 <div style={{ width: '100%' }}>
                   <Select
                     {...field}
-                    showSearch
                     allowClear
                     placeholder="Pilih Jenis Kelamin"
                     style={{ width: '100%' }}
@@ -347,6 +436,7 @@ const UmrohPage = () => {
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Status Nikah"
                     style={{ width: '100%' }}
                     options={[
@@ -393,6 +483,7 @@ const UmrohPage = () => {
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Status Nikah"
                     style={{ width: '100%' }}
                     options={[
@@ -507,11 +598,11 @@ const UmrohPage = () => {
           <Form.Item
             required
             label={<Label text='Alamat' extraText="Sesuai KTP" />}
-            validateStatus={errors.medicalCondition ? 'error' : ''}
-            help={errors.medicalCondition?.message}
+            validateStatus={errors.address ? 'error' : ''}
+            help={errors.address?.message}
           >
             <Controller
-              name="medicalCondition"
+              name="address"
               control={control}
               rules={{
                 required: 'Kondisi Medis Jamaah wajib diisi',
@@ -520,7 +611,7 @@ const UmrohPage = () => {
                 <Input.TextArea
                   {...field}
                   allowClear
-                  placeholder="Kondisi Medis Jamaah"
+                  placeholder="Masukkan Alamat sesuai KTP Jaamaah"
                 />
               )}
             />
@@ -546,18 +637,25 @@ const UmrohPage = () => {
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Provinsi"
                     style={{ width: '100%' }}
-                    options={[
-                      {
-                        value: '1',
-                        label: 'Banten',
-                      },
-                      {
-                        value: '0',
-                        label: 'DKI Jakarta',
-                      },
-                    ]}
+                    onChange={(value) => {
+                      isFromJamaah.current = {
+                        province: false,
+                        district: false,
+                        subDistrict: false,
+                        neighborhoods: false,
+                      };
+                      field.onChange(value);
+                      setValue('district', null);
+                      setValue('subDistrict', null);
+                      setValue('neighborhoods', null);
+                    }}
+                    options={dataProvinces.map(item => ({
+                      value: item.id,
+                      label: item.name
+                    }))}
                   />
                 </div>
               )}
@@ -584,18 +682,20 @@ const UmrohPage = () => {
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Kab/Kota"
                     style={{ width: '100%' }}
-                    options={[
-                      {
-                        value: '1',
-                        label: 'Tangerang',
-                      },
-                      {
-                        value: '0',
-                        label: 'Jakarta Selatan',
-                      },
-                    ]}
+                    onChange={(value) => {
+                      isFromJamaah.current.subDistrict = false;
+                      isFromJamaah.current.neighborhoods = false;
+                      field.onChange(value);
+                      setValue('subDistrict', null);
+                      setValue('neighborhoods', null);
+                    }}
+                    options={dataDistricts.map(item => ({
+                      value: item.id,
+                      label: item.name
+                    }))}
                   />
                 </div>
               )}
@@ -622,18 +722,20 @@ const UmrohPage = () => {
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Kecamatan"
                     style={{ width: '100%' }}
-                    options={[
-                      {
-                        value: '1',
-                        label: 'Periuk',
-                      },
-                      {
-                        value: '0',
-                        label: 'Curug',
-                      },
-                    ]}
+                    onChange={(value) => {
+                      isFromJamaah.current.neighborhoods = false;
+                      field.onChange(value);
+                      setValue('neighborhoods', null);
+                    }}
+                    options={
+                      dataSubDistricts.map(item => ({
+                        value: item.id,
+                        label: item.name
+                      }))
+                    }
                   />
                 </div>
               )}
@@ -660,18 +762,15 @@ const UmrohPage = () => {
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Desa/Kelurahan"
                     style={{ width: '100%' }}
-                    options={[
-                      {
-                        value: '1',
-                        label: 'Sangiang',
-                      },
-                      {
-                        value: '0',
-                        label: 'Cipicung',
-                      },
-                    ]}
+                    options={
+                      dataNeighborhoods.map(item => ({
+                        value: item.id,
+                        label: item.name
+                      }))
+                    }
                   />
                 </div>
               )}
@@ -684,7 +783,7 @@ const UmrohPage = () => {
         <Col lg={8}>
           <Form.Item
             required
-            label="Paket Umroh"
+            label="Paket Umroh / Tanggal Berangkat"
             validateStatus={errors.umrohCode ? 'error' : ''}
             help={errors.umrohCode?.message}
           >
@@ -700,6 +799,46 @@ const UmrohPage = () => {
                     {...field}
                     showSearch
                     allowClear
+                    optionFilterProp='label'
+                    placeholder="Pilih Paket Umroh"
+                    style={{ width: '100%' }}
+                    options={[
+                      {
+                        value: '1',
+                        label: 'Paket A',
+                      },
+                      {
+                        value: '0',
+                        label: 'Paket B',
+                      },
+                    ]}
+                  />
+                </div>
+              )}
+            />
+          </Form.Item>
+        </Col>
+
+        <Col lg={8}>
+          <Form.Item
+            required
+            label="Paket Hotel & Kamar"
+            validateStatus={errors.umrohCode ? 'error' : ''}
+            help={errors.umrohCode?.message}
+          >
+            <Controller
+              name="umrohCode"
+              control={control}
+              rules={{
+                required: 'Paket Umroh tidak boleh kosong',
+              }}
+              render={({ field }) => (
+                <div style={{ width: '100%' }}>
+                  <Select
+                    {...field}
+                    showSearch
+                    allowClear
+                    optionFilterProp='label'
                     placeholder="Pilih Paket Umroh"
                     style={{ width: '100%' }}
                     options={[
@@ -912,7 +1051,6 @@ const UmrohPage = () => {
                 <div style={{ width: '100%' }}>
                   <Select
                     {...field}
-                    showSearch
                     allowClear
                     placeholder="Pilih Jenis Kelamin"
                     style={{ width: '100%' }}

@@ -70,3 +70,31 @@ export const apiFetchLovAgents = async () => {
   const response = await axiosInstance.get(`/lov/agents`);
   return response.data;
 };
+
+export const apiFetchLovProvinces = async () => {
+  const response = await axiosInstance.get(`/lov/provinces`);
+  return response.data;
+};
+
+export const apiFetchLovDistricts = async (provinceId) => {
+  const response = await axiosInstance.get(`/lov/provinces/${provinceId}/districts`);
+  return response.data;
+};
+
+export const apiFetchLovSubDistricts = async (provinceId, districtId) => {
+  const response = await axiosInstance.get(
+    `/lov/provinces/${provinceId}/districts/${districtId}/sub-districts`
+  );
+  return response.data;
+};
+
+export const apiFetchLovNeighborhoods = async (
+  provinceId,
+  districtId,
+  subDistrictId
+) => {
+  const response = await axiosInstance.get(
+    `/lov/provinces/${provinceId}/districts/${districtId}/sub-districts/${subDistrictId}/neighborhoods`
+  );
+  return response.data;
+};

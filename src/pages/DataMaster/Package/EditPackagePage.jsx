@@ -314,6 +314,7 @@ const EditPackagePage = () => {
                       {...field}
                       showSearch
                       allowClear
+                      optionFilterProp='label'
                       placeholder="Pilih Tiket"
                       style={{ width: '100%' }}
                       options={optionTickets.map((item) => ({ value: item.id, label: item.bookingCode }))}
@@ -646,6 +647,7 @@ const EditPackagePage = () => {
                       {...field}
                       showSearch
                       allowClear
+                      optionFilterProp='label'
                       placeholder="Pilih Tour Leader"
                       style={{ width: '100%' }}
                       options={optionJamaah.map((item) => ({ value: item.jamaahCode, label: item.jamaahName }))}
@@ -857,7 +859,6 @@ const EditPackagePage = () => {
                   <div style={{ width: '100%' }}>
                     <Select
                       {...field}
-                      showSearch
                       allowClear
                       placeholder="Pilih Status"
                       style={{ width: '100%' }}
@@ -894,7 +895,6 @@ const EditPackagePage = () => {
                   <div style={{ width: '100%' }}>
                     <Select
                       {...field}
-                      showSearch
                       allowClear
                       placeholder="Apakah Promo ?"
                       style={{ width: '100%' }}
