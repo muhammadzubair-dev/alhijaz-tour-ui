@@ -98,3 +98,13 @@ export const apiFetchLovNeighborhoods = async (
   );
   return response.data;
 };
+
+export const apiFetchUmrohPackage = async () => {
+  const response = await axiosInstance.get(`/lov/umroh-package`);
+  return response.data;
+};
+
+export const apiFetchUmrohPackageRooms = async (packageId) => {
+  const response = await axiosInstance.get(`/lov/umroh-package/${packageId}/rooms`);
+  return response.data;
+};

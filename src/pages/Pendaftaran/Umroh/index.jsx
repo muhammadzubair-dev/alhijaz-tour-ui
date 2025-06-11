@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Label } from '@/components';
-import { apiFetchJamaahByIdentity, apiFetchLovDistricts, apiFetchLovNeighborhoods, apiFetchLovProvinces, apiFetchLovSubDistricts } from '@/services/lovService';
+import { apiFetchJamaahByIdentity, apiFetchLovAgents, apiFetchLovDistricts, apiFetchLovNeighborhoods, apiFetchLovProvinces, apiFetchLovSubDistricts, apiFetchUmrohPackage, apiFetchUmrohPackageRooms } from '@/services/lovService';
+import useAuthStore from '@/store/authStore';
 import checkFormatImage from '@/utils/checkFormatImage';
 import getBase64 from '@/utils/getbase64';
 import { PlusOutlined } from '@ant-design/icons';
@@ -38,10 +39,17 @@ const defaultValue = {
   subDistrict: null,
   neighborhoods: null,
   address: null,
+  packageId: null,
+  packageRoomPrice: null,
+  officeDiscount: null,
+  agentDiscount: null,
+  agentId: null,
+  staffId: null,
   photoIdentity: []
 }
 
 const UmrohPage = () => {
+  const user = useAuthStore((state) => state.user);
   const {
     control,
     handleSubmit,
@@ -54,10 +62,15 @@ const UmrohPage = () => {
     defaultValues: defaultValue,
   });
 
+  const [priceState, setPriceState] = useState(0)
+  const [otherPriceState, setOtherPriceState] = useState(0)
+
   const identityNumber = watch('identityNumber');
   const province = watch('province');
   const district = watch('district');
   const subDistrict = watch('subDistrict');
+  const packageId = watch('packageId');
+  const packageRoomPrice = watch('packageRoomPrice');
 
   const isFromJamaah = useRef({
     province: false,
@@ -101,11 +114,30 @@ const UmrohPage = () => {
     enabled: false,
   });
 
+  const { data: resUmrohPackage } = useQuery({
+    queryKey: ['lov-umroh-package'],
+    queryFn: apiFetchUmrohPackage,
+  });
+
+  const { data: resUmrohPackageRooms, refetch: refetchPackageRooms } = useQuery({
+    queryKey: ['lov-umroh-package-rooms', packageId],
+    queryFn: () => apiFetchUmrohPackageRooms(packageId),
+    enabled: false
+  });
+
+  const { data: resAgents } = useQuery({
+    queryKey: ['lov-agents'],
+    queryFn: apiFetchLovAgents,
+  });
+
   const dataJamaah = resJamaah?.data;
   const dataProvinces = resProvinces?.data || [];
   const dataDistricts = resDistricts?.data || [];
   const dataSubDistricts = resSubDistricts?.data || [];
   const dataNeighborhoods = resNeighborhoods?.data || [];
+  const dataUmrohPackage = resUmrohPackage?.data || [];
+  const dataUmrohPackageRooms = resUmrohPackageRooms?.data || [];
+  const dataAgents = resAgents?.data || [];
 
   const handlePreview = async (file) => {
     const isPDF = file.url?.endsWith('.pdf') || file.name?.endsWith('.pdf');
@@ -147,6 +179,19 @@ const UmrohPage = () => {
   }, [dataJamaah, setValue]);
 
   // Refetch by level
+  useEffect(() => {
+    if (packageId) refetchPackageRooms();
+  }, [packageId]);
+
+  useEffect(() => {
+    if (packageRoomPrice) {
+      const selectedPrice = dataUmrohPackageRooms.find(item => item.id === packageRoomPrice)
+      setPriceState(selectedPrice?.price || 0)
+      setOtherPriceState(selectedPrice?.equipmentHandlingPrice || 0)
+    };
+  }, [packageRoomPrice]);
+
+
   useEffect(() => {
     if (province) refetchDistricts();
   }, [province]);
@@ -784,11 +829,11 @@ const UmrohPage = () => {
           <Form.Item
             required
             label="Paket Umroh / Tanggal Berangkat"
-            validateStatus={errors.umrohCode ? 'error' : ''}
-            help={errors.umrohCode?.message}
+            validateStatus={errors.packageId ? 'error' : ''}
+            help={errors.packageId?.message}
           >
             <Controller
-              name="umrohCode"
+              name="packageId"
               control={control}
               rules={{
                 required: 'Paket Umroh tidak boleh kosong',
@@ -802,16 +847,16 @@ const UmrohPage = () => {
                     optionFilterProp='label'
                     placeholder="Pilih Paket Umroh"
                     style={{ width: '100%' }}
-                    options={[
-                      {
-                        value: '1',
-                        label: 'Paket A',
-                      },
-                      {
-                        value: '0',
-                        label: 'Paket B',
-                      },
-                    ]}
+                    onChange={(value) => {
+                      setPriceState(0)
+                      setOtherPriceState(0)
+                      field.onChange(value);
+                      setValue('packageRoomPrice', null);
+                    }}
+                    options={dataUmrohPackage.map(item => ({
+                      value: item.id,
+                      label: item.name
+                    }))}
                   />
                 </div>
               )}
@@ -823,14 +868,14 @@ const UmrohPage = () => {
           <Form.Item
             required
             label="Paket Hotel & Kamar"
-            validateStatus={errors.umrohCode ? 'error' : ''}
-            help={errors.umrohCode?.message}
+            validateStatus={errors.packageRoomPrice ? 'error' : ''}
+            help={errors.packageRoomPrice?.message}
           >
             <Controller
-              name="umrohCode"
+              name="packageRoomPrice"
               control={control}
               rules={{
-                required: 'Paket Umroh tidak boleh kosong',
+                required: 'Paket Hotel & Kamar tidak boleh kosong',
               }}
               render={({ field }) => (
                 <div style={{ width: '100%' }}>
@@ -839,18 +884,12 @@ const UmrohPage = () => {
                     showSearch
                     allowClear
                     optionFilterProp='label'
-                    placeholder="Pilih Paket Umroh"
+                    placeholder="Pilih Paket Hotel & Kamar"
                     style={{ width: '100%' }}
-                    options={[
-                      {
-                        value: '1',
-                        label: 'Paket A',
-                      },
-                      {
-                        value: '0',
-                        label: 'Paket B',
-                      },
-                    ]}
+                    options={dataUmrohPackageRooms.map(item => ({
+                      value: item.id,
+                      label: item.name
+                    }))}
                   />
                 </div>
               )}
@@ -860,73 +899,43 @@ const UmrohPage = () => {
 
         <Col md={8}>
           <Form.Item
-            required
             label='Harga Paket'
-            validateStatus={errors.price ? 'error' : ''}
-            help={errors.price?.message}
           >
-            <Controller
-              name="price"
-              control={control}
-              rules={{
-                required: 'Harga Paket tidak boleh kosong',
-              }}
-              render={({ field }) => (
-                <div style={{ width: '100%' }}>
-                  <InputNumber
-                    {...field}
-                    prefix="Rp"
-                    placeholder="Masukkan Harga"
-                    style={{ width: '100%' }}
-                    formatter={(value) =>
-                      value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-                    }
-                    parser={(value) => value?.replace(/\./g, '')}
-                    onKeyPress={(e) => {
-                      if (!/[0-9]/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            />
+            <div style={{ width: '100%' }}>
+              <InputNumber
+                disabled
+                prefix="Rp"
+                value={priceState}
+                placeholder="Masukkan Harga"
+                style={{ width: '100%' }}
+                formatter={(value) =>
+                  value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                }
+                parser={(value) => value?.replace(/\./g, '')}
+              />
+            </div>
+
           </Form.Item>
         </Col>
 
         <Col md={8}>
           <Form.Item
-            required
             label={<Label text="Perlengkapan & Handling" extraText="Harga" />}
-            validateStatus={errors.equipmentHandlingPrice ? 'error' : ''}
-            help={errors.equipmentHandlingPrice?.message}
           >
-            <Controller
-              name="equipmentHandlingPrice"
-              control={control}
-              rules={{
-                required: 'Harga Perlengkapan & Handling tidak boleh kosong',
-              }}
-              render={({ field }) => (
-                <div style={{ width: '100%' }}>
-                  <InputNumber
-                    {...field}
-                    prefix="Rp"
-                    placeholder="Masukkan Harga"
-                    style={{ width: '100%' }}
-                    formatter={(value) =>
-                      value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
-                    }
-                    parser={(value) => value?.replace(/\./g, '')}
-                    onKeyPress={(e) => {
-                      if (!/[0-9]/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            />
+            <div style={{ width: '100%' }}>
+              <InputNumber
+                disabled
+                prefix="Rp"
+                value={otherPriceState}
+                placeholder="Masukkan Harga"
+                style={{ width: '100%' }}
+                formatter={(value) =>
+                  value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+                }
+                parser={(value) => value?.replace(/\./g, '')}
+              />
+            </div>
+
           </Form.Item>
         </Col>
 
@@ -1003,11 +1012,11 @@ const UmrohPage = () => {
         <Col md={8}>
           <Form.Item
             label={<Label text="Disc. Marketing" extraText="Harga" />}
-            validateStatus={errors.agentDicount ? 'error' : ''}
-            help={errors.agentDicount?.message}
+            validateStatus={errors.agentDiscount ? 'error' : ''}
+            help={errors.agentDiscount?.message}
           >
             <Controller
-              name="agentDicount"
+              name="agentDiscount"
               control={control}
               render={({ field }) => (
                 <div style={{ width: '100%' }}>
@@ -1037,12 +1046,12 @@ const UmrohPage = () => {
         <Col lg={8}>
           <Form.Item
             required
-            label="Marketing"
-            validateStatus={errors.gender ? 'error' : ''}
-            help={errors.gender?.message}
+            label="Marketing / Agent"
+            validateStatus={errors.agentId ? 'error' : ''}
+            help={errors.agentId?.message}
           >
             <Controller
-              name="gender"
+              name="agentId"
               control={control}
               rules={{
                 required: 'Kelamin tidak boleh kosong',
@@ -1052,18 +1061,14 @@ const UmrohPage = () => {
                   <Select
                     {...field}
                     allowClear
-                    placeholder="Pilih Jenis Kelamin"
+                    showSearch
+                    optionFilterProp='label'
+                    placeholder="Pilih Marketing / Agent"
                     style={{ width: '100%' }}
-                    options={[
-                      {
-                        value: '1',
-                        label: 'Laki-Laki',
-                      },
-                      {
-                        value: '0',
-                        label: 'Perempuan',
-                      },
-                    ]}
+                    options={dataAgents.map(item => ({
+                      value: item.id,
+                      label: item.name
+                    }))}
                   />
                 </div>
               )}
@@ -1172,6 +1177,7 @@ const UmrohPage = () => {
             help={errors.staffId?.message}
           >
             <Controller
+              disabled
               name="staffId"
               control={control}
               rules={{
@@ -1184,11 +1190,11 @@ const UmrohPage = () => {
                   value: 20,
                   message: 'Staff kantor maksimal 13 karakter'
                 },
-
               }}
               render={({ field }) => (
                 <Input
                   {...field}
+                  value={user.name}
                   allowClear
                   placeholder="Masukkan Staff kantor"
                 />
