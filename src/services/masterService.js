@@ -179,3 +179,35 @@ export const apiDeleteAirline = async ({ id }) => {
   const response = await axiosInstance.delete(`/master/airline/${id}`);
   return response.data;
 };
+
+// Umroh
+export const apiCreateUmroh = async (body) => {
+  const formData = new FormData();
+
+  // Append all scalar fields
+  Object.entries(body).forEach(([key, value]) => {
+    // Lewatkan file & array khusus
+    if (
+      ['photoIdentity'].includes(key)
+    )
+      return;
+
+    formData.append(key, value);
+  });
+
+  // Append file fields (ambil file asli dari `originFileObj`)
+  const appendFile = (fieldName, fileArr) => {
+    if (fileArr && fileArr.length > 0 && fileArr[0].originFileObj) {
+      formData.append(fieldName, fileArr[0].originFileObj);
+    }
+  };
+
+  appendFile('photoIdentity', body.photoIdentity);
+
+  const response = await axiosInstance.post('/master/umroh', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
