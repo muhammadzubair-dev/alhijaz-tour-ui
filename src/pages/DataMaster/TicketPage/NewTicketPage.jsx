@@ -10,6 +10,7 @@ import { FaPlus } from 'react-icons/fa6';
 import { useNavigate } from 'react-router-dom';
 import FlightForm from './components/FlightForm';
 import FlightItem from './components/FlightItem';
+import dayjs from 'dayjs';
 
 const defaultValues = {
   transactionDate: null,
@@ -139,6 +140,7 @@ const NewTicketPage = () => {
                   <div style={{ width: '100%' }}>
                     <DatePicker
                       {...field}
+                      minDate={dayjs()}
                       placeholder="Pilih Tanggal"
                       style={{ width: '100%' }} // ← penting
                     />

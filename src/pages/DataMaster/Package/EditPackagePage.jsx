@@ -428,6 +428,7 @@ const EditPackagePage = () => {
                 render={({ field }) => (
                   <DatePicker
                     {...field}
+                    minDate={dayjs()}
                     onChange={(date) => field.onChange(date)}
                     style={{ width: '100%' }}
                     placeholder="Pilih tanggal"
@@ -453,6 +454,7 @@ const EditPackagePage = () => {
                 render={({ field }) => (
                   <DatePicker
                     {...field}
+                    minDate={dayjs()}
                     onChange={(date) => field.onChange(date)}
                     style={{ width: '100%' }}
                     placeholder="Pilih tanggal"
@@ -478,6 +480,7 @@ const EditPackagePage = () => {
                 render={({ field }) => (
                   <DatePicker
                     {...field}
+                    minDate={dayjs()}
                     showTime={{ format: 'HH:mm' }}
                     format="YYYY-MM-DD HH:mm"
                     onChange={(date) => field.onChange(date)}
@@ -740,6 +743,7 @@ const EditPackagePage = () => {
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        minDate={dayjs()}
                         placeholder="Check In"
                         style={{ width: '100%' }}
                         onChange={(date) => field.onChange(date)}
@@ -759,6 +763,7 @@ const EditPackagePage = () => {
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        minDate={dayjs()}
                         placeholder="Check Out"
                         style={{ width: '100%' }}
                         onChange={(date) => field.onChange(date)}
@@ -786,6 +791,7 @@ const EditPackagePage = () => {
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        minDate={dayjs()}
                         placeholder="Check In"
                         style={{ width: '100%' }}
                         onChange={(date) => field.onChange(date)}
@@ -805,6 +811,7 @@ const EditPackagePage = () => {
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        minDate={dayjs()}
                         placeholder="Check Out"
                         style={{ width: '100%' }}
                         onChange={(date) => field.onChange(date)}

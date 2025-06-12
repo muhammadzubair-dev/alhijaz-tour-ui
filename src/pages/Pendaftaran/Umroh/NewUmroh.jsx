@@ -463,6 +463,7 @@ const NewUmrohPage = () => {
                 render={({ field }) => (
                   <DatePicker
                     {...field}
+                    minDate={dayjs()}
                     onChange={(date) => field.onChange(date)}
                     style={{ width: '100%' }}
                     placeholder="Pilih Tanggal Lahir"

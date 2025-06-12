@@ -150,6 +150,7 @@ const EditTicketPage = () => {
                   <div style={{ width: '100%' }}>
                     <DatePicker
                       {...field}
+                      minDate={dayjs()}
                       placeholder="Pilih Tanggal"
                       style={{ width: '100%' }}
                     />

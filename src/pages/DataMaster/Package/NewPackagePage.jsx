@@ -31,6 +31,7 @@ import HotelRooms from './components/HotelRooms';
 import styles from './index.module.css';
 import queryClient from '@/lib/queryClient';
 import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
 
 const defaultValue = {
   name: null,
@@ -369,6 +370,7 @@ const NewPackagePage = () => {
                 }}
                 render={({ field }) => (
                   <DatePicker
+                    minDate={dayjs()}
                     {...field}
                     onChange={(date) => field.onChange(date)}
                     style={{ width: '100%' }}
@@ -394,6 +396,7 @@ const NewPackagePage = () => {
                 }}
                 render={({ field }) => (
                   <DatePicker
+                    minDate={dayjs()}
                     {...field}
                     onChange={(date) => field.onChange(date)}
                     style={{ width: '100%' }}
@@ -419,6 +422,7 @@ const NewPackagePage = () => {
                 }}
                 render={({ field }) => (
                   <DatePicker
+                    minDate={dayjs()}
                     {...field}
                     showTime={{ format: 'HH:mm' }}
                     format="YYYY-MM-DD HH:mm"
@@ -682,6 +686,7 @@ const NewPackagePage = () => {
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        minDate={dayjs()}
                         placeholder="Check In"
                         style={{ width: '100%' }}
                         onChange={(date) => field.onChange(date)}
@@ -701,6 +706,7 @@ const NewPackagePage = () => {
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        minDate={dayjs()}
                         placeholder="Check Out"
                         style={{ width: '100%' }}
                         onChange={(date) => field.onChange(date)}
@@ -728,6 +734,7 @@ const NewPackagePage = () => {
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        minDate={dayjs()}
                         placeholder="Check In"
                         style={{ width: '100%' }}
                         onChange={(date) => field.onChange(date)}
@@ -747,6 +754,7 @@ const NewPackagePage = () => {
                     render={({ field }) => (
                       <DatePicker
                         {...field}
+                        minDate={dayjs()}
                         placeholder="Check Out"
                         style={{ width: '100%' }}
                         onChange={(date) => field.onChange(date)}

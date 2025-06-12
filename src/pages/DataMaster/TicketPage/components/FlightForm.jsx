@@ -1,6 +1,7 @@
 import { apiFetchLovAirlines, apiFetchLovAirports } from '@/services/lovService';
 import { useQuery } from '@tanstack/react-query';
 import { Button, DatePicker, Flex, Form, Input, message, Modal, Popconfirm, Select, Space, theme, TimePicker } from 'antd';
+import dayjs from 'dayjs';
 import moment from 'moment';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -111,6 +112,7 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
               <div style={{ width: '100%' }}>
                 <DatePicker
                   {...field}
+                  minDate={dayjs()}
                   placeholder="Pilih Tanggal Penerbangan"
                   style={{ width: '100%' }}
                 />
