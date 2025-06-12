@@ -886,7 +886,10 @@ const NewPackagePage = () => {
 
         <Divider />
 
-        <Flex justify='flex-end' style={{ marginTop: 16 }}>
+        <Flex justify='flex-end' style={{ marginTop: 16 }} gap={16}>
+          <Button onClick={() => navigate(-1)}>
+            Kembali
+          </Button>
           <Button type="primary" htmlType="submit">
             Simpan
           </Button>

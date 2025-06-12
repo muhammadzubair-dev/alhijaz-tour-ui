@@ -211,3 +211,13 @@ export const apiCreateUmroh = async (body) => {
   });
   return response.data;
 };
+
+export const apiFetchUmroh = async (query) => {
+  const response = await axiosInstance.get(`/master/umroh${objToQueryString(query)}`);
+  return response.data;
+};
+
+export const apiDeleteUmroh = async ({ id }) => {
+  const response = await axiosInstance.delete(`/master/umroh/${id}`);
+  return response.data;
+};

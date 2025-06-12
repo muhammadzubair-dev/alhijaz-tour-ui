@@ -237,7 +237,7 @@ const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) =
               <Flex gap={2} wrap>
                 {hotels.map(hotel => (
                   <Tag
-                    color='green'
+                    color='cyan'
                     style={{ marginRight: 0 }}
                     closable
                     onClose={(e) => {
@@ -317,7 +317,7 @@ const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) =
                 {
                   rooms.map((room) => (
                     <Tag
-                      color='cyan'
+                      color='green'
                       style={{ marginRight: 0 }}
                       closable
                       onClose={(e) => {

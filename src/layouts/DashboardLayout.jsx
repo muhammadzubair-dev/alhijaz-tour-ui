@@ -26,7 +26,7 @@ function getItem(label, key, icon, children) {
 const items = [
   getItem('Dashboard', '/dashboard', <HomeOutlined />),
   getItem('Pendatftaran', 'sub_pendaftaran', <FaWpforms />, [
-    getItem('Daftar Umroh', '/pendaftaran/umroh'),
+    getItem('Umroh', '/pendaftaran/umroh'),
     // getItem('Agent', '/user-management/agent'),
     // getItem('Role', '/user-management/role'),
     // getItem('Menu', '/user-management/menu'),

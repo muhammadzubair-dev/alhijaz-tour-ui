@@ -1,15 +1,18 @@
 import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
-import { apiDeleteUmroh, apiFetchUmrohs } from '@/services/masterService';
+import { apiDeleteUmroh, apiFetchUmroh } from '@/services/masterService';
 import getSortOrder from '@/utils/getSortOrder';
+import toRupiah from '@/utils/toRupiah';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Flex, Input, message, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
+import { Button, Flex, Input, message, Popconfirm, Select, Space, Table, Tooltip, Typography } from 'antd';
 import moment from 'moment';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 // import FormUmroh from './FormUmroh';
 
 const UmrohPage = () => {
+  const navigate = useNavigate()
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
@@ -27,7 +30,7 @@ const UmrohPage = () => {
   const [selectedUmroh, setSelectedUmroh] = useState(null);
   const { data: dataUmrohs, refetch: refetchUmrohs } = useQuery({
     queryKey: ['register-umroh', filterUmrohs.page, filterUmrohs.limit, filterUmrohs.sortBy, filterUmrohs.sortOrder],
-    queryFn: () => apiFetchUmrohs(filterUmrohs),
+    queryFn: () => apiFetchUmroh(filterUmrohs),
   });
 
   const deleteUmrohMutation = useMutation({
@@ -90,22 +93,57 @@ const UmrohPage = () => {
 
   const columns = [
     {
-      title: 'Nama Umroh',
-      width: 150,
-      dataIndex: 'name',
-      key: 'name',
+      title: 'Nama Pendaftar',
+      width: 120,
+      dataIndex: 'registerName',
+      key: 'registerName',
       sorter: true,
-      sortOrder: getSortOrder(filterUmrohs.sortBy, 'name', filterUmrohs.sortOrder)
+      sortOrder: getSortOrder(filterUmrohs.sortBy, 'registerName', filterUmrohs.sortOrder)
     },
     {
-      title: 'Aktif',
-      dataIndex: 'status',
-      key: 'status',
-      width: 70,
+      title: 'Paket Umroh',
+      width: 80,
+      // dataIndex: 'packageName',
+      key: 'packageName',
+      render: (values) =>
+        <Typography.Link onClick={() => navigate(`/data-master/package/${values.packageId}`)}>
+          {values.packageName}
+        </Typography.Link>
+    },
+    {
+      title: 'Tipe Hotel',
+      width: 80,
+      dataIndex: 'packageHotel',
+      key: 'packageHotel',
+    },
+    {
+      title: 'Tipe Kamar',
+      width: 80,
+      dataIndex: 'packageRoom',
+      key: 'packageRoom',
+    },
+    {
+      title: 'Harga',
+      width: 100,
+      dataIndex: 'price',
+      key: 'price',
+      render: (value) => toRupiah(value)
+    },
+    {
+      title: 'Tgl Keberangkatan',
+      width: 100,
+      dataIndex: 'departureDate',
+      key: 'departureDate',
+      render: (value) => moment(value).format('DD, MMM YYYY')
+    },
+    {
+      title: 'No. Tlp/Hp',
+      dataIndex: 'registerPhone',
+      key: 'registerPhone',
+      width: 100,
       align: 'center',
-      render: (value) => value === '1' ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />,
       sorter: true,
-      sortOrder: getSortOrder(filterUmrohs.sortBy, 'status', filterUmrohs.sortOrder)
+      sortOrder: getSortOrder(filterUmrohs.sortBy, 'registerPhone', filterUmrohs.sortOrder)
     },
     {
       title: 'Updated By',
@@ -143,38 +181,39 @@ const UmrohPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterUmrohs.sortBy, 'createdAt', filterUmrohs.sortOrder)
     },
-    {
-      title: 'Action',
-      key: 'operation',
-      fixed: 'right',
-      width: 100,
-      render: (values) => (
-        <Space>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus umroh ${values.name} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeleteUmroh(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
-      ),
-    },
+    // {
+    //   title: 'Action',
+    //   key: 'operation',
+    //   fixed: 'right',
+    //   width: 100,
+    //   render: (values) => (
+    //     <Space>
+    //       <Tooltip title="Edit">
+    //         <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+    //       </Tooltip>
+    //       <Tooltip title="Delete">
+    //         <Popconfirm
+    //           title={`Hapus umroh ${values.name} ?`}
+    //           placement='bottomRight'
+    //           onConfirm={() => handleDeleteUmroh(values)}
+    //           okText="Yes"
+    //           cancelText="No"
+    //         >
+    //           <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+    //         </Popconfirm>
+    //       </Tooltip>
+    //     </Space>
+    //   ),
+    // },
   ];
 
   return (
     <div>
       <Flex justify='space-between' gap={32}>
         <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
-          <Input placeholder='Nama Umroh' style={{ maxWidth: 150 }} name='name' allowClear onChange={handleChangeFilter} />
-          <Select
+          <Input placeholder='Nama Pendaftar' style={{ maxWidth: 150 }} name='registerName' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='No. Hp/Tlp' style={{ maxWidth: 150 }} name='registerPhone' allowClear onChange={handleChangeFilter} />
+          {/* <Select
             allowClear
             placeholder="Status"
             style={{ width: 120 }}
@@ -183,12 +222,12 @@ const UmrohPage = () => {
               { value: '1', label: 'Aktif' },
               { value: '0', label: 'Tidak Aktif' },
             ]}
-          />
+          /> */}
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New Umroh
+        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => navigate('/pendaftaran/umroh/daftar-umroh')}  >
+          Daftar Umroh
         </Button>
       </Flex>
       <Table

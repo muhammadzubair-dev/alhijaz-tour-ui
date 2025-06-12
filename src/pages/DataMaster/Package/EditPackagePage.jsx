@@ -10,6 +10,7 @@ import {
   Button,
   Col,
   DatePicker,
+  Divider,
   Flex,
   Form,
   Image,
@@ -325,6 +326,8 @@ const EditPackagePage = () => {
             </Form.Item>
           </Col>
 
+          <Divider />
+
           <Col lg={24}>
             <Flex gap={16} align='flex-end'>
               {renderUploadField('brochure', 'Brosur')}
@@ -362,6 +365,8 @@ const EditPackagePage = () => {
               />
             </Modal>
           </Col>
+
+          <Divider />
 
           <Col md={8}>
             <Form.Item
@@ -710,6 +715,8 @@ const EditPackagePage = () => {
           </Col>
         </Row>
 
+        <Divider />
+
         <HotelRooms
           hotelRooms={hotelRooms}
           onUpdateHotelRoom={handleUpdateHotelRooms}
@@ -935,7 +942,12 @@ const EditPackagePage = () => {
           </Col>
         </Row>
 
-        <Flex justify='flex-end' style={{ marginTop: 16 }}>
+        <Divider />
+
+        <Flex justify='flex-end' style={{ marginTop: 16 }} gap={16}>
+          <Button onClick={() => navigate(-1)}>
+            Kembali
+          </Button>
           <Button type="primary" htmlType="submit">
             Simpan
           </Button>

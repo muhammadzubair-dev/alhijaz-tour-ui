@@ -4,7 +4,7 @@ import { apiDeletePackage, apiFetchPackages } from '@/services/masterService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
+import { Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tooltip, Typography } from 'antd';
 import moment from 'moment';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -107,7 +107,11 @@ const PackagePage = () => {
       dataIndex: 'bookingCode',
       key: 'bookingCode',
       sorter: true,
-      sortOrder: getSortOrder(filterPackages.sortBy, 'bookingCode', filterPackages.sortOrder)
+      sortOrder: getSortOrder(filterPackages.sortBy, 'bookingCode', filterPackages.sortOrder),
+      render: (value, values) =>
+        <Typography.Link onClick={() => navigate(`/data-master/ticket/${values.bookingCodeId}`)}>
+          {value}
+        </Typography.Link>
     },
     {
       title: 'Tour Lead',
