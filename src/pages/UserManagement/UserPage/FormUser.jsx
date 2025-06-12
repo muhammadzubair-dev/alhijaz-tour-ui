@@ -63,7 +63,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
         name,
         username,
         isActive,
-        ...(values.type === 'Y' && { type: '0' })
+        type: '0'
       });
     } else {
       // Create new user
@@ -71,7 +71,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
         name,
         username,
         isActive,
-        ...(values.type === 'Y' && { type: '0' })
+        type: '0'
       });
     }
   };
@@ -167,23 +167,25 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
           />
         </Form.Item>
 
-        <Form.Item
-          label="Status"
-          required
-          validateStatus={errors.isActive ? 'error' : ''}
-          help={errors.isActive?.message}
-        >
-          <Controller
-            name="isActive"
-            control={control}
-            rules={{
-              required: 'Status tidak boleh kosong',
-            }}
-            render={({ field }) => <Select {...field} options={[{ value: 'true', label: "Aktif" }, { value: 'false', label: "Tidak Aktif" }]} allowClear />}
-          />
-        </Form.Item>
+        {data && (
+          <Form.Item
+            label="Status"
+            required
+            validateStatus={errors.isActive ? 'error' : ''}
+            help={errors.isActive?.message}
+          >
+            <Controller
+              name="isActive"
+              control={control}
+              rules={{
+                required: 'Status tidak boleh kosong',
+              }}
+              render={({ field }) => <Select {...field} options={[{ value: 'true', label: "Aktif" }, { value: 'false', label: "Tidak Aktif" }]} allowClear />}
+            />
+          </Form.Item>
+        )}
 
-        <Form.Item
+        {/* <Form.Item
           label="Staff ?"
           required
           validateStatus={errors.type ? 'error' : ''}
@@ -198,7 +200,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
             }}
             render={({ field }) => <Radio.Group {...field} options={[{ value: 'N', label: "Tidak" }, { value: 'Y', label: "Ya" }]} />}
           />
-        </Form.Item>
+        </Form.Item> */}
 
         <Flex gap={16} justify='flex-end'>
           <Button color="default" variant="filled" onClick={onCloseForm} loading={isLoading}>

@@ -130,13 +130,13 @@ const UserPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterUsers.sortBy, 'name', filterUsers.sortOrder)
     },
-    {
-      title: 'Tipe',
-      dataIndex: 'type',
-      key: 'type',
-      width: 60,
-      render: (value) => value === '1' ? 'Agent' : value === '0' ? 'Staff' : '-'
-    },
+    // {
+    //   title: 'Tipe',
+    //   dataIndex: 'type',
+    //   key: 'type',
+    //   width: 60,
+    //   render: (value) => value === '1' ? 'Agent' : value === '0' ? 'Staff' : '-'
+    // },
     {
       title: 'Banned',
       dataIndex: 'bannedUntil',

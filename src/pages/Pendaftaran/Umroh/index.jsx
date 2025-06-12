@@ -2,7 +2,7 @@ import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
 import { apiDeleteUmroh, apiFetchUmroh } from '@/services/masterService';
 import getSortOrder from '@/utils/getSortOrder';
-import toRupiah from '@/utils/toRupiah';
+import numberId from '@/utils/numberId';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Input, message, Popconfirm, Select, Space, Table, Tooltip, Typography } from 'antd';
@@ -127,7 +127,7 @@ const UmrohPage = () => {
       width: 100,
       dataIndex: 'price',
       key: 'price',
-      render: (value) => toRupiah(value)
+      render: (value) => numberId(value)
     },
     {
       title: 'Tgl Keberangkatan',

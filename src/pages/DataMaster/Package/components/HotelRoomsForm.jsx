@@ -1,5 +1,5 @@
 import { apiFetchCities, apiFetchCityHotels, apiFetchPackageRooms, apiFetchPackageTypes } from '@/services/lovService';
-import toRupiah from '@/utils/toRupiah';
+import numberId from '@/utils/numberId';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Flex, Form, InputNumber, message, Modal, Select, Space, Tag } from 'antd';
 import { useState } from 'react';
@@ -125,7 +125,7 @@ const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) =
     setHotels([])
     setRooms([])
     reset();
-    message.success('Sukses menambahkan paket kamar hotel baru')
+    message.success('Sukses menambahkan Jenis Paket baru')
   };
 
   const onError = (formErrors) => {
@@ -327,7 +327,7 @@ const HotelRoomsForm = ({ onCloseForm, open, hotelRooms, onUpdateHotelRooms }) =
                     >
                       {dataRoomTypes.data.find(item => item.id === room.roomId)?.name}:
                       <span style={{ fontWeight: 700 }}>
-                        {' '} {toRupiah(room.roomPrice || 0)}
+                        {' '} {numberId(room.roomPrice || 0)}
                       </span>
                     </Tag>
                   ))

@@ -3,7 +3,7 @@ import { Button, Popconfirm, Space, Table, Tooltip, Typography } from 'antd';
 import { useState } from 'react';
 import { FaPlus } from "react-icons/fa";
 import HotelRoomsForm from './HotelRoomsForm';
-import toRupiah from '@/utils/toRupiah';
+import numberId from '@/utils/numberId';
 
 const HotelRooms = ({ hotelRooms, onUpdateHotelRoom, onDeleteHotelRoom }) => {
   const [openFormHotelRooms, setOpenHotelRooms] = useState({
@@ -39,12 +39,12 @@ const HotelRooms = ({ hotelRooms, onUpdateHotelRoom, onDeleteHotelRoom }) => {
 
   const columns = [
     {
-      title: 'Paket Kamar Hotel',
+      title: 'Jenis Paket',
       dataIndex: 'paket',
       key: 'paket',
     },
     {
-      title: 'Hotels',
+      title: 'Hotel',
       dataIndex: 'hotels',
       key: 'hotels',
       render: (values) => (
@@ -58,21 +58,21 @@ const HotelRooms = ({ hotelRooms, onUpdateHotelRoom, onDeleteHotelRoom }) => {
       )
     },
     {
-      title: 'Rooms',
+      title: 'Kamar',
       dataIndex: 'rooms',
       key: 'rooms',
       render: (values) => (
         <>
           {values.map(value => (
             <div key={value.roomId}>
-              {value.roomName}: <Typography.Text style={{ fontWeight: 700, color: 'green' }}>Rp{toRupiah(value.roomPrice)}</Typography.Text>
+              {value.roomName}: <Typography.Text style={{ fontWeight: 700, color: 'green' }}>Rp{numberId(value.roomPrice)}</Typography.Text>
             </div>
           ))}
         </>
       )
     },
     {
-      title: () => <Button color='primary' variant='outlined' onClick={handleOpenForm} icon={<FaPlus />}>Paket Kamar Hotel</Button>,
+      title: () => <Button color='primary' variant='outlined' onClick={handleOpenForm} icon={<FaPlus />}>Jenis Paket</Button>,
       key: 'operation',
       fixed: 'right',
       width: 100,

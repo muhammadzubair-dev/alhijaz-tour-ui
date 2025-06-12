@@ -32,9 +32,12 @@ import styles from './index.module.css';
 import queryClient from '@/lib/queryClient';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
+import numberId from '@/utils/numberId';
+import FlightItem from '../TicketPage/components/FlightItem';
 
 const defaultValue = {
   name: null,
+  ticket: null,
   seat: null,
   maturityPassportDelivery: null,
   maturityRepayment: null,
@@ -67,6 +70,7 @@ const NewPackagePage = () => {
     formState: { errors },
     setValue,
     reset,
+    watch
   } = useForm({
     mode: 'onChange',
     defaultValues: defaultValue,
@@ -81,8 +85,12 @@ const NewPackagePage = () => {
   });
   const navigate = useNavigate()
 
+
   const optionJamaah = dataLovJamaah?.data || [];
   const optionTickets = dataLovTickets?.data || [];
+
+  const ticket = watch('ticket')
+  const selectedTicket = optionTickets.find(item => item.id === ticket)
 
   const [hotelRooms, setHotelRooms] = useState([])
   const [previewImage, setPreviewImage] = useState('');
@@ -240,7 +248,7 @@ const NewPackagePage = () => {
           <Col lg={8}>
             <Form.Item
               required
-              label="Tiket"
+              label="Tiket & Tanggal Berangkat"
               validateStatus={errors.ticket ? 'error' : ''}
               help={errors.ticket?.message}
             >
@@ -248,7 +256,7 @@ const NewPackagePage = () => {
                 name="ticket"
                 control={control}
                 rules={{
-                  required: 'Ticket tidak boleh kosong',
+                  required: 'Tiket tidak boleh kosong',
                 }}
                 render={({ field }) => (
                   <div style={{ width: '100%' }}>
@@ -259,12 +267,20 @@ const NewPackagePage = () => {
                       optionFilterProp='label'
                       placeholder="Pilih Tiket"
                       style={{ width: '100%' }}
-                      options={optionTickets.map((item) => ({ value: item.id, label: item.bookingCode }))}
+                      options={optionTickets.map((item) => ({ value: item.id, label: `${item.bookingCode} - ${moment(item.departureDate).format('DD MMM YYYY')}` }))}
                     />
                   </div>
                 )}
               />
             </Form.Item>
+          </Col>
+
+          <Col lg={24}>
+            <Flex vertical gap={8}>
+              {(selectedTicket?.ticketDetails || []).length !== 0 && selectedTicket?.ticketDetails.map((item => (
+                <FlightItem key={item.id} data={item} isArrival={item.type === 1} />
+              )))}
+            </Flex>
           </Col>
 
           <Divider />
@@ -314,7 +330,7 @@ const NewPackagePage = () => {
           <Col md={8}>
             <Form.Item
               required
-              label={<Label text="Jumlah Seat" extraText="Pax" />}
+              label={<Label text="Jumlah Seat" extraText={`Total: ${numberId(selectedTicket?.seatPack)}, Sisa: ${numberId(selectedTicket?.remainingSeat)}`} />}
               validateStatus={errors.seat ? 'error' : ''}
               help={errors.seat?.message}
             >
@@ -328,8 +344,8 @@ const NewPackagePage = () => {
                     message: 'Minimal 1 Seat'
                   },
                   max: {
-                    value: 10000,
-                    message: 'Maksimal 10.000 Seat'
+                    value: selectedTicket?.remainingSeat || 1,
+                    message: `Maksimal ${numberId(selectedTicket?.remainingSeat || '')} Seat`
                   },
                 }}
                 render={({ field }) => (

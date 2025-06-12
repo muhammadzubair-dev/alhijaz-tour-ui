@@ -13,7 +13,7 @@ import FlightItem from './components/FlightItem';
 import dayjs from 'dayjs';
 
 const defaultValues = {
-  transactionDate: null,
+  transactionDate: dayjs(),
   partnerId: null,
   bookingCode: null,
   dayPack: null,
