@@ -47,8 +47,9 @@ const defaultValue = {
   address: null,
   packageId: null,
   packageRoomPrice: null,
-  officeDiscount: null,
-  agentDiscount: null,
+  officeDiscount: 0,
+  agentDiscount: 0,
+  otherExpenses: 0,
   agentId: null,
   staffId: null,
   registerName: null,
@@ -73,7 +74,7 @@ const NewUmrohPage = () => {
   });
 
   const [priceState, setPriceState] = useState(0)
-  const [otherPriceState, setOtherPriceState] = useState(0)
+  const [equipmentPriceState, setEquipmentPriceState] = useState(0)
 
   const identityNumber = watch('identityNumber');
   const province = watch('province');
@@ -104,12 +105,12 @@ const NewUmrohPage = () => {
     onSuccess: (data, variable) => {
       reset();
       setPriceState(0)
-      setOtherPriceState(0)
+      setEquipmentPriceState(0)
       queryClient.invalidateQueries(['register-umroh']);
       setOpenResult({
         open: true,
         title: 'Daftar Umroh Berhasil',
-        subtitle: `Pendaftar umroh baru dengan nama "${variable.name}" telah berhasil ditambahkan ke sistem.`,
+        subtitle: `Pendaftar umroh baru dengan nama "${data.data.registerName}" telah berhasil ditambahkan ke sistem.`,
       });
     },
   });
@@ -233,7 +234,7 @@ const NewUmrohPage = () => {
     if (packageRoomPrice) {
       const selectedPrice = dataUmrohPackageRooms.find(item => item.id === packageRoomPrice)
       setPriceState(selectedPrice?.price || 0)
-      setOtherPriceState(selectedPrice?.equipmentHandlingPrice || 0)
+      setEquipmentPriceState(selectedPrice?.equipmentHandlingPrice || 0)
     };
   }, [packageRoomPrice]);
 
@@ -894,7 +895,7 @@ const NewUmrohPage = () => {
                       style={{ width: '100%' }}
                       onChange={(value) => {
                         setPriceState(0)
-                        setOtherPriceState(0)
+                        setEquipmentPriceState(0)
                         field.onChange(value);
                         setValue('packageRoomPrice', null);
                       }}
@@ -971,7 +972,7 @@ const NewUmrohPage = () => {
                 <InputNumber
                   disabled
                   prefix="Rp"
-                  value={otherPriceState}
+                  value={equipmentPriceState}
                   placeholder="Masukkan Harga"
                   style={{ width: '100%' }}
                   formatter={(value) =>
@@ -988,14 +989,14 @@ const NewUmrohPage = () => {
             <Form.Item
               required
               label={<Label text="Biaya Lainnya" extraText="Harga" />}
-              validateStatus={errors.equipmentHandlingPrice ? 'error' : ''}
-              help={errors.equipmentHandlingPrice?.message}
+              validateStatus={errors.otherExpenses ? 'error' : ''}
+              help={errors.otherExpenses?.message}
             >
               <Controller
-                name="equipmentHandlingPrice"
+                name="otherExpenses"
                 control={control}
                 rules={{
-                  required: 'Harga Perlengkapan & Handling tidak boleh kosong',
+                  required: 'Biaya Lainnya harus diisi',
                 }}
                 render={({ field }) => (
                   <div style={{ width: '100%' }}>
@@ -1024,12 +1025,16 @@ const NewUmrohPage = () => {
 
           <Col md={8}>
             <Form.Item
+              required
               label={<Label text="Disc. Kantor" extraText="Harga" />}
               validateStatus={errors.officeDiscount ? 'error' : ''}
               help={errors.officeDiscount?.message}
             >
               <Controller
                 name="officeDiscount"
+                rules={{
+                  required: 'Diskon Kantor harus diisi',
+                }}
                 control={control}
                 render={({ field }) => (
                   <div style={{ width: '100%' }}>
@@ -1056,12 +1061,16 @@ const NewUmrohPage = () => {
 
           <Col md={8}>
             <Form.Item
+              required
               label={<Label text="Disc. Marketing" extraText="Harga" />}
               validateStatus={errors.agentDiscount ? 'error' : ''}
               help={errors.agentDiscount?.message}
             >
               <Controller
                 name="agentDiscount"
+                rules={{
+                  required: 'Diskon Marketing harus diisi',
+                }}
                 control={control}
                 render={({ field }) => (
                   <div style={{ width: '100%' }}>
@@ -1324,7 +1333,7 @@ const NewUmrohPage = () => {
         open={openResult}
         onOpenResult={handleOpenResult}
         extra={
-          <Button type="primary" key="console" onClick={() => navigate('/data-master/umroh')}>
+          <Button type="primary" key="console" onClick={() => navigate('/pendaftaran/umroh')}>
             List Umroh
           </Button>
         }
