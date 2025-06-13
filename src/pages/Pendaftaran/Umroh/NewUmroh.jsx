@@ -29,6 +29,7 @@ import moment from 'moment';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import styles from '../../index.module.css';
 
 const defaultValue = {
   firstName: null,
@@ -55,7 +56,8 @@ const defaultValue = {
   registerName: null,
   registerPhone: null,
   notes: '',
-  photoIdentity: []
+  photoIdentity: [],
+  selfPhoto: []
 }
 
 const NewUmrohPage = () => {
@@ -1255,26 +1257,133 @@ const NewUmrohPage = () => {
           </Col>
 
           <Col lg={8}>
+            <Flex gap={16}>
+
+              <Form.Item
+                style={{ margin: 0, width: 150 }}
+                required
+                label="KTP"
+                validateStatus={errors.photoIdentity ? 'error' : ''}
+                help={errors.photoIdentity?.message || ''}
+              >
+                <Controller
+                  name='photoIdentity'
+                  control={control}
+                  rules={{
+                    validate: (files) =>
+                      files && files.length > 0 ? true : 'KTP Wajib di upload!',
+                  }}
+                  render={({ field }) => (
+                    <Upload
+                      listType="picture-card"
+                      fileList={field.value}
+                      onPreview={handlePreview}
+                      onChange={({ fileList }) => setValue('photoIdentity', fileList)}
+                      style={{ width: '100%' }}
+                      className={styles.uploadWrapper}
+                      beforeUpload={(file) =>
+                        checkFormatImage(file) ? false : Upload.LIST_IGNORE
+                      }
+                    >
+                      {field.value.length >= 1 ? null : (
+                        <div>
+                          <PlusOutlined />
+                          <div style={{ marginTop: 8 }}>Upload</div>
+                        </div>
+                      )}
+                    </Upload>
+                  )}
+                />
+              </Form.Item>
+              <Form.Item
+                style={{ margin: 0, width: 150 }}
+                required
+                label="Foto Selfie"
+                validateStatus={errors.selfPhoto ? 'error' : ''}
+                help={errors.selfPhoto?.message || ''}
+              >
+                <Controller
+                  name='selfPhoto'
+                  control={control}
+                  rules={{
+                    validate: (files) =>
+                      files && files.length > 0 ? true : 'Foto Selfie Wajib di upload!',
+                  }}
+                  render={({ field }) => (
+                    <Upload
+                      listType="picture-card"
+                      fileList={field.value}
+                      onPreview={handlePreview}
+                      onChange={({ fileList }) => setValue('selfPhoto', fileList)}
+                      style={{ width: '100%' }}
+                      className={styles.uploadWrapper}
+                      beforeUpload={(file) =>
+                        checkFormatImage(file) ? false : Upload.LIST_IGNORE
+                      }
+                    >
+                      {field.value.length >= 1 ? null : (
+                        <div>
+                          <PlusOutlined />
+                          <div style={{ marginTop: 8 }}>Upload</div>
+                        </div>
+                      )}
+                    </Upload>
+                  )}
+                />
+              </Form.Item>
+            </Flex>
+            {previewImage && (
+              <Image
+                wrapperStyle={{ display: 'none' }}
+                preview={{
+                  visible: previewOpen,
+                  onVisibleChange: (visible) => setPreviewOpen(visible),
+                  afterOpenChange: (visible) =>
+                    !visible && setPreviewImage(''),
+                }}
+                src={previewImage}
+              />
+            )}
+            <Modal
+              open={previewPdf}
+              title="Preview PDF"
+              footer={null}
+              onCancel={() => setPreviewPdf(false)}
+              width="80%"
+              style={{ top: 20 }}
+            >
+              <iframe
+                src={`${pdfUrl}#navpanes=0`}
+                width="100%"
+                height="700px"
+                style={{ border: 'none' }}
+                title="PDF Preview"
+              />
+            </Modal>
+            <Typography.Paragraph type='secondary' style={{ fontWeight: 400, fontSize: 12, marginBottom: 24 }}>Format file: JPG, JPEG, PNG. Maks. ukuran: 1MB</Typography.Paragraph>
+          </Col>
+
+          {/* <Col lg={8}>
             <Form.Item
               style={{ margin: 0, width: 150 }}
               required
-              label="KTP"
-              validateStatus={errors.photoIdentity ? 'error' : ''}
-              help={errors.photoIdentity?.message || ''}
+              label="Foto Selfie"
+              validateStatus={errors.selfPhoto ? 'error' : ''}
+              help={errors.selfPhoto?.message || ''}
             >
               <Controller
-                name='photoIdentity'
+                name='selfPhoto'
                 control={control}
                 rules={{
                   validate: (files) =>
-                    files && files.length > 0 ? true : 'KTP Wajib di upload!',
+                    files && files.length > 0 ? true : 'Foto Selfie Wajib di upload!',
                 }}
                 render={({ field }) => (
                   <Upload
                     listType="picture-card"
                     fileList={field.value}
                     onPreview={handlePreview}
-                    onChange={({ fileList }) => setValue('photoIdentity', fileList)}
+                    onChange={({ fileList }) => setValue('selfPhoto', fileList)}
                     // style={{ width: '100%' }}
                     beforeUpload={(file) =>
                       checkFormatImage(file) ? false : Upload.LIST_IGNORE
@@ -1319,7 +1428,7 @@ const NewUmrohPage = () => {
               />
             </Modal>
             <Typography.Paragraph type='secondary' style={{ fontWeight: 400, fontSize: 12, marginBottom: 24 }}>Format file: JPG, JPEG, PNG. Maks. ukuran: 1MB</Typography.Paragraph>
-          </Col>
+          </Col> */}
 
           <Divider />
 

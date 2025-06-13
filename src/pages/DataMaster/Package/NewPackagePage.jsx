@@ -28,7 +28,7 @@ import moment from 'moment';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import HotelRooms from './components/HotelRooms';
-import styles from './index.module.css';
+import styles from '../../index.module.css';
 import queryClient from '@/lib/queryClient';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -597,7 +597,6 @@ const NewPackagePage = () => {
 
           <Col lg={8}>
             <Form.Item
-              required
               label="Tour Leader"
               validateStatus={errors.tourLead ? 'error' : ''}
               help={errors.tourLead?.message}
@@ -605,9 +604,6 @@ const NewPackagePage = () => {
               <Controller
                 name="tourLead"
                 control={control}
-                rules={{
-                  required: 'Tour Leader tidak boleh kosong',
-                }}
                 render={({ field }) => (
                   <div style={{ width: '100%' }}>
                     <Select

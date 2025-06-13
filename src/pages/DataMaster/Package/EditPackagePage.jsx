@@ -31,7 +31,7 @@ import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import HotelRooms from './components/HotelRooms';
-import styles from './index.module.css';
+import styles from '../../index.module.css';
 import numberId from '@/utils/numberId';
 import FlightItem from '../TicketPage/components/FlightItem';
 
@@ -654,7 +654,6 @@ const EditPackagePage = () => {
 
           <Col lg={8}>
             <Form.Item
-              required
               label="Tour Leader"
               validateStatus={errors.tourLead ? 'error' : ''}
               help={errors.tourLead?.message}
@@ -662,9 +661,6 @@ const EditPackagePage = () => {
               <Controller
                 name="tourLead"
                 control={control}
-                rules={{
-                  required: 'Tour Leader tidak boleh kosong',
-                }}
                 render={({ field }) => (
                   <div style={{ width: '100%' }}>
                     <Select

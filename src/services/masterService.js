@@ -2,6 +2,38 @@ import axiosInstance from '@/lib/axios'
 import cleanObject from '@/utils/cleanObj';
 import objToQueryString from '@/utils/objToQueryString';
 
+const buildMultipartFormData = (body, fileFields = [], jsonFields = []) => {
+  const formData = new FormData();
+
+  // Lewatkan key yang perlu di-handle khusus (file dan JSON)
+  const skipKeys = [...fileFields, ...jsonFields];
+
+  Object.entries(body).forEach(([key, value]) => {
+    if (skipKeys.includes(key)) return;
+    if (value === null || value === undefined || value === 'null') return;
+
+    formData.append(key, value);
+  });
+
+  // File fields (mengambil originFileObj)
+  fileFields.forEach(field => {
+    const fileArr = body[field];
+    if (fileArr?.[0]?.originFileObj) {
+      formData.append(field, fileArr[0].originFileObj);
+    }
+  });
+
+  // JSON fields (seperti array hotelRooms)
+  jsonFields.forEach(field => {
+    const val = body[field];
+    if (Array.isArray(val) && val.length > 0) {
+      formData.append(field, JSON.stringify(val));
+    }
+  });
+
+  return formData;
+};
+
 // MASTER BANK
 export const apiFetchMasterBanks = async (query) => {
   const response = await axiosInstance.get(`/master/banks${objToQueryString(query)}`);
@@ -48,76 +80,28 @@ export const apiDeleteMasterSosmed = async ({ id }) => {
 
 // Package
 export const apiCreatePackage = async (body) => {
-  const formData = new FormData();
-
-  // Append all scalar fields
-  Object.entries(body).forEach(([key, value]) => {
-    // Lewatkan file & array khusus
-    if (
-      ['itinerary', 'brochure', 'manasikInvitation', 'departureInfo', 'hotelRooms'].includes(key)
-    )
-      return;
-
-    formData.append(key, value);
-  });
-
-  // Append file fields (ambil file asli dari `originFileObj`)
-  const appendFile = (fieldName, fileArr) => {
-    if (fileArr && fileArr.length > 0 && fileArr[0].originFileObj) {
-      formData.append(fieldName, fileArr[0].originFileObj);
-    }
-  };
-
-  appendFile('itinerary', body.itinerary);
-  appendFile('brochure', body.brochure);
-  appendFile('manasikInvitation', body.manasikInvitation);
-  appendFile('departureInfo', body.departureInfo);
-
-  // Append hotelRooms as JSON string
-  formData.append('hotelRooms', JSON.stringify(body.hotelRooms));
+  const formData = buildMultipartFormData(body,
+    ['itinerary', 'brochure', 'manasikInvitation', 'departureInfo'],
+    ['hotelRooms']
+  );
 
   const response = await axiosInstance.post('/master/package', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
+
   return response.data;
 };
 
 export const apiUpdatePackage = async (id, body) => {
-  const formData = new FormData();
-
-  // Append all scalar fields
-  Object.entries(body).forEach(([key, value]) => {
-    // Lewatkan file & array khusus
-    if (
-      ['itinerary', 'brochure', 'manasikInvitation', 'departureInfo', 'hotelRooms'].includes(key)
-    )
-      return;
-
-    formData.append(key, value);
-  });
-
-  // Append file fields (ambil file asli dari `originFileObj`)
-  const appendFile = (fieldName, fileArr) => {
-    if (fileArr && fileArr.length > 0 && fileArr[0].originFileObj) {
-      formData.append(fieldName, fileArr[0].originFileObj);
-    }
-  };
-
-  appendFile('itinerary', body.itinerary);
-  appendFile('brochure', body.brochure);
-  appendFile('manasikInvitation', body.manasikInvitation);
-  appendFile('departureInfo', body.departureInfo);
-
-  // Append hotelRooms as JSON string
-  formData.append('hotelRooms', JSON.stringify(body.hotelRooms));
+  const formData = buildMultipartFormData(body,
+    ['itinerary', 'brochure', 'manasikInvitation', 'departureInfo'],
+    ['hotelRooms']
+  );
 
   const response = await axiosInstance.put(`/master/package/${id}`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
+
   return response.data;
 };
 
@@ -182,33 +166,12 @@ export const apiDeleteAirline = async ({ id }) => {
 
 // Umroh
 export const apiCreateUmroh = async (body) => {
-  const formData = new FormData();
-
-  // Append all scalar fields
-  Object.entries(body).forEach(([key, value]) => {
-    // Lewatkan file & array khusus
-    if (
-      ['photoIdentity'].includes(key)
-    )
-      return;
-
-    formData.append(key, value);
-  });
-
-  // Append file fields (ambil file asli dari `originFileObj`)
-  const appendFile = (fieldName, fileArr) => {
-    if (fileArr && fileArr.length > 0 && fileArr[0].originFileObj) {
-      formData.append(fieldName, fileArr[0].originFileObj);
-    }
-  };
-
-  appendFile('photoIdentity', body.photoIdentity);
+  const formData = buildMultipartFormData(body, ['photoIdentity', 'selfPhoto']);
 
   const response = await axiosInstance.post('/master/umroh', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
+
   return response.data;
 };
 
