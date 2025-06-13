@@ -9,6 +9,7 @@ import {
   Button,
   Col,
   DatePicker,
+  Descriptions,
   Divider,
   Flex,
   Form,
@@ -34,6 +35,7 @@ import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import numberId from '@/utils/numberId';
 import FlightItem from '../TicketPage/components/FlightItem';
+import JenisPaket from './components/JenisPaket';
 
 const defaultValue = {
   name: null,
@@ -680,6 +682,12 @@ const NewPackagePage = () => {
           onUpdateHotelRoom={handleUpdateHotelRooms}
           onDeleteHotelRoom={handleDeleteHotelRoom}
         />
+
+        {/* <Divider />
+
+        <JenisPaket />
+
+        <Divider /> */}
 
         <Row gutter={16} style={{ maxWidth: 1240, marginTop: 24 }}>
           {/* Madinah */}

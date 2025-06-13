@@ -16,7 +16,7 @@ const defaultValues = {
   ticketEta: null
 }
 
-const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFlight }) => {
+const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFlight, onEditFlight, onDeleteFlight }) => {
   const { token } = theme.useToken()
   const {
     control,
@@ -56,10 +56,13 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
       ticketEtd: values.ticketEtd ? moment(values.ticketEtd.toDate()).format('HH:mm') : null,
       ticketEta: values.ticketEta ? moment(values.ticketEta.toDate()).format('HH:mm') : null,
     };
-    console.log('values ====> ', formatted)
     reset()
-    onSaveFlight(formatted)
-    message.success('Berhasil menambahkan data Departure baru')
+    if (data) {
+      onEditFlight(formatted)
+    } else {
+      onSaveFlight(formatted)
+    }
+    message.success(data ? `Berhasil mengubah data ${type}` : `Berhasil menambahkan data ${type} baru`)
   };
 
   const onError = (formErrors) => {
@@ -310,19 +313,25 @@ const FlightForm = ({ open = false, type = 'Departure', data, onClose, onSaveFli
         </Form.Item>
 
         <Flex gap={16} justify='space-between'>
-          <Popconfirm
-            title="Hapus Departure"
-            description="Anda yakin untuk menghapus departure ini?"
-            // onConfirm={confirm}
-            // onCancel={cancel}
-            placement='bottom'
-            okText="Yes"
-            cancelText="No"
-          >
-            <Button color="danger" variant="outlined">
-              Hapus
-            </Button>
-          </Popconfirm>
+          {data ? (
+            <Popconfirm
+              title="Hapus Departure"
+              description={`Anda yakin untuk menghapus ${type} ini ?`}
+              onConfirm={() => {
+                onDeleteFlight(data?.id)
+                handleClose()
+              }}
+              // onCancel={cancel}
+              placement='bottom'
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button color="danger" variant="outlined">
+                Hapus
+              </Button>
+            </Popconfirm>
+          ) : <div></div>}
+
           <Space>
             <Button color="default" variant="filled" onClick={handleClose}>
               Close

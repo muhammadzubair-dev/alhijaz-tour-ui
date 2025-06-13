@@ -8,7 +8,8 @@ import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 const defaultValues = {
-  userId: null,
+  username: null,
+  name: null,
   identityType: null,
   bankId: null,
   accountNumber: '',
@@ -31,10 +32,10 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
     defaultValues
   });
 
-  const { data: dataUsers } = useQuery({
-    queryKey: ['lov-users-agent'],
-    queryFn: apiFetchLovUserAgent,
-  });
+  // const { data: dataUsers } = useQuery({
+  //   queryKey: ['lov-users-agent'],
+  //   queryFn: apiFetchLovUserAgent,
+  // });
 
   const { data: dataBanks } = useQuery({
     queryKey: ['lov-banks'],
@@ -47,10 +48,10 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
   });
 
 
-  const optionUser = (dataUsers?.data || [])?.map((user) => ({
-    value: user.id,
-    label: user.name
-  }))
+  // const optionUser = (dataUsers?.data || [])?.map((user) => ({
+  //   value: user.id,
+  //   label: user.name
+  // }))
 
   const optionBank = (dataBanks?.data || [])?.map((bank) => ({
     value: bank.id,
@@ -70,9 +71,10 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
       onCloseForm();
       queryClient.invalidateQueries(['agents']);
       onOpenResult({
+        extra: data.data.password,
         open: true,
         title: 'Agent Berhasil Ditambahkan',
-        subtitle: `Agent dengan username "${data.data.username}" telah berhasil ditambahkan ke sistem.`,
+        subtitle: `Agent dengan username "${data.data.password}" telah berhasil ditambahkan ke sistem. Berikut adalah kata sandi sementara yang dapat digunakan untuk login.`,
       });
     },
   });
@@ -116,6 +118,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
     if (data) {
       reset({
         username: data.username,
+        name: data.name,
         userId: data.userId,
         identityType: data.identityType,
         bankId: data.bankId,
@@ -150,25 +153,57 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
         onFinish={handleSubmit(onSubmit, onError)}
       >
         <Form.Item
-          label="Nama User"
+          label="Username"
           required
-          validateStatus={errors.userId ? 'error' : ''}
-          help={errors.userId?.message}
+          validateStatus={errors.username ? 'error' : ''}
+          help={errors.username?.message}
         >
           <Controller
-            name="userId"
+            name="username"
             control={control}
             rules={{
-              required: 'Nama User tidak boleh kosong',
+              required: 'Username tidak boleh kosong',
+              minLength: {
+                value: 4,
+                message: 'Username minimal 4 karakter',
+              },
+              maxLength: {
+                value: 20,
+                message: 'Username maksimal 20 karakter'
+              },
+              pattern: {
+                value: /^[a-z0-9]+$/, // hanya huruf kecil dan angka
+                message: 'Username hanya boleh huruf kecil dan angka, tanpa spasi atau karakter khusus',
+              },
             }}
-            // render={({ field }) => }
-            render={({ field }) => data?.name ?
-              <Select value={data.userId} options={[{ value: data.userId, label: data.name }]} disabled />
-              :
-              <Select placeholder="Pilih User"  {...field} showSearch allowClear optionFilterProp="label" options={optionUser} />
-            }
+            render={({ field }) => <Input {...field} placeholder="Masukkan Username" />}
           />
         </Form.Item>
+
+        <Form.Item
+          label="Name"
+          required
+          validateStatus={errors.name ? 'error' : ''}
+          help={errors.name?.message}
+        >
+          <Controller
+            name="name"
+            control={control}
+            rules={{
+              required: 'Name tidak boleh kosong',
+              minLength: {
+                value: 4,
+                message: 'Name minimal 4 karakter',
+              },
+              maxLength: {
+                value: 50,
+                message: 'Name maksimal 50 karakter'
+              }
+            }}
+            render={({ field }) => <Input {...field} placeholder="Masukkan Nama" />}
+          />
+        </Form.Item>
+
         <Form.Item
           label="Tipe Identitas"
           required
@@ -184,6 +219,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
             render={({ field }) => <Select placeholder="Pilih Tipe Identitas"  {...field} options={[{ value: '0', label: "KTP" }]} />}
           />
         </Form.Item>
+
         <Form.Item
           label="Bank"
           required
@@ -333,22 +369,23 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
           />
         </Form.Item>
 
-
-        <Form.Item
-          label="Status"
-          required
-          validateStatus={errors.isActive ? 'error' : ''}
-          help={errors.isActive?.message}
-        >
-          <Controller
-            name="isActive"
-            control={control}
-            rules={{
-              required: 'Status tidak boleh kosong',
-            }}
-            render={({ field }) => <Select {...field} options={[{ value: 'true', label: "Aktif" }, { value: 'false', label: "Tidak Aktif" }]} />}
-          />
-        </Form.Item>
+        {data && (
+          <Form.Item
+            label="Status"
+            required
+            validateStatus={errors.isActive ? 'error' : ''}
+            help={errors.isActive?.message}
+          >
+            <Controller
+              name="isActive"
+              control={control}
+              rules={{
+                required: 'Status tidak boleh kosong',
+              }}
+              render={({ field }) => <Select {...field} options={[{ value: 'true', label: "Aktif" }, { value: 'false', label: "Tidak Aktif" }]} />}
+            />
+          </Form.Item>
+        )}
         <Flex gap={16} justify='flex-end'>
           <Button color="default" variant="filled" onClick={onCloseForm} loading={isLoading}>
             Batal

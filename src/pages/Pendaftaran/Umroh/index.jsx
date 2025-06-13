@@ -8,6 +8,8 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Input, message, Popconfirm, Select, Space, Table, Tooltip, Typography } from 'antd';
 import moment from 'moment';
 import { useState } from 'react';
+import { FaUserPlus } from 'react-icons/fa6';
+import { LuUserPlus } from "react-icons/lu";
 import { useNavigate } from 'react-router-dom';
 // import FormUmroh from './FormUmroh';
 
@@ -93,41 +95,39 @@ const UmrohPage = () => {
 
   const columns = [
     {
-      title: 'Nama Pendaftar',
-      width: 120,
-      dataIndex: 'registerName',
-      key: 'registerName',
+      title: 'Kode Umroh',
+      width: 100,
+      dataIndex: 'id',
+      key: 'id',
       sorter: true,
-      sortOrder: getSortOrder(filterUmrohs.sortBy, 'registerName', filterUmrohs.sortOrder)
-    },
-    {
-      title: 'Paket Umroh',
-      width: 80,
-      // dataIndex: 'packageName',
-      key: 'packageName',
-      render: (values) =>
-        <Typography.Link onClick={() => navigate(`/data-master/package/${values.packageId}`)}>
-          {values.packageName}
+      sortOrder: getSortOrder(filterUmrohs.sortBy, 'id', filterUmrohs.sortOrder),
+      render: (value) =>
+        <Typography.Link onClick={() => navigate(`/pendaftaran/umroh/${value}`)}>
+          {value}
         </Typography.Link>
     },
     {
-      title: 'Tipe Hotel',
-      width: 80,
-      dataIndex: 'packageHotel',
-      key: 'packageHotel',
+      title: 'Paket Umroh',
+      width: 120,
+      // dataIndex: 'packageName',
+      key: 'packageName',
+      render: (value) =>
+        <Typography.Link onClick={() => navigate(`/data-master/package/${value.packageId}`)}>
+          {value.packageName}
+        </Typography.Link>
     },
     {
-      title: 'Tipe Kamar',
+      title: 'Jumlah Jamaah',
       width: 80,
-      dataIndex: 'packageRoom',
-      key: 'packageRoom',
+      dataIndex: 'countRegister',
+      key: 'countRegister',
     },
     {
-      title: 'Harga',
-      width: 100,
-      dataIndex: 'price',
-      key: 'price',
-      render: (value) => numberId(value)
+      title: 'Tour Lead',
+      width: 120,
+      dataIndex: 'tourLead',
+      key: 'tourLead',
+      render: (value) => value || '-'
     },
     {
       title: 'Tgl Keberangkatan',
@@ -136,24 +136,15 @@ const UmrohPage = () => {
       key: 'departureDate',
       render: (value) => moment(value).format('DD, MMM YYYY')
     },
-    {
-      title: 'No. Tlp/Hp',
-      dataIndex: 'registerPhone',
-      key: 'registerPhone',
-      width: 100,
-      align: 'center',
-      sorter: true,
-      sortOrder: getSortOrder(filterUmrohs.sortBy, 'registerPhone', filterUmrohs.sortOrder)
-    },
-    {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 100,
-      sorter: true,
-      sortOrder: getSortOrder(filterUmrohs.sortBy, 'updatedBy', filterUmrohs.sortOrder),
-      render: (value) => value || '-'
-    },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 100,
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterUmrohs.sortBy, 'updatedBy', filterUmrohs.sortOrder),
+    //   render: (value) => value || '-'
+    // },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
@@ -163,15 +154,15 @@ const UmrohPage = () => {
       sortOrder: getSortOrder(filterUmrohs.sortBy, 'createdBy', filterUmrohs.sortOrder),
       render: (value) => value || '-'
     },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
-      sorter: true,
-      sortOrder: getSortOrder(filterUmrohs.sortBy, 'updatedAt', filterUmrohs.sortOrder)
-    },
+    // {
+    //   title: 'Updated At',
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   width: 100,
+    //   render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterUmrohs.sortBy, 'updatedAt', filterUmrohs.sortOrder)
+    // },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
@@ -181,38 +172,48 @@ const UmrohPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterUmrohs.sortBy, 'createdAt', filterUmrohs.sortOrder)
     },
-    // {
-    //   title: 'Action',
-    //   key: 'operation',
-    //   fixed: 'right',
-    //   width: 100,
-    //   render: (values) => (
-    //     <Space>
-    //       <Tooltip title="Edit">
-    //         <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-    //       </Tooltip>
-    //       <Tooltip title="Delete">
-    //         <Popconfirm
-    //           title={`Hapus umroh ${values.name} ?`}
-    //           placement='bottomRight'
-    //           onConfirm={() => handleDeleteUmroh(values)}
-    //           okText="Yes"
-    //           cancelText="No"
-    //         >
-    //           <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-    //         </Popconfirm>
-    //       </Tooltip>
-    //     </Space>
-    //   ),
-    // },
+    {
+      title: 'Action',
+      key: 'operation',
+      fixed: 'right',
+      width: 100,
+      render: (values) => (
+        <Space>
+          <Tooltip title="Tambah Jamaah">
+            <Button
+              color='blue'
+              variant='text'
+              shape="circle"
+              size='small'
+              icon={<LuUserPlus size={17} />}
+              onClick={() => navigate(`/pendaftaran/umroh/daftar-umroh/${values.id}`)}
+            />
+          </Tooltip>
+          <Tooltip title="Edit">
+            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Popconfirm
+              title={`Hapus umroh ${values.name} ?`}
+              placement='bottomRight'
+              onConfirm={() => handleDeleteUmroh(values)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip>
+        </Space>
+      ),
+    },
   ];
 
   return (
     <div>
       <Flex justify='space-between' gap={32}>
         <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
-          <Input placeholder='Nama Pendaftar' style={{ maxWidth: 150 }} name='registerName' allowClear onChange={handleChangeFilter} />
-          <Input placeholder='No. Hp/Tlp' style={{ maxWidth: 150 }} name='registerPhone' allowClear onChange={handleChangeFilter} />
+          <Input placeholder='kode Umroh' style={{ maxWidth: 150 }} name='registerName' allowClear onChange={handleChangeFilter} />
+          {/* <Input placeholder='No. Hp/Tlp' style={{ maxWidth: 150 }} name='registerPhone' allowClear onChange={handleChangeFilter} /> */}
           {/* <Select
             allowClear
             placeholder="Status"

@@ -51,6 +51,7 @@ const AppRouter = () => (
             <Route path="umroh">
               <Route index element={<UmrohPage />} />
               <Route path="daftar-umroh" element={<NewUmrohPage />} />
+              <Route path="daftar-umroh/:kodeUmroh" element={<NewUmrohPage />} />
             </Route>
           </Route>
 

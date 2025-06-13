@@ -108,3 +108,8 @@ export const apiFetchUmrohPackageRooms = async (packageId) => {
   const response = await axiosInstance.get(`/lov/umroh-package/${packageId}/rooms`);
   return response.data;
 };
+
+export const apiFetchUmrohByCode = async (umrohCode) => {
+  const response = await axiosInstance.get(`/lov/umroh/${umrohCode}`);
+  return response.data;
+};

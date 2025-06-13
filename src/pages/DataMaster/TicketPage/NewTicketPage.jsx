@@ -84,6 +84,18 @@ const NewTicketPage = () => {
     ]))
   }
 
+  const handleEditFlight = (updated) => {
+    setFlight((prevState) =>
+      prevState.map(item =>
+        item.id === updated.id ? { ...item, ...updated } : item
+      )
+    );
+  };
+
+  const handleDeleteFlight = (id) => {
+    setFlight((prevState) => prevState.filter((item) => item.id !== id));
+  };
+
   const handleOpenResult = (values) => {
     setOpenResult((prevState) => ({
       ...prevState,
@@ -407,7 +419,7 @@ const NewTicketPage = () => {
               <Empty description="Tidak ada Penerbangan" />
             ) : (
               flight.map((item) => (
-                <div onClick={() => handleOpenFormFlight('Departure', item)}>
+                <div key={item.id} onClick={() => handleOpenFormFlight('Departure', item)}>
                   <FlightItem key={item.id} data={item} isArrival={item.type === 1} />
                 </div>
               ))
@@ -426,6 +438,8 @@ const NewTicketPage = () => {
         data={flightForm.flight}
         onClose={handleCloseFormFlight}
         onSaveFlight={handleSaveFlight}
+        onEditFlight={handleEditFlight}
+        onDeleteFlight={handleDeleteFlight}
       />
       <ResultSuccess
         open={openResult}

@@ -4,7 +4,7 @@ import { apiDeleteAgent, apiFetchUsersAgents } from '@/services/userService';
 import getSortOrder from '@/utils/getSortOrder';
 import { CheckCircleFilled, CloseCircleFilled, DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tooltip } from 'antd';
+import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, Table, Tag, Tooltip, Typography } from 'antd';
 import moment from 'moment';
 import { useState } from 'react';
 import FormAgent from './FormAgent';
@@ -14,7 +14,8 @@ const AgentPage = () => {
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
-    subtitle: ''
+    subtitle: '',
+    extra: ''
   })
   const [filterAgents, setFilterAgents] = useState({
     page: 1,
@@ -235,7 +236,7 @@ const AgentPage = () => {
       {contextHolder}
       <Flex justify='space-between' gap={32}>
         <Flex flex={1} gap={8} wrap style={{ marginBottom: 16 }}>
-          <Input placeholder='Kode Agent' style={{ maxWidth: 120 }} name='agent_code' allowClear onChange={handleChangeFilter} />
+          {/* <Input placeholder='Kode Agent' style={{ maxWidth: 120 }} name='agent_code' allowClear onChange={handleChangeFilter} /> */}
           <Input placeholder='Agent' style={{ maxWidth: 120 }} name='name' allowClear onChange={handleChangeFilter} />
           <Select
             allowClear
@@ -271,7 +272,15 @@ const AgentPage = () => {
         }}
       />
       <FormAgent open={openForm} data={selectedAgent} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
-      <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
+      <ResultSuccess
+        open={openResult}
+        onOpenResult={handleOpenResult}
+        extra={openResult.extra ? (
+          <Tag color="blue">
+            <Typography.Paragraph style={{ margin: 8 }} copyable>{openResult.extra}</Typography.Paragraph>
+          </Tag>
+        ) : null}
+      />
     </div>
   );
 };

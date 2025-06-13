@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Label, ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
-import { apiFetchJamaahByIdentity, apiFetchLovAgents, apiFetchLovDistricts, apiFetchLovNeighborhoods, apiFetchLovProvinces, apiFetchLovSubDistricts, apiFetchUmrohPackage, apiFetchUmrohPackageRooms } from '@/services/lovService';
+import { apiFetchJamaahByIdentity, apiFetchLovAgents, apiFetchLovDistricts, apiFetchLovNeighborhoods, apiFetchLovProvinces, apiFetchLovSubDistricts, apiFetchUmrohByCode, apiFetchUmrohPackage, apiFetchUmrohPackageRooms } from '@/services/lovService';
 import { apiCreateUmroh } from '@/services/masterService';
 import useAuthStore from '@/store/authStore';
 import checkFormatImage from '@/utils/checkFormatImage';
@@ -26,9 +26,9 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import moment from 'moment';
-import { useEffect, useRef, useState } from 'react';
+import { Children, useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styles from '../../index.module.css';
 
 const defaultValue = {
@@ -61,6 +61,7 @@ const defaultValue = {
 }
 
 const NewUmrohPage = () => {
+  const { kodeUmroh } = useParams();
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user);
   const {
@@ -128,6 +129,12 @@ const NewUmrohPage = () => {
     queryFn: apiFetchLovProvinces,
   });
 
+
+  const { data: resUmrohCode } = useQuery({
+    queryKey: ['lov-umrohByCode', kodeUmroh],
+    queryFn: () => apiFetchUmrohByCode(kodeUmroh),
+  });
+
   const { data: resDistricts, refetch: refetchDistricts } = useQuery({
     queryKey: ['lov-districts', province],
     queryFn: () => apiFetchLovDistricts(province),
@@ -171,6 +178,7 @@ const NewUmrohPage = () => {
   const dataUmrohPackage = resUmrohPackage?.data || [];
   const dataUmrohPackageRooms = resUmrohPackageRooms?.data || [];
   const dataAgents = resAgents?.data || [];
+  const dataUmrohCode = resUmrohCode?.data?.package
 
   const handlePreview = async (file) => {
     const isPDF = file.url?.endsWith('.pdf') || file.name?.endsWith('.pdf');
@@ -197,8 +205,9 @@ const NewUmrohPage = () => {
   const onSubmit = (data) => {
     const newData = {
       ...data,
+      ...(kodeUmroh && { umrohCode: kodeUmroh, packageId: dataUmrohCode }),
       birthDate: moment(data.birthDate.toDate()).format('YYYY-MM-DD'),
-      staffId: user.id
+      staffId: user.id,
     }
     createUmrohMutation.mutate(newData)
   }
@@ -274,6 +283,17 @@ const NewUmrohPage = () => {
       isFromJamaah.current.neighborhoods = false;
     }
   }, [resNeighborhoods]);
+
+  useEffect(() => {
+    console.log('bef jalankennnnnn ========> ', dataUmrohCode)
+    if (kodeUmroh && dataUmrohCode) {
+      console.log('jalankennnnnn ========> ', dataUmrohCode)
+      setValue('packageId', dataUmrohCode);
+    }
+  }, [dataUmrohCode]);
+
+  // console.log('kodeUmroh ==========> ', kodeUmroh)
+  // console.log('=============>', dataUmrohCode)
 
   return (
     <>
@@ -880,10 +900,12 @@ const NewUmrohPage = () => {
               label="Paket Umroh / Tanggal Berangkat"
               validateStatus={errors.packageId ? 'error' : ''}
               help={errors.packageId?.message}
+
             >
               <Controller
                 name="packageId"
                 control={control}
+                disabled={!!kodeUmroh}
                 rules={{
                   required: 'Paket Umroh tidak boleh kosong',
                 }}
