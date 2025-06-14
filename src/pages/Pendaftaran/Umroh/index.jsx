@@ -118,9 +118,17 @@ const UmrohPage = () => {
     },
     {
       title: 'Jumlah Jamaah',
-      width: 80,
+      width: 50,
+      align: 'center',
       dataIndex: 'countRegister',
       key: 'countRegister',
+    },
+    {
+      title: 'PIN',
+      width: 80,
+      align: 'center',
+      dataIndex: 'pin',
+      key: 'pin',
     },
     {
       title: 'Tour Lead',

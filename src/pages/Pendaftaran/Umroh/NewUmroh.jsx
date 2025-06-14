@@ -285,9 +285,7 @@ const NewUmrohPage = () => {
   }, [resNeighborhoods]);
 
   useEffect(() => {
-    console.log('bef jalankennnnnn ========> ', dataUmrohCode)
     if (kodeUmroh && dataUmrohCode) {
-      console.log('jalankennnnnn ========> ', dataUmrohCode)
       setValue('packageId', dataUmrohCode);
     }
   }, [dataUmrohCode]);
@@ -301,6 +299,20 @@ const NewUmrohPage = () => {
         layout="vertical"
         onFinish={handleSubmit(onSubmit)}
       >
+        <Row gutter={16} style={{ maxWidth: 1240 }}>
+          <Col lg={8}>
+            <Flex style={{ width: '100%' }} gap={8}>
+              <Input style={{ flex: 1 }} placeholder='Masukan Nomor KTP' />
+              <Button>Cari</Button>
+            </Flex>
+            <Typography.Paragraph>No KTP belum Terdaftar silahkan masukan data-data ktp manual</Typography.Paragraph>
+              <Typography.Paragraph>No KTP sudah Terdaftar data-data ktp sudah terisi otomatis</Typography.Paragraph>
+          </Col>
+
+        </Row>
+
+        <Divider />
+
         <Row gutter={16} style={{ maxWidth: 1240 }}>
           <Col lg={8}>
             <Form.Item
@@ -335,11 +347,7 @@ const NewUmrohPage = () => {
             </Form.Item>
           </Col>
 
-        </Row>
 
-        <Divider />
-
-        <Row gutter={16} style={{ maxWidth: 1240 }}>
           <Col lg={16}>
             <Form.Item required label="Nama Lengkap Jamaah" style={{ margin: 0 }}>
               <Space.Compact style={{ width: '100%' }}>
