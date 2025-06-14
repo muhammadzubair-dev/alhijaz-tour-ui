@@ -180,7 +180,12 @@ export const apiFetchUmroh = async (query) => {
   return response.data;
 };
 
-export const apiDeleteUmroh = async ({ id }) => {
-  const response = await axiosInstance.delete(`/master/umroh/${id}`);
+export const apiDeleteUmroh = async (umrohCode) => {
+  const response = await axiosInstance.delete(`/master/umroh/${umrohCode}`);
+  return response.data;
+};
+
+export const apiEditUmroh = async (umrohCode, payload) => {
+  const response = await axiosInstance.patch(`/master/umroh/${umrohCode}`, cleanObject(payload));
   return response.data;
 };

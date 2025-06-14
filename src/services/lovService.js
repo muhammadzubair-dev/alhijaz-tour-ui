@@ -36,6 +36,11 @@ export const apiFetchJamaahByIdentity = async (identityNumber) => {
   return response.data;
 };
 
+export const apiFetchJamaahUmroh = async (umrohCode) => {
+  const response = await axiosInstance.get(`/lov/jamaah/umroh/${umrohCode}`);
+  return response.data;
+};
+
 export const apiFetchLovTickets = async () => {
   const response = await axiosInstance.get(`/lov/tickets`);
   return response.data;

@@ -597,7 +597,7 @@ const NewPackagePage = () => {
             </Form.Item>
           </Col>
 
-          <Col lg={8}>
+          {/* <Col lg={8}>
             <Form.Item
               label="Tour Leader"
               validateStatus={errors.tourLead ? 'error' : ''}
@@ -621,7 +621,7 @@ const NewPackagePage = () => {
                 )}
               />
             </Form.Item>
-          </Col>
+          </Col> */}
 
           <Col md={8}>
             <Form.Item

@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { FaUserPlus } from 'react-icons/fa6';
 import { LuUserPlus } from "react-icons/lu";
 import { useNavigate } from 'react-router-dom';
-// import FormUmroh from './FormUmroh';
+import EditUmroh from './EditUmroh';
 
 const UmrohPage = () => {
   const navigate = useNavigate()
@@ -31,15 +31,15 @@ const UmrohPage = () => {
   })
   const [selectedUmroh, setSelectedUmroh] = useState(null);
   const { data: dataUmrohs, refetch: refetchUmrohs } = useQuery({
-    queryKey: ['register-umroh', filterUmrohs.page, filterUmrohs.limit, filterUmrohs.sortBy, filterUmrohs.sortOrder],
+    queryKey: ['umroh', filterUmrohs.page, filterUmrohs.limit, filterUmrohs.sortBy, filterUmrohs.sortOrder],
     queryFn: () => apiFetchUmroh(filterUmrohs),
   });
 
   const deleteUmrohMutation = useMutation({
-    mutationFn: (data) => apiDeleteUmroh(data),
-    onSuccess: (data, variable) => {
-      message.success(`Data Umroh ${variable.name} telah berhasil dihapus`)
-      queryClient.invalidateQueries(['umrohs'])
+    mutationFn: apiDeleteUmroh,
+    onSuccess: (data) => {
+      message.success(`Data Umroh ${data.data.umrohCode} telah berhasil dihapus`)
+      queryClient.invalidateQueries(['umroh'])
     }
   })
 
@@ -89,8 +89,8 @@ const UmrohPage = () => {
     refetchUmrohs(filterUmrohs)
   }
 
-  const handleDeleteUmroh = ({ id, name }) => {
-    deleteUmrohMutation.mutate({ id, name })
+  const handleDeleteUmroh = ({ id }) => {
+    deleteUmrohMutation.mutate(id)
   }
 
   const columns = [
@@ -142,7 +142,7 @@ const UmrohPage = () => {
       width: 100,
       dataIndex: 'departureDate',
       key: 'departureDate',
-      render: (value) => moment(value).format('DD, MMM YYYY')
+      render: (value) => moment(value).format('DD MMM YYYY')
     },
     // {
     //   title: 'Updated By',
@@ -202,7 +202,7 @@ const UmrohPage = () => {
           </Tooltip>
           <Tooltip title="Delete">
             <Popconfirm
-              title={`Hapus umroh ${values.name} ?`}
+              title={`Hapus umroh ${values.id} ?`}
               placement='bottomRight'
               onConfirm={() => handleDeleteUmroh(values)}
               okText="Yes"
@@ -255,7 +255,7 @@ const UmrohPage = () => {
           pageSizeOptions: [10, 25, 50, 100],
         }}
       />
-      {/* <FormUmroh open={openForm} data={selectedUmroh} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} /> */}
+      <EditUmroh open={openForm} data={selectedUmroh} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
       <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
     </div>
   );
