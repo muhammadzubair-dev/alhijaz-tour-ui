@@ -1,6 +1,6 @@
 import queryClient from '@/lib/queryClient';
 import { apiFetchJamaahUmroh, apiFetchUmrohPackage } from '@/services/lovService';
-import { apiEditUmroh } from '@/services/masterService';
+import { apiEditUmroh } from '@/services/umrohService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Form, Modal, Select } from 'antd';
 import { useEffect } from 'react';

@@ -2,7 +2,7 @@
 import { Label, ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
 import { apiFetchJamaahByIdentity, apiFetchLovAgents, apiFetchLovDistricts, apiFetchLovNeighborhoods, apiFetchLovProvinces, apiFetchLovSubDistricts, apiFetchUmrohByCode, apiFetchUmrohPackage, apiFetchUmrohPackageRooms } from '@/services/lovService';
-import { apiCreateUmroh } from '@/services/masterService';
+import { apiCreateUmroh } from '@/services/umrohService';
 import useAuthStore from '@/store/authStore';
 import checkFormatImage from '@/utils/checkFormatImage';
 import getBase64 from '@/utils/getbase64';

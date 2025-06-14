@@ -163,34 +163,3 @@ export const apiDeleteAirline = async ({ id }) => {
   const response = await axiosInstance.delete(`/master/airline/${id}`);
   return response.data;
 };
-
-// Umroh
-export const apiCreateUmroh = async (body) => {
-  const formData = buildMultipartFormData(body, ['photoIdentity', 'selfPhoto']);
-
-  const response = await axiosInstance.post('/master/umroh', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-
-  return response.data;
-};
-
-export const apiFetchUmroh = async (query) => {
-  const response = await axiosInstance.get(`/master/umroh${objToQueryString(query)}`);
-  return response.data;
-};
-
-export const apiDeleteUmroh = async (umrohCode) => {
-  const response = await axiosInstance.delete(`/master/umroh/${umrohCode}`);
-  return response.data;
-};
-
-export const apiEditUmroh = async (umrohCode, payload) => {
-  const response = await axiosInstance.patch(`/master/umroh/${umrohCode}`, cleanObject(payload));
-  return response.data;
-};
-
-export const apiFetchJamaahUmroh = async (umrohCode, query) => {
-  const response = await axiosInstance.get(`/master/umroh/${umrohCode}/jamaah/${objToQueryString(query)}`);
-  return response.data;
-};
