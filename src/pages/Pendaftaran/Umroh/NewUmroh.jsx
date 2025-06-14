@@ -34,7 +34,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import styles from '../../index.module.css';
 import { FaSearch } from 'react-icons/fa';
-import SearchNIK from './SearchNIK';
+import SearchNIK from './components/SearchNIK';
 
 const defaultValue = {
   firstName: null,
@@ -228,6 +228,7 @@ const NewUmrohPage = () => {
       birthDate: moment(data.birthDate.toDate()).format('YYYY-MM-DD'),
       staffId: user.id,
     }
+
     createUmrohMutation.mutate(newData)
   }
 
@@ -321,10 +322,7 @@ const NewUmrohPage = () => {
     if (kodeUmroh && dataUmrohCode) {
       setValue('packageId', dataUmrohCode);
     }
-  }, [dataUmrohCode]);
-
-  // console.log('kodeUmroh ==========> ', kodeUmroh)
-  console.log('isFetchingLocation =============>', isFetchingLocation)
+  }, [dataUmrohCode, isSearchNIK]);
 
   return (
     <>
@@ -362,7 +360,7 @@ const NewUmrohPage = () => {
                 help={errors.identityNumber?.message}
               >
                 <Controller
-                  disabled
+                  // disabled
                   name="identityNumber"
                   control={control}
                   rules={{

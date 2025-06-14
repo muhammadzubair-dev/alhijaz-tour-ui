@@ -1,8 +1,8 @@
 import queryClient from '@/lib/queryClient';
-import { apiFetchJamaah, apiFetchJamaahUmroh, apiFetchUmrohPackage } from '@/services/lovService';
-import { apiCreateAirport, apiEditAirport, apiEditUmroh } from '@/services/masterService';
+import { apiFetchJamaahUmroh, apiFetchUmrohPackage } from '@/services/lovService';
+import { apiEditUmroh } from '@/services/masterService';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Col, Flex, Form, Input, Modal, Select } from 'antd';
+import { Button, Flex, Form, Modal, Select } from 'antd';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
@@ -23,21 +23,7 @@ const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
     defaultValues
   });
 
-  const createAirportMutation = useMutation({
-    mutationFn: apiCreateAirport,
-    onSuccess: (data, variable) => {
-      reset();
-      onCloseForm();
-      queryClient.invalidateQueries(['airports']);
-      onOpenResult({
-        open: true,
-        title: 'Airport Berhasil Ditambahkan',
-        subtitle: `Airport baru dengan nama "${variable.name}" telah berhasil ditambahkan ke sistem.`,
-      });
-    },
-  });
-
-  const editAirportMutation = useMutation({
+  const editUmrohMutation = useMutation({
     mutationFn: (payload) => apiEditUmroh(data?.id, payload),
     onSuccess: (data) => {
       reset();
@@ -65,22 +51,10 @@ const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
   const dataUmrohPackage = resUmrohPackage?.data || [];
   const optionJamaah = dataLovJamaah?.data || [];
 
-  const isLoading = createAirportMutation.isPending || editAirportMutation.isPending
+  const isLoading = editUmrohMutation.isPending
 
   const onSubmit = (values) => {
-
-    console.log('values =========>', values)
-    // const payload = {
-    //   ...values,
-    //   status: values.status === 'true' ? "1" : "0",
-    //   ...(data?.code && { code: data.code }), // tambah id hanya jika ada
-    // };
-
-    // if (data) {
-    editAirportMutation.mutate(values);
-    // } else {
-    //   createAirportMutation.mutate(payload);
-    // }
+    editUmrohMutation.mutate(values);
   };
 
   const onError = (formErrors) => {
@@ -99,8 +73,6 @@ const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
       reset(defaultValues);
     }
   }, [data, reset]);
-
-  console.log('dataUmrohPackage =========> ', data?.id)
 
   return (
     <Modal

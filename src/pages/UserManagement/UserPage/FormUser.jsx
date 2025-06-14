@@ -24,7 +24,6 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
   const createUserMutation = useMutation({
     mutationFn: apiCreateUser,
     onSuccess: (data, variable) => {
-      console.log(data)
       reset();
       onCloseForm();
       queryClient.invalidateQueries(['users']);

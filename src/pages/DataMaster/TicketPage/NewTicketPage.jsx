@@ -109,18 +109,6 @@ const NewTicketPage = () => {
       flight
     }
     createTicketMutation.mutate(newData)
-    console.log(JSON.stringify(newData, null, 2))
-    // const payload = {
-    //   ...values,
-    //   isActive: values?.isActive === 'true',
-    //   ...(data?.id && { id: data.id }), // tambah id hanya jika ada
-    // };
-
-    // if (data) {
-    //   editBankMutation.mutate(payload);
-    // } else {
-    //   createBankMutation.mutate(payload);
-    // }
   };
 
   const onError = (formErrors) => {

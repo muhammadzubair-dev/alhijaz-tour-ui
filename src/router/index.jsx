@@ -13,6 +13,7 @@ const UserPage = lazy(() => import('@/pages/UserManagement/UserPage'));
 const AgentPage = lazy(() => import('@/pages/UserManagement/AgentPage'));
 const UmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh'));
 const NewUmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh/NewUmroh'));
+const JamaahUmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh/JamaahUmroh'));
 const RolePage = lazy(() => import('@/pages/UserManagement/RolePage'));
 const MenuPage = lazy(() => import('@/pages/UserManagement/MenuPage'));
 const BankPage = lazy(() => import('@/pages/DataMaster/BankPage'));
@@ -52,6 +53,7 @@ const AppRouter = () => (
               <Route index element={<UmrohPage />} />
               <Route path="daftar-umroh" element={<NewUmrohPage />} />
               <Route path="daftar-umroh/:kodeUmroh" element={<NewUmrohPage />} />
+              <Route path=":kodeUmroh/jamaah" element={<JamaahUmrohPage />} />
             </Route>
           </Route>
 

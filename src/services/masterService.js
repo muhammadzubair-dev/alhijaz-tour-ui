@@ -189,3 +189,8 @@ export const apiEditUmroh = async (umrohCode, payload) => {
   const response = await axiosInstance.patch(`/master/umroh/${umrohCode}`, cleanObject(payload));
   return response.data;
 };
+
+export const apiFetchJamaahUmroh = async (umrohCode, query) => {
+  const response = await axiosInstance.get(`/master/umroh/${umrohCode}/jamaah/${objToQueryString(query)}`);
+  return response.data;
+};
