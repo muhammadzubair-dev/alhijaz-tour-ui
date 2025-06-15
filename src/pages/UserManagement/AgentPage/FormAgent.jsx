@@ -1,5 +1,5 @@
 import queryClient from '@/lib/queryClient';
-import { apiFetchLovAgents, apiFetchLovBanks, apiFetchLovUserAgent } from '@/services/lovService';
+import { apiFetchLovAgents, apiFetchLovBanks, apiFetchLovUserAgent, apiFetchRolesByType } from '@/services/lovService';
 import { apiCreateAgent, apiUpdateAgent } from '@/services/userService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Form, Input, Modal, Select } from 'antd';
@@ -18,7 +18,8 @@ const defaultValues = {
   address: '',
   leadId: null,
   coordinatorId: null,
-  isActive: 'true'
+  isActive: 'true',
+  roleId: null
 }
 
 const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
@@ -52,6 +53,13 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
   //   value: user.id,
   //   label: user.name
   // }))
+
+  const { data: resRole } = useQuery({
+    queryKey: ['lov-roles', '1'],
+    queryFn: () => apiFetchRolesByType('1'),
+  });
+
+  const dataRole = resRole?.data;
 
   const optionBank = (dataBanks?.data || [])?.map((bank) => ({
     value: bank.id,
@@ -96,7 +104,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
   const isLoading = createAgentMutation.isPending || editAgentMutation.isPending
 
   const onSubmit = (values) => {
-    const { id: _id, balance: _balance, targetRemaining: _targetRemaining, ...body } = values
+    const { id: _id, userId: _userId, balance: _balance, targetRemaining: _targetRemaining, ...body } = values
     const payload = {
       ...body,
       isActive: values?.isActive === 'true',
@@ -130,6 +138,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
         leadId: data.leadId,
         coordinatorId: data.coordinatorId,
         targetRemaining: data.targetRemaining,
+        roleId: data.roleId,
         isActive: data.isActive ? 'true' : 'false'
       });
     } else {
@@ -201,6 +210,32 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
               }
             }}
             render={({ field }) => <Input {...field} placeholder="Masukkan Nama" />}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Role"
+          required
+          validateStatus={errors.roleId ? 'error' : ''}
+          help={errors.roleId?.message}
+        >
+          <Controller
+            name="roleId"
+            control={control}
+            rules={{
+              required: 'Role tidak boleh kosong',
+            }}
+            render={({ field }) =>
+              <Select
+                {...field}
+                allowClear
+                optionFilterProp='label'
+                placeholder="Pilih role untuk Staff"
+                options={dataRole.map(item => ({
+                  value: item.id,
+                  label: item.name
+                }))}
+              />}
           />
         </Form.Item>
 

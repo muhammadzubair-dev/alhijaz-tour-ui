@@ -1,6 +1,7 @@
 import queryClient from '@/lib/queryClient';
+import { apiFetchRolesByType } from '@/services/lovService';
 import { apiCreateUser, apiEditUser } from '@/services/userService';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Form, Input, Modal, Radio, Select } from 'antd';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -17,9 +18,17 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
       username: '',
       name: '',
       type: '',
-      isActive: 'true'
+      isActive: 'true',
+      roleId: null
     },
   });
+
+  const { data: resRole } = useQuery({
+    queryKey: ['lov-roles', '0'],
+    queryFn: () => apiFetchRolesByType('0'),
+  });
+
+  const dataRole = resRole?.data;
 
   const createUserMutation = useMutation({
     mutationFn: apiCreateUser,
@@ -29,8 +38,8 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
       queryClient.invalidateQueries(['users']);
       onOpenResult({
         extra: data.data.password,
-        title: 'User Berhasil Ditambahkan',
-        subtitle: `Pengguna baru dengan username "${variable.username}" telah berhasil ditambahkan ke sistem. Berikut adalah kata sandi sementara yang dapat digunakan untuk login.`,
+        title: 'Staff Berhasil Ditambahkan',
+        subtitle: `Staff baru dengan username "${variable.username}" telah berhasil ditambahkan ke sistem. Berikut adalah kata sandi sementara yang dapat digunakan untuk login.`,
         open: true,
       });
     },
@@ -53,28 +62,30 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
   const isLoading = createUserMutation.isPending || editUserMutation.isPending
 
   const onSubmit = (values) => {
-    const { name, username, isActive: isActiveRaw } = values;
-    const isActive = String(isActiveRaw).toLowerCase() === 'true';
+    const { name, username, isActive: isActiveRaw, roleId } = values;
+
+    // Normalisasi nilai boolean untuk isActive
+    const isActive = typeof isActiveRaw === 'string'
+      ? isActiveRaw.toLowerCase() === 'true'
+      : Boolean(isActiveRaw);
+
+    const payload = {
+      name: name?.trim(),
+      username: username?.trim(),
+      isActive,
+      type: '0', // 0 = Staff (disesuaikan)
+      roleId,
+    };
+
+
     if (data?.id) {
-      // Edit user
-      editUserMutation.mutate({
-        id: data.id,
-        name,
-        username,
-        isActive,
-        type: '0'
-      });
+      // Update user
+      editUserMutation.mutate({ ...payload, id: data.id });
     } else {
       // Create new user
-      createUserMutation.mutate({
-        name,
-        username,
-        isActive,
-        type: '0'
-      });
+      createUserMutation.mutate(payload);
     }
   };
-
 
   const onError = (formErrors) => {
     console.log('Error Form:', formErrors);
@@ -87,7 +98,8 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
         username: data.username,
         name: data.name,
         type: data.type === '0' ? 'Y' : 'N',
-        isActive: data.isActive ? 'true' : 'false'
+        isActive: data.isActive ? 'true' : 'false',
+        roleId: data.roleId
       });
     } else {
       reset({
@@ -101,7 +113,7 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
 
   return (
     <Modal
-      title={data ? 'Ubah data User' : 'Tambahkan User Baru'}
+      title={data ? 'Ubah data Staff' : 'Tambahkan Staff Baru'}
       closable={{ 'aria-label': 'Custom Close Button' }}
       onCancel={onCloseForm}
       open={open}
@@ -163,6 +175,32 @@ const FormUser = ({ open, onCloseForm, onOpenResult, data }) => {
               }
             }}
             render={({ field }) => <Input {...field} placeholder="Masukkan Nama" />}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Role"
+          required
+          validateStatus={errors.roleId ? 'error' : ''}
+          help={errors.roleId?.message}
+        >
+          <Controller
+            name="roleId"
+            control={control}
+            rules={{
+              required: 'Role tidak boleh kosong',
+            }}
+            render={({ field }) =>
+              <Select
+                {...field}
+                allowClear
+                optionFilterProp='label'
+                placeholder="Pilih role untuk Staff"
+                options={dataRole.map(item => ({
+                  value: item.id,
+                  label: item.name
+                }))}
+              />}
           />
         </Form.Item>
 

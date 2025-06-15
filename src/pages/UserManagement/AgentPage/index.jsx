@@ -121,6 +121,15 @@ const AgentPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAgents.sortBy, 'username', filterAgents.sortOrder)
     },
+     {
+      title: 'Role',
+      width: 100,
+      dataIndex: 'role',
+      key: 'role',
+      render: (value) => value || '-'
+      // sorter: true,
+      // sortOrder: getSortOrder(filterUsers.sortBy, 'name', filterUsers.sortOrder)
+    },
     {
       title: 'Handphone',
       width: 150,

@@ -120,14 +120,7 @@ const RolePage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterRoles.sortBy, 'name', filterRoles.sortOrder)
     },
-    {
-      title: 'Description',
-      width: 100,
-      dataIndex: 'description',
-      key: 'description',
-      sorter: true,
-      sortOrder: getSortOrder(filterRoles.sortBy, 'description', filterRoles.sortOrder)
-    },
+
     {
       title: 'Tipe',
       dataIndex: 'type',
@@ -152,24 +145,32 @@ const RolePage = () => {
       render: (value) => value ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />
     },
     {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 100,
+      title: 'Description',
+      width: 150,
+      dataIndex: 'description',
+      key: 'description',
+      sorter: true,
+      sortOrder: getSortOrder(filterRoles.sortBy, 'description', filterRoles.sortOrder)
     },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 100,
+    // },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
       key: 'createdBy',
       width: 100,
     },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 100,
-      render: (value) => moment(value).format('YYYY-MM-DD HH:mm')
-    },
+    // {
+    //   title: 'Updated At',
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   width: 100,
+    //   render: (value) => moment(value).format('YYYY-MM-DD HH:mm')
+    // },
     {
       title: 'Created At',
       dataIndex: 'createdAt',

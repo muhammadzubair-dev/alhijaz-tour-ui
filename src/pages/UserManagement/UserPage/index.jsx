@@ -128,7 +128,17 @@ const UserPage = () => {
       dataIndex: 'name',
       key: 'name',
       sorter: true,
-      sortOrder: getSortOrder(filterUsers.sortBy, 'name', filterUsers.sortOrder)
+      sortOrder: getSortOrder(filterUsers.sortBy, 'name', filterUsers.sortOrder),
+
+    },
+    {
+      title: 'Role',
+      width: 100,
+      dataIndex: 'role',
+      key: 'role',
+      render: (value) => value || '-'
+      // sorter: true,
+      // sortOrder: getSortOrder(filterUsers.sortBy, 'name', filterUsers.sortOrder)
     },
     // {
     //   title: 'Tipe',
@@ -152,25 +162,25 @@ const UserPage = () => {
       align: 'center',
       render: (value) => value ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />
     },
-    {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 100,
-    },
-    {
-      title: 'Created By',
-      dataIndex: 'createdBy',
-      key: 'createdBy',
-      width: 100,
-    },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-'
-    },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 100,
+    // },
+    // {
+    //   title: 'Created By',
+    //   dataIndex: 'createdBy',
+    //   key: 'createdBy',
+    //   width: 100,
+    // },
+    // {
+    //   title: 'Updated At',
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   width: 100,
+    //   render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-'
+    // },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
@@ -237,7 +247,7 @@ const UserPage = () => {
 
         </Flex>
         <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New User
+          Staff Baru
         </Button>
       </Flex>
       <Table

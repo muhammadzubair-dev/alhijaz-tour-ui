@@ -34,7 +34,7 @@ const items = [
   getItem('User Management', 'sub_user_management', <UserOutlined />, [
     getItem('Staff', '/user-management'),
     getItem('Agent', '/user-management/agent'),
-    // getItem('Role', '/user-management/role'),
+    getItem('Role', '/user-management/role'),
     // getItem('Menu', '/user-management/menu'),
   ]),
   getItem('Data Master', 'sub_data_master', <DatabaseOutlined />, [
