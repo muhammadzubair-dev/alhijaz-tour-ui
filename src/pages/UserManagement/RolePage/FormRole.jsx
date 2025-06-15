@@ -1,6 +1,7 @@
 import queryClient from '@/lib/queryClient';
+import { apiFetchMenu } from '@/services/lovService';
 import { apiCreateRole, apiEditUserRole } from '@/services/userService';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Form, Input, Modal, Radio, Select } from 'antd';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -194,8 +195,6 @@ const FormRole = ({ open, onCloseForm, onOpenResult, data }) => {
             render={({ field }) => <Radio.Group {...field} options={[{ value: '0', label: "Staff" }, { value: '1', label: "Agent" }]} />}
           />
         </Form.Item>
-
-
 
         <Flex gap={16} justify='flex-end'>
           <Button color="default" variant="filled" onClick={onCloseForm} loading={isLoading}>

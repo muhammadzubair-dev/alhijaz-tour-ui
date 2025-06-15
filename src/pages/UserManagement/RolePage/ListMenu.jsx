@@ -1,52 +1,95 @@
-import React, { Children, useState } from 'react';
-import { Modal, Tree } from 'antd';
+import React, { Children, useEffect, useState } from 'react';
+import { Button, Flex, Modal, Tree } from 'antd';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiFetchMenu } from '@/services/lovService';
+import { apiCreateRoleMenu } from '@/services/userService';
+import queryClient from '@/lib/queryClient';
 
 const treeData = [
-  { title: 'Dashboard', key: '0-0' },
+  { title: 'Dashboard', key: 'DASH' },
   {
-    title: 'User Management',
-    key: '0-1',
+    title: 'Pendaftaran',
+    key: 'RGST',
     children: [
       {
-        title: 'User',
-        key: '0-1-0',
+        title: 'Pendaftaran Umroh',
+        key: 'RGST|UMRH',
         children: [
-          { title: 'View', key: '0-1-0-0' },
-          { title: 'Create', key: '0-1-0-1' },
-          { title: 'Update', key: '0-1-0-2' },
-          { title: 'Change Status', key: '0-1-0-3' }
+          { title: 'List Umroh', key: "RGST|UMRH|LIST" },
+          { title: 'Tambah Umroh', key: "RGST|UMRH|ADD" },
         ]
-      },
-      { title: 'Role', key: '0-1-1' },
-      { title: 'Agent', key: '0-1-2' }
+      }
     ]
-  },
-  {
-    title: 'Data Master',
-    key: '0-2',
-    children: [
-      { title: 'Bank', key: '0-2-0' },
-      { title: 'Social Media', key: '0-2-1' },
-      { title: 'Fee', key: '0-2-0-2' },
-      { title: 'Jamaah', key: '0-2-0-3' },
-      { title: 'Region', key: '0-2-0-4' },
-      { title: 'Hotel', key: '0-2-0-5' },
-      { title: 'Package', key: '0-2-0-6' },
-      { title: 'Airlines', key: '0-2-0-7' },
-      { title: 'Partner', key: '0-2-0-8' },
-      { title: 'Product Type', key: '0-2-0-9' },
-      { title: 'Role', key: '0-2-0-10' },
-      { title: 'Agent', key: '0-2-0-11' },
-      { title: 'Transportasi', key: '0-2-0-12' },
-    ]
-  },
+  }
 ];
 
-const ListMenu = () => {
-  const [expandedKeys, setExpandedKeys] = useState(['0-0-0', '0-0-1']);
-  const [checkedKeys, setCheckedKeys] = useState(['0-0-0']);
+function buildTree(flatData) {
+  const idMap = {};
+  const tree = [];
+
+  flatData.forEach(item => {
+    const { id, name } = item;
+    const node = { title: name, key: id, children: [] };
+    idMap[id] = node;
+
+    const parts = id.split('|');
+    if (parts.length === 1) {
+      // Ini adalah root
+      tree.push(node);
+    } else {
+      // Ini adalah anak dari parent
+      const parentId = parts.slice(0, -1).join('|');
+      if (!idMap[parentId]) {
+        idMap[parentId] = { title: '', key: parentId, children: [] };
+      }
+      idMap[parentId].children.push(node);
+    }
+  });
+
+  // Hapus children kosong
+  function cleanEmptyChildren(nodes) {
+    nodes.forEach(node => {
+      if (node.children.length === 0) {
+        delete node.children;
+      } else {
+        cleanEmptyChildren(node.children);
+      }
+    });
+  }
+
+  cleanEmptyChildren(tree);
+  return tree;
+}
+
+const ListMenu = ({ open, onCloseForm, onOpenResult, data }) => {
+  const [expandedKeys, setExpandedKeys] = useState([]);
+  const [checkedKeys, setCheckedKeys] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [autoExpandParent, setAutoExpandParent] = useState(true);
+
+  const { data: resMenu, isLoading } = useQuery({
+    queryKey: ['lov-banks'],
+    queryFn: apiFetchMenu,
+  });
+
+  const treeData = buildTree(resMenu?.data || [])
+  // console.log('dataMenu ======> ', JSON.stringify(dataMenu, null, 2))
+  console.log('data ===============> ', data)
+
+  const createRoleMenuMutation = useMutation({
+    mutationFn: (payload) => apiCreateRoleMenu(data?.id, payload),
+    onSuccess: () => {
+      setCheckedKeys()
+      onCloseForm();
+      queryClient.invalidateQueries(['roles']);
+      onOpenResult({
+        open: true,
+        title: 'Role Menu Berhasil Diperbarui',
+        subtitle: `Role Menu untuk ${data?.name} telah berhasil diperbarui ke sistem.`,
+      });
+    },
+  });
+
   const onExpand = expandedKeysValue => {
     console.log('onExpand', expandedKeysValue);
     // if not set autoExpandParent to false, if children expanded, parent can not collapse.
@@ -54,23 +97,42 @@ const ListMenu = () => {
     setExpandedKeys(expandedKeysValue);
     setAutoExpandParent(false);
   };
+
   const onCheck = checkedKeysValue => {
-    console.log('onCheck', checkedKeysValue);
+    console.log('onCheck', JSON.stringify(checkedKeysValue, null, 2));
     setCheckedKeys(checkedKeysValue);
   };
+
   const onSelect = (selectedKeysValue, info) => {
     console.log('onSelect', info);
     setSelectedKeys(selectedKeysValue);
   };
+
+  const handleSubmit = () => {
+    console.log('====>', { data: checkedKeys })
+    createRoleMenuMutation.mutate({ data: checkedKeys })
+  }
+
+  useEffect(() => {
+    const roleMenus = data?.menu?.[0]?.role_menus;
+    if (Array.isArray(roleMenus)) {
+      setCheckedKeys(roleMenus.map(item => item.menu_id));
+    } else {
+      setCheckedKeys([]);
+    }
+  }, [data?.menu]);
+
   return (
     <Modal
-      title="List Menu Role 'Super Admin'"
+      title={`Menu ${data?.name}`}
       closable={{ 'aria-label': 'Custom Close Button' }}
-      open={true}
+      open={open}
+      onCancel={onCloseForm}
+      footer={null}
     // onOk={handleOk}
     // onCancel={handleCancel}
     >
-      <div style={{ height: 16 }} />
+      {/* <div style={{ height: 16 }} /> */}
       <Tree
         checkable
         onExpand={onExpand}
@@ -83,6 +145,15 @@ const ListMenu = () => {
         treeData={treeData}
         style={{ padding: '16px 0' }}
       />
+
+      <Flex gap={16} justify='flex-end'>
+        <Button color="default" variant="filled" onClick={onCloseForm} loading={isLoading}>
+          Batal
+        </Button>
+        <Button type="primary" onClick={handleSubmit} loading={isLoading}>
+          Simpan
+        </Button>
+      </Flex>
     </Modal>
   );
 };

@@ -123,3 +123,8 @@ export const apiFetchRolesByType = async (userType) => {
   const response = await axiosInstance.get(`/lov/role/${userType}`);
   return response.data;
 };
+
+export const apiFetchMenu = async () => {
+  const response = await axiosInstance.get(`/lov/menu`);
+  return response.data;
+};

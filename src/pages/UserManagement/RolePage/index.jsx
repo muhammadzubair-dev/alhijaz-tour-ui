@@ -12,6 +12,7 @@ import ListMenu from './ListMenu';
 
 const RolePage = () => {
   const [openForm, setOpenForm] = useState(false)
+  const [openFormMenu, setOpenFormMenu] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
@@ -52,9 +53,19 @@ const RolePage = () => {
     setOpenForm(false)
   }
 
+  const handleCloseFormMenu = () => {
+    setSelectedRole(null)
+    setOpenFormMenu(false)
+  }
+
   const handleOpenFormEdit = (data) => {
     setSelectedRole(data)
     setOpenForm(true)
+  }
+
+  const handleOpenFormMenu = (data) => {
+    setSelectedRole(data)
+    setOpenFormMenu(true)
   }
 
   const handleOpenResult = (values) => {
@@ -186,7 +197,7 @@ const RolePage = () => {
       render: (values) => (
         <Space>
           <Tooltip title="Menu">
-            <Button color='geekblue' variant='text' shape="circle" size='small' icon={<MenuUnfoldOutlined />} onClick={() => handleOpenFormEdit(values)} />
+            <Button color='blue' variant='text' shape="circle" size='small' icon={<MenuUnfoldOutlined />} onClick={() => handleOpenFormMenu(values)} />
           </Tooltip>
           <Tooltip title="Edit">
             <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
@@ -267,9 +278,22 @@ const RolePage = () => {
           pageSizeOptions: [10, 25, 50, 100],
         }}
       />
-      <FormRole open={openForm} data={selectedRole} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
-      <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
-      {/* <ListMenu /> */}
+      <FormRole
+        open={openForm}
+        data={selectedRole}
+        onCloseForm={handleCloseForm}
+        onOpenResult={handleOpenResult}
+      />
+      <ResultSuccess
+        open={openResult}
+        onOpenResult={handleOpenResult}
+      />
+      <ListMenu
+        open={openFormMenu}
+        data={selectedRole}
+        onCloseForm={handleCloseFormMenu}
+        onOpenResult={handleOpenResult}
+      />
     </div>
   );
 };

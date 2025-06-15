@@ -168,12 +168,12 @@ const UserPage = () => {
     //   key: 'updatedBy',
     //   width: 100,
     // },
-    // {
-    //   title: 'Created By',
-    //   dataIndex: 'createdBy',
-    //   key: 'createdBy',
-    //   width: 100,
-    // },
+    {
+      title: 'Created By',
+      dataIndex: 'createdBy',
+      key: 'createdBy',
+      width: 100,
+    },
     // {
     //   title: 'Updated At',
     //   dataIndex: 'updatedAt',

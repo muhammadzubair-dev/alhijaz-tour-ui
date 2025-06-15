@@ -179,15 +179,15 @@ const AgentPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAgents.sortBy, 'isActive', filterAgents.sortOrder)
     },
-    {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 120,
-      sorter: true,
-      sortOrder: getSortOrder(filterAgents.sortBy, 'updatedBy', filterAgents.sortOrder),
-      render: (value) => value || '-'
-    },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 120,
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterAgents.sortBy, 'updatedBy', filterAgents.sortOrder),
+    //   render: (value) => value || '-'
+    // },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
@@ -196,15 +196,15 @@ const AgentPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAgents.sortBy, 'createdBy', filterAgents.sortOrder)
     },
-    {
-      title: 'Updated At',
-      width: 150,
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
-      sorter: true,
-      sortOrder: getSortOrder(filterAgents.sortBy, 'updatedAt', filterAgents.sortOrder)
-    },
+    // {
+    //   title: 'Updated At',
+    //   width: 150,
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterAgents.sortBy, 'updatedAt', filterAgents.sortOrder)
+    // },
     {
       title: 'Created At',
       width: 150,

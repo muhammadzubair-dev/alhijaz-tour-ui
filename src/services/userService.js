@@ -51,6 +51,11 @@ export const apiCreateRole = async (payload) => {
   return response.data;
 };
 
+export const apiCreateRoleMenu = async (idRole, payload) => {
+  const response = await axiosInstance.post(`/users/role/${idRole}/menu`, cleanObject(payload));
+  return response.data;
+};
+
 export const apiEditUserRole = async (payload) => {
   const { id, ...data } = payload
   const response = await axiosInstance.patch(`/users/role/${id}`, cleanObject(data));
