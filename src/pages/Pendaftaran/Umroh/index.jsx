@@ -10,8 +10,16 @@ import { useState } from 'react';
 import { LuUserPlus } from "react-icons/lu";
 import { useNavigate } from 'react-router-dom';
 import EditUmroh from './components/EditUmroh';
+import HasPermission from '@/layouts/HasPermission';
+import { MENU_IDS } from '@/constant/menu';
+import useHasPermission from '@/hooks/useHasPermisson';
 
 const UmrohPage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.RegisterUmrahAddByCode,
+    MENU_IDS.RegisterUmrahDelete,
+    MENU_IDS.RegisterUmrahEdit
+  ])
   const navigate = useNavigate()
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
@@ -178,40 +186,48 @@ const UmrohPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterUmrohs.sortBy, 'createdAt', filterUmrohs.sortOrder)
     },
-    {
-      title: 'Action',
-      key: 'operation',
-      fixed: 'right',
-      width: 100,
-      render: (values) => (
-        <Space>
-          <Tooltip title="Tambah Jamaah">
-            <Button
-              color='blue'
-              variant='text'
-              shape="circle"
-              size='small'
-              icon={<LuUserPlus size={17} />}
-              onClick={() => navigate(`/pendaftaran/umroh/daftar-umroh/${values.id}`)}
-            />
-          </Tooltip>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus umroh ${values.id} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeleteUmroh(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
-      ),
-    },
+    ...(showAction ? [
+      {
+        title: 'Action',
+        key: 'operation',
+        fixed: 'right',
+        width: 100,
+        render: (values) => (
+          <Space>
+            <HasPermission menu={MENU_IDS.RegisterUmrahAddByCode}>
+              <Tooltip title="Tambah Jamaah">
+                <Button
+                  color='blue'
+                  variant='text'
+                  shape="circle"
+                  size='small'
+                  icon={<LuUserPlus size={17} />}
+                  onClick={() => navigate(`/pendaftaran/umroh/daftar-umroh/${values.id}`)}
+                />
+              </Tooltip>
+            </HasPermission>
+            <HasPermission menu={MENU_IDS.RegisterUmrahEdit}>
+              <Tooltip title="Edit">
+                <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+              </Tooltip>
+            </HasPermission>
+            <HasPermission menu={MENU_IDS.RegisterUmrahDelete}>
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title={`Hapus umroh ${values.id} ?`}
+                  placement='bottomRight'
+                  onConfirm={() => handleDeleteUmroh(values)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+                </Popconfirm>
+              </Tooltip>
+            </HasPermission>
+          </Space>
+        ),
+      }] : []
+    ),
   ];
 
   return (
@@ -233,9 +249,11 @@ const UmrohPage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => navigate('/pendaftaran/umroh/daftar-umroh')}  >
-          Daftar Umroh
-        </Button>
+        <HasPermission menu={MENU_IDS.RegisterUmrahAdd}>
+          <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => navigate('/pendaftaran/umroh/daftar-umroh')}  >
+            Daftar Umroh
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='id'

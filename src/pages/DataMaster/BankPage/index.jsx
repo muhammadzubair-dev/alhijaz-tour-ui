@@ -8,8 +8,15 @@ import { Button, Flex, Input, message, Popconfirm, Select, Space, Table, Tooltip
 import moment from 'moment';
 import { useState } from 'react';
 import FormBank from './FormBank';
+import useHasPermission from '@/hooks/useHasPermisson';
+import { MENU_IDS } from '@/constant/menu';
+import HasPermission from '@/layouts/HasPermission';
 
 const BankPage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.BankEdit,
+    MENU_IDS.BankDelete,
+  ])
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
@@ -116,15 +123,15 @@ const BankPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterBanks.sortBy, 'isActive', filterBanks.sortOrder)
     },
-    {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 100,
-      sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'updatedBy', filterBanks.sortOrder),
-      render: (value) => value || '-'
-    },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 100,
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterBanks.sortBy, 'updatedBy', filterBanks.sortOrder),
+    //   render: (value) => value || '-'
+    // },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
@@ -133,15 +140,15 @@ const BankPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterBanks.sortBy, 'createdBy', filterBanks.sortOrder)
     },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
-      sorter: true,
-      sortOrder: getSortOrder(filterBanks.sortBy, 'updatedAt', filterBanks.sortOrder)
-    },
+    // {
+    //   title: 'Updated At',
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   width: 100,
+    //   render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterBanks.sortBy, 'updatedAt', filterBanks.sortOrder)
+    // },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
@@ -151,30 +158,34 @@ const BankPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterBanks.sortBy, 'createdAt', filterBanks.sortOrder)
     },
-    {
+    ...(showAction ? [{
       title: 'Action',
       key: 'operation',
       fixed: 'right',
       width: 100,
       render: (values) => (
         <Space>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus bank ${values.name} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeleteBank(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
+          <HasPermission menu={MENU_IDS.BankEdit}>
+            <Tooltip title="Edit">
+              <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+            </Tooltip>
+          </HasPermission>
+          <HasPermission menu={MENU_IDS.BankDelete}>
+            <Tooltip title="Delete">
+              <Popconfirm
+                title={`Hapus bank ${values.name} ?`}
+                placement='bottomRight'
+                onConfirm={() => handleDeleteBank(values)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Tooltip>
+          </HasPermission>
         </Space>
       ),
-    },
+    }] : []),
   ];
 
   return (
@@ -196,9 +207,11 @@ const BankPage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New Bank
-        </Button>
+        <HasPermission menu={MENU_IDS.BankAdd}>
+          <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
+            Bank Baru
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='id'

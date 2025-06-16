@@ -8,8 +8,15 @@ import { Button, Flex, Input, message, Popconfirm, Select, Space, Table, Tooltip
 import moment from 'moment';
 import { useState } from 'react';
 import FormAirline from './FormAirline';
+import useHasPermission from '@/hooks/useHasPermisson';
+import { MENU_IDS } from '@/constant/menu';
+import HasPermission from '@/layouts/HasPermission';
 
 const AirlinePage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.AirlineEdit,
+    MENU_IDS.AirlineDelete,
+  ])
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
@@ -107,15 +114,15 @@ const AirlinePage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAirlines.sortBy, 'status', filterAirlines.sortOrder)
     },
-    {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 100,
-      sorter: true,
-      sortOrder: getSortOrder(filterAirlines.sortBy, 'updatedBy', filterAirlines.sortOrder),
-      render: (value) => value || '-'
-    },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 100,
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterAirlines.sortBy, 'updatedBy', filterAirlines.sortOrder),
+    //   render: (value) => value || '-'
+    // },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
@@ -125,15 +132,15 @@ const AirlinePage = () => {
       sortOrder: getSortOrder(filterAirlines.sortBy, 'createdBy', filterAirlines.sortOrder),
       render: (value) => value || '-'
     },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
-      sorter: true,
-      sortOrder: getSortOrder(filterAirlines.sortBy, 'updatedAt', filterAirlines.sortOrder)
-    },
+    // {
+    //   title: 'Updated At',
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   width: 100,
+    //   render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterAirlines.sortBy, 'updatedAt', filterAirlines.sortOrder)
+    // },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
@@ -143,17 +150,17 @@ const AirlinePage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAirlines.sortBy, 'createdAt', filterAirlines.sortOrder)
     },
-    {
+    ...(showAction ? [{
       title: 'Action',
       key: 'operation',
       fixed: 'right',
       width: 100,
       render: (values) => (
         <Space>
-          <Tooltip title="Edit">
+          <HasPermission menu={MENU_IDS.AirlineEdit}> <Tooltip title="Edit">
             <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
+          </Tooltip></HasPermission>
+          <HasPermission menu={MENU_IDS.AirlineDelete}><Tooltip title="Delete">
             <Popconfirm
               title={`Hapus airline ${values.name} ?`}
               placement='bottomRight'
@@ -164,9 +171,10 @@ const AirlinePage = () => {
               <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
             </Popconfirm>
           </Tooltip>
+          </HasPermission>
         </Space>
       ),
-    },
+    }] : []),
   ];
 
   return (
@@ -187,9 +195,11 @@ const AirlinePage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New Airline
-        </Button>
+        <HasPermission menu={MENU_IDS.AirlineAdd}>
+          <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
+            Airline Baru
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='id'

@@ -8,8 +8,15 @@ import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, T
 import moment from 'moment';
 import { useState } from 'react';
 import FormUser from './FormUser';
+import useHasPermission from '@/hooks/useHasPermisson';
+import { MENU_IDS } from '@/constant/menu';
+import HasPermission from '@/layouts/HasPermission';
 
 const UserPage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.StaffEdit,
+    MENU_IDS.StaffDelete,
+  ])
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
@@ -188,30 +195,35 @@ const UserPage = () => {
       width: 100,
       render: (value) => moment(value).format('YYYY-MM-DD HH:mm')
     },
-    {
+    ...(showAction ? [{
       title: 'Action',
       key: 'operation',
       fixed: 'right',
       width: 100,
       render: (values) => (
         <Space>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus Username ${values.username} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeactivateUser(values.id)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
+          <HasPermission menu={MENU_IDS.StaffEdit}>
+            <Tooltip title="Edit">
+              <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+            </Tooltip>
+          </HasPermission>
+          <HasPermission menu={MENU_IDS.StaffDelete}>
+            <Tooltip title="Delete">
+              <Popconfirm
+                title={`Hapus Username ${values.username} ?`}
+                placement='bottomRight'
+                onConfirm={() => handleDeactivateUser(values.id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Tooltip>
+          </HasPermission>
         </Space>
       ),
-    },
+    }] : [])
+    ,
   ];
 
   return (
@@ -246,9 +258,11 @@ const UserPage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          Staff Baru
-        </Button>
+        <HasPermission menu={MENU_IDS.StaffAdd}>
+          <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
+            Staff Baru
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='id'

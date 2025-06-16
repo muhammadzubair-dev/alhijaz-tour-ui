@@ -8,8 +8,15 @@ import { Avatar, Button, Flex, Input, notification, Popconfirm, Select, Space, T
 import moment from 'moment';
 import { useState } from 'react';
 import FormAgent from './FormAgent';
+import useHasPermission from '@/hooks/useHasPermisson';
+import { MENU_IDS } from '@/constant/menu';
+import HasPermission from '@/layouts/HasPermission';
 
 const AgentPage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.AgentEdit,
+    MENU_IDS.AgentDelete,
+  ])
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
@@ -121,7 +128,7 @@ const AgentPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAgents.sortBy, 'username', filterAgents.sortOrder)
     },
-     {
+    {
       title: 'Role',
       width: 100,
       dataIndex: 'role',
@@ -214,30 +221,34 @@ const AgentPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAgents.sortBy, 'createdAt', filterAgents.sortOrder)
     },
-    {
+    ...(showAction ? [{
       title: 'Action',
       key: 'operation',
       fixed: 'right',
       width: 100,
       render: (values) => (
         <Space>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus agent ${values.name} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeleteAgent(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
+          <HasPermission menu={MENU_IDS.StaffEdit}>
+            <Tooltip title="Edit">
+              <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+            </Tooltip>
+          </HasPermission>
+          <HasPermission menu={MENU_IDS.StaffDelete}>
+            <Tooltip title="Delete">
+              <Popconfirm
+                title={`Hapus agent ${values.name} ?`}
+                placement='bottomRight'
+                onConfirm={() => handleDeleteAgent(values)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Tooltip>
+          </HasPermission>
         </Space>
       ),
-    },
+    }] : []),
   ];
 
   return (
@@ -260,9 +271,11 @@ const AgentPage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New Agent
-        </Button>
+        <HasPermission menu={MENU_IDS.AgentAdd}>
+          <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
+            Agent Baru
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='id'

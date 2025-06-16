@@ -9,9 +9,9 @@ export const RoleGuard = ({ allowedMenu = [], children }) => {
   const user = useAuthStore((state) => state.user);
 
   const hasAccess = useMemo(() => {
-    if (!user?.menu || allowedMenu.length === 0) return false;
-    return allowedMenu.some((roleId) => user.menu.includes(roleId));
-  }, [user?.menu, allowedMenu]);
+    if (!user?.menuIds || allowedMenu.length === 0) return false;
+    return allowedMenu.some((roleId) => user.menuIds.includes(roleId));
+  }, [user?.menuIds, allowedMenu]);
 
   useEffect(() => {
     if (user && !hasAccess) {

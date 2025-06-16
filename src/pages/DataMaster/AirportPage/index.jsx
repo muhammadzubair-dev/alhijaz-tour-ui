@@ -8,8 +8,15 @@ import { Button, Flex, Input, message, Popconfirm, Select, Space, Table, Tooltip
 import moment from 'moment';
 import { useState } from 'react';
 import FormAirport from './FormAirport';
+import useHasPermission from '@/hooks/useHasPermisson';
+import { MENU_IDS } from '@/constant/menu';
+import HasPermission from '@/layouts/HasPermission';
 
 const AirportPage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.AirportEdit,
+    MENU_IDS.AirportDelete,
+  ])
   const [openForm, setOpenForm] = useState(false)
   const [openResult, setOpenResult] = useState({
     open: false,
@@ -116,15 +123,15 @@ const AirportPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAirports.sortBy, 'status', filterAirports.sortOrder)
     },
-    {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 100,
-      sorter: true,
-      sortOrder: getSortOrder(filterAirports.sortBy, 'updatedBy', filterAirports.sortOrder),
-      render: (value) => value || '-'
-    },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 100,
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterAirports.sortBy, 'updatedBy', filterAirports.sortOrder),
+    //   render: (value) => value || '-'
+    // },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
@@ -134,15 +141,15 @@ const AirportPage = () => {
       sortOrder: getSortOrder(filterAirports.sortBy, 'createdBy', filterAirports.sortOrder),
       render: (value) => value || '-'
     },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
-      sorter: true,
-      sortOrder: getSortOrder(filterAirports.sortBy, 'updatedAt', filterAirports.sortOrder)
-    },
+    // {
+    //   title: 'Updated At',
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   width: 100,
+    //   render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterAirports.sortBy, 'updatedAt', filterAirports.sortOrder)
+    // },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
@@ -152,30 +159,36 @@ const AirportPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterAirports.sortBy, 'createdAt', filterAirports.sortOrder)
     },
-    {
-      title: 'Action',
-      key: 'operation',
-      fixed: 'right',
-      width: 100,
-      render: (values) => (
-        <Space>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus airport ${values.name} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeleteAirport(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
-        </Space>
-      ),
-    },
+    ...(showAction ? [
+      {
+        title: 'Action',
+        key: 'operation',
+        fixed: 'right',
+        width: 100,
+        render: (values) => (
+          <Space>
+            <HasPermission menu={MENU_IDS.AirportEdit}>
+              <Tooltip title="Edit">
+                <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+              </Tooltip>
+            </HasPermission>
+            <HasPermission menu={MENU_IDS.AirportDelete}>
+              <Tooltip title="Delete">
+                <Popconfirm
+                  title={`Hapus airport ${values.name} ?`}
+                  placement='bottomRight'
+                  onConfirm={() => handleDeleteAirport(values)}
+                  okText="Yes"
+                  cancelText="No"
+                >
+                  <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+                </Popconfirm>
+              </Tooltip>
+            </HasPermission>
+          </Space>
+        ),
+      }
+    ] : []),
   ];
 
   return (
@@ -197,9 +210,11 @@ const AirportPage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New Airport
-        </Button>
+        <HasPermission menu={MENU_IDS.AirportAdd}>
+          <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
+            Airport Baru
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='code'

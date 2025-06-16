@@ -1,4 +1,7 @@
 import { ResultSuccess } from '@/components';
+import { MENU_IDS } from '@/constant/menu';
+import useHasPermission from '@/hooks/useHasPermisson';
+import HasPermission from '@/layouts/HasPermission';
 import queryClient from '@/lib/queryClient';
 import { apiDeleteTicket, apiFetchTickets } from '@/services/ticketService';
 import getSortOrder from '@/utils/getSortOrder';
@@ -10,6 +13,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const TicketPage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.TicketEdit,
+    MENU_IDS.TicketDelete,
+  ])
   const navigate = useNavigate()
   const [openResult, setOpenResult] = useState({
     open: false,
@@ -135,15 +142,15 @@ const TicketPage = () => {
       sortOrder: getSortOrder(filterTickets.sortBy, 'status', filterTickets.sortOrder),
       render: (value) => value === "1" ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />,
     },
-    {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 100,
-      sorter: true,
-      sortOrder: getSortOrder(filterTickets.sortBy, 'updatedBy', filterTickets.sortOrder),
-      render: (value) => value || '-'
-    },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 100,
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterTickets.sortBy, 'updatedBy', filterTickets.sortOrder),
+    //   render: (value) => value || '-'
+    // },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
@@ -152,15 +159,15 @@ const TicketPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterTickets.sortBy, 'createdBy', filterTickets.sortOrder)
     },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
-      sorter: true,
-      sortOrder: getSortOrder(filterTickets.sortBy, 'updatedAt', filterTickets.sortOrder)
-    },
+    // {
+    //   title: 'Updated At',
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   width: 100,
+    //   render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterTickets.sortBy, 'updatedAt', filterTickets.sortOrder)
+    // },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
@@ -170,37 +177,41 @@ const TicketPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterTickets.sortBy, 'createdAt', filterTickets.sortOrder)
     },
-    {
+    ...(showAction ? [{
       title: 'Action',
       key: 'operation',
       fixed: 'right',
       width: 100,
       render: (values) => (
         <Space>
-          <Tooltip title="Edit">
-            <Button
-              color='blue'
-              variant='text'
-              shape="circle"
-              size='small'
-              icon={<EditOutlined />}
-              onClick={() => navigate(`/data-master/ticket/${values.id}`)}
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus ticket ${values.bookingCode} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeleteTicket(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
+          <HasPermission menu={MENU_IDS.TicketEdit}>
+            <Tooltip title="Edit">
+              <Button
+                color='blue'
+                variant='text'
+                shape="circle"
+                size='small'
+                icon={<EditOutlined />}
+                onClick={() => navigate(`/data-master/ticket/${values.id}`)}
+              />
+            </Tooltip>
+          </HasPermission>
+          <HasPermission menu={MENU_IDS.TicketDelete}>
+            <Tooltip title="Delete">
+              <Popconfirm
+                title={`Hapus ticket ${values.bookingCode} ?`}
+                placement='bottomRight'
+                onConfirm={() => handleDeleteTicket(values)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Tooltip>
+          </HasPermission>
         </Space>
       ),
-    },
+    }] : []),
   ];
 
   return (
@@ -223,14 +234,16 @@ const TicketPage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button
-          variant='solid'
-          color='green'
-          icon={<PlusOutlined />}
-          onClick={() => navigate('/data-master/ticket/new-ticket')}
-        >
-          New Ticket
-        </Button>
+        <HasPermission menu={MENU_IDS.TicketAdd}>
+          <Button
+            variant='solid'
+            color='green'
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/data-master/ticket/new-ticket')}
+          >
+            Tiket Baru
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='id'

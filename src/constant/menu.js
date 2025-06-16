@@ -30,6 +30,7 @@ export const MENU_IDS = {
   RoleAdd: 'USRM|ROLE|ADD',
   RoleEdit: 'USRM|ROLE|EDIT',
   RoleDelete: 'USRM|ROLE|DEL',
+  RoleMenu: 'USRM|ROLE|MENU',
 
   // Data Master
   DataMaster: 'DTMS',

@@ -9,8 +9,16 @@ import moment from 'moment';
 import { useState } from 'react';
 import FormRole from './FormRole';
 import ListMenu from './ListMenu';
+import useHasPermission from '@/hooks/useHasPermisson';
+import { MENU_IDS } from '@/constant/menu';
+import HasPermission from '@/layouts/HasPermission';
 
 const RolePage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.RoleMenu,
+    MENU_IDS.RoleEdit,
+    MENU_IDS.RoleDelete,
+  ])
   const [openForm, setOpenForm] = useState(false)
   const [openFormMenu, setOpenFormMenu] = useState(false)
   const [openResult, setOpenResult] = useState({
@@ -189,33 +197,39 @@ const RolePage = () => {
       width: 100,
       render: (value) => moment(value).format('YYYY-MM-DD HH:mm')
     },
-    {
+    ...(showAction ? [{
       title: 'Action',
       key: 'operation',
       fixed: 'right',
       width: 100,
       render: (values) => (
         <Space>
-          <Tooltip title="Menu">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<MenuUnfoldOutlined />} onClick={() => handleOpenFormMenu(values)} />
-          </Tooltip>
-          <Tooltip title="Edit">
-            <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus role ${values.name} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeleteRole(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
+          <HasPermission menu={MENU_IDS.RoleMenu}>
+            <Tooltip title="Menu">
+              <Button color='blue' variant='text' shape="circle" size='small' icon={<MenuUnfoldOutlined />} onClick={() => handleOpenFormMenu(values)} />
+            </Tooltip>
+          </HasPermission>
+          <HasPermission menu={MENU_IDS.RoleEdit}>
+            <Tooltip title="Edit">
+              <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
+            </Tooltip>
+          </HasPermission>
+          <HasPermission menu={MENU_IDS.RoleDelete}>
+            <Tooltip title="Delete">
+              <Popconfirm
+                title={`Hapus role ${values.name} ?`}
+                placement='bottomRight'
+                onConfirm={() => handleDeleteRole(values)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Tooltip>
+          </HasPermission>
         </Space>
       ),
-    },
+    }] : []),
   ];
 
   return (
@@ -258,9 +272,11 @@ const RolePage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
-          New Role
-        </Button>
+        <HasPermission menu={MENU_IDS.RoleAdd}>
+          <Button variant='solid' color='green' icon={<PlusOutlined />} onClick={() => setOpenForm(true)}  >
+            Role Baru
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='id'

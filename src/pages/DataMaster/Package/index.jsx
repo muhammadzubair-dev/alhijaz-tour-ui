@@ -1,4 +1,7 @@
 import { ResultSuccess } from '@/components';
+import { MENU_IDS } from '@/constant/menu';
+import useHasPermission from '@/hooks/useHasPermisson';
+import HasPermission from '@/layouts/HasPermission';
 import queryClient from '@/lib/queryClient';
 import { apiDeletePackage, apiFetchPackages } from '@/services/masterService';
 import getSortOrder from '@/utils/getSortOrder';
@@ -10,6 +13,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const PackagePage = () => {
+  const showAction = useHasPermission([
+    MENU_IDS.PackageEdit,
+    MENU_IDS.PackageDelete,
+  ])
   const navigate = useNavigate()
   const [openResult, setOpenResult] = useState({
     open: false,
@@ -137,15 +144,15 @@ const PackagePage = () => {
       sortOrder: getSortOrder(filterPackages.sortBy, 'status', filterPackages.sortOrder),
       render: (value) => value === "1" ? <CheckCircleFilled style={{ color: "#52c41a" }} /> : <CloseCircleFilled style={{ color: "#ff4d4f" }} />,
     },
-    {
-      title: 'Updated By',
-      dataIndex: 'updatedBy',
-      key: 'updatedBy',
-      width: 100,
-      sorter: true,
-      sortOrder: getSortOrder(filterPackages.sortBy, 'updatedBy', filterPackages.sortOrder),
-      render: (value) => value ?? '-'
-    },
+    // {
+    //   title: 'Updated By',
+    //   dataIndex: 'updatedBy',
+    //   key: 'updatedBy',
+    //   width: 100,
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterPackages.sortBy, 'updatedBy', filterPackages.sortOrder),
+    //   render: (value) => value ?? '-'
+    // },
     {
       title: 'Created By',
       dataIndex: 'createdBy',
@@ -154,15 +161,15 @@ const PackagePage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterPackages.sortBy, 'createdBy', filterPackages.sortOrder)
     },
-    {
-      title: 'Updated At',
-      dataIndex: 'updatedAt',
-      key: 'updatedAt',
-      width: 100,
-      render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
-      sorter: true,
-      sortOrder: getSortOrder(filterPackages.sortBy, 'updatedAt', filterPackages.sortOrder)
-    },
+    // {
+    //   title: 'Updated At',
+    //   dataIndex: 'updatedAt',
+    //   key: 'updatedAt',
+    //   width: 100,
+    //   render: (value) => value ? moment(value).format('YYYY-MM-DD HH:mm') : '-',
+    //   sorter: true,
+    //   sortOrder: getSortOrder(filterPackages.sortBy, 'updatedAt', filterPackages.sortOrder)
+    // },
     {
       title: 'Created At',
       dataIndex: 'createdAt',
@@ -172,37 +179,41 @@ const PackagePage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterPackages.sortBy, 'createdAt', filterPackages.sortOrder)
     },
-    {
+    ...(showAction ? [{
       title: 'Action',
       key: 'operation',
       fixed: 'right',
       width: 100,
       render: (values) => (
         <Space>
-          <Tooltip title="Edit">
-            <Button
-              color='blue'
-              variant='text'
-              shape="circle"
-              size='small'
-              icon={<EditOutlined />}
-              onClick={() => navigate(`/data-master/package/${values.id}`)}
-            />
-          </Tooltip>
-          <Tooltip title="Delete">
-            <Popconfirm
-              title={`Hapus package ${values.name} ?`}
-              placement='bottomRight'
-              onConfirm={() => handleDeletePackage(values)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-            </Popconfirm>
-          </Tooltip>
+          <HasPermission menu={MENU_IDS.PackageEdit}>
+            <Tooltip title="Edit">
+              <Button
+                color='blue'
+                variant='text'
+                shape="circle"
+                size='small'
+                icon={<EditOutlined />}
+                onClick={() => navigate(`/data-master/package/${values.id}`)}
+              />
+            </Tooltip>
+          </HasPermission>
+          <HasPermission menu={MENU_IDS.PackageDelete}>
+            <Tooltip title="Delete">
+              <Popconfirm
+                title={`Hapus package ${values.name} ?`}
+                placement='bottomRight'
+                onConfirm={() => handleDeletePackage(values)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+              </Popconfirm>
+            </Tooltip>
+          </HasPermission>
         </Space>
       ),
-    },
+    }] : []),
   ];
 
   return (
@@ -226,14 +237,16 @@ const PackagePage = () => {
           <Button block type='primary' icon={<SearchOutlined />} style={{ maxWidth: 40 }} onClick={handleSubmit} />
 
         </Flex>
-        <Button
-          variant='solid'
-          color='green'
-          icon={<PlusOutlined />}
-          onClick={() => navigate('/data-master/package/new-package')}
-        >
-          New Package
-        </Button>
+        <HasPermission menu={MENU_IDS.PackageAdd}>
+          <Button
+            variant='solid'
+            color='green'
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/data-master/package/new-package')}
+          >
+            Paket Baru
+          </Button>
+        </HasPermission>
       </Flex>
       <Table
         rowKey='id'
