@@ -52,16 +52,20 @@ const AppRouter = () => (
 
           {/* User Management */}
           <Route path="user-management">
-            <Route index element={<RoleRoute menu={[MENU_IDS.UserManagement]} element={<UserPage />} />} />
+            {/* <Route index element={<RoleRoute menu={[MENU_IDS.UserManagement]} element={<UserPage />} />} />
             <Route path="agent" element={<RoleRoute menu={[MENU_IDS.Agent]} element={<AgentPage />} />} />
-            <Route path="role" element={<RoleRoute menu={[MENU_IDS.Role]} element={<RolePage />} />} />
+            <Route path="role" element={<RoleRoute menu={[MENU_IDS.Role]} element={<RolePage />} />} /> */}
             {/* <Route path="menu" element={<RoleRoute menu={[MENU_IDS.Me]} element={<MenuPage />} />} /> */}
+            <Route index element={<UserPage />} />
+            <Route path="agent" element={<AgentPage />} />
+            <Route path="role" element={<RolePage />} />
           </Route>
 
           {/* Pendaftaran - Umroh */}
           <Route path="pendaftaran">
             <Route path="umroh">
               <Route index element={<RoleRoute menu={[MENU_IDS.RegisterUmrahList]} element={<UmrohPage />} />} />
+              {/* <Route index element={UmrohPage} /> */}
               <Route path="daftar-umroh" element={<RoleRoute menu={[MENU_IDS.RegisterUmrahAdd]} element={<NewUmrohPage />} />} />
               <Route path="daftar-umroh/:kodeUmroh" element={<RoleRoute menu={[MENU_IDS.RegisterUmrahEdit]} element={<NewUmrohPage />} />} />
               <Route path=":kodeUmroh/jamaah" element={<RoleRoute menu={[MENU_IDS.RegisterUmrahAddByCode]} element={<JamaahUmrohPage />} />} />

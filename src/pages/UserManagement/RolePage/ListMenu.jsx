@@ -68,7 +68,7 @@ const ListMenu = ({ open, onCloseForm, onOpenResult, data }) => {
   const [autoExpandParent, setAutoExpandParent] = useState(true);
 
   const { data: resMenu, isLoading } = useQuery({
-    queryKey: ['lov-banks'],
+    queryKey: ['lov-menu'],
     queryFn: apiFetchMenu,
   });
 
@@ -114,9 +114,9 @@ const ListMenu = ({ open, onCloseForm, onOpenResult, data }) => {
   }
 
   useEffect(() => {
-    const roleMenus = data?.menu?.[0]?.role_menus;
+    const roleMenus = data?.menu;
     if (Array.isArray(roleMenus)) {
-      setCheckedKeys(roleMenus.map(item => item.menu_id));
+      setCheckedKeys(roleMenus);
     } else {
       setCheckedKeys([]);
     }
