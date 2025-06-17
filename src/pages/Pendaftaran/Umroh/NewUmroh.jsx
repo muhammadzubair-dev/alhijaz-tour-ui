@@ -113,7 +113,7 @@ const NewUmrohPage = () => {
 
   const createUmrohMutation = useMutation({
     mutationFn: apiCreateUmroh,
-    onSuccess: (data, variable) => {
+    onSuccess: (data) => {
       reset();
       setPriceState(0)
       setEquipmentPriceState(0)
@@ -127,7 +127,7 @@ const NewUmrohPage = () => {
   });
 
   const { data: resJamaah, refetch: refetchJamaah } = useQuery({
-    queryKey: ['lov-jamaah', identityNumber],
+    queryKey: ['jamaah', identityNumber],
     queryFn: () => apiFetchJamaahByIdentity(identityNumber),
     enabled: false,
   });

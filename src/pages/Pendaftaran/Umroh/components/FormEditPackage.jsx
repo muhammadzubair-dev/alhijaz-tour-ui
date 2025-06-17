@@ -1,18 +1,18 @@
 import queryClient from '@/lib/queryClient';
 import { apiFetchJamaahUmroh, apiFetchUmrohPackage } from '@/services/lovService';
-import { apiEditUmroh } from '@/services/umrohService';
+import { apiEditUmrohPackage } from '@/services/umrohService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Form, Modal, Select } from 'antd';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 const defaultValues = {
-  tourLead: null,
+  // tourLead: null,
   packageId: null,
   // status: 'true'
 }
 
-const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
+const FormEditPackage = ({ open, onCloseForm, onOpenResult, data }) => {
   const {
     control,
     handleSubmit,
@@ -24,7 +24,7 @@ const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
   });
 
   const editUmrohMutation = useMutation({
-    mutationFn: (payload) => apiEditUmroh(data?.id, payload),
+    mutationFn: (payload) => apiEditUmrohPackage(data?.id, payload),
     onSuccess: (data) => {
       reset();
       onCloseForm();
@@ -65,7 +65,7 @@ const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
   useEffect(() => {
     if (data) {
       reset({
-        tourLead: data.tourLead,
+        // tourLead: data.tourLead,
         packageId: data.packageId,
         // status: data.status === '1' ? 'true' : 'false'
       });
@@ -131,7 +131,7 @@ const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
         </Form.Item>
         {/* </Col> */}
 
-        <Form.Item
+        {/* <Form.Item
           required
           label="Tour Leader"
           validateStatus={errors.tourLead ? 'error' : ''}
@@ -157,7 +157,7 @@ const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
               </div>
             )}
           />
-        </Form.Item>
+        </Form.Item> */}
 
         {/* <Form.Item
           label="Status"
@@ -188,4 +188,4 @@ const EditUmroh = ({ open, onCloseForm, onOpenResult, data }) => {
   )
 }
 
-export default EditUmroh
+export default FormEditPackage

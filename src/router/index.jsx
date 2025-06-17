@@ -15,6 +15,7 @@ const UserPage = lazy(() => import('@/pages/UserManagement/UserPage'));
 const AgentPage = lazy(() => import('@/pages/UserManagement/AgentPage'));
 const UmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh'));
 const NewUmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh/NewUmroh'));
+const EditUmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh/EditUmroh'));
 const JamaahUmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh/JamaahUmroh'));
 const RolePage = lazy(() => import('@/pages/UserManagement/RolePage'));
 const MenuPage = lazy(() => import('@/pages/UserManagement/MenuPage'));
@@ -58,6 +59,7 @@ const AppRouter = () => (
               <Route path="daftar-umroh" element={<RoleRoute menu={[MENU_IDS.RegisterUmrahAdd]} element={<NewUmrohPage />} />} />
               <Route path="daftar-umroh/:kodeUmroh" element={<RoleRoute menu={[MENU_IDS.RegisterUmrahEdit]} element={<NewUmrohPage />} />} />
               <Route path=":kodeUmroh/jamaah" element={<RoleRoute menu={[MENU_IDS.RegisterUmrahAddByCode]} element={<JamaahUmrohPage />} />} />
+              <Route path=":kodeUmroh/jamaah/:idRegister" element={<EditUmrohPage />} />
             </Route>
           </Route>
 

@@ -2,13 +2,13 @@ import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
 import { apiDeleteUmroh, apiFetchJamaahUmroh } from '@/services/umrohService';
 import getSortOrder from '@/utils/getSortOrder';
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { Button, Flex, Input, message, Table, Tag } from 'antd';
+import { Button, Flex, Input, message, Popconfirm, Space, Table, Tag, Tooltip } from 'antd';
 import moment from 'moment';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import EditUmroh from './components/EditUmroh';
+import EditUmroh from './components/FormEditPackage';
 
 const JamaahUmrohPage = () => {
   const { kodeUmroh } = useParams()
@@ -158,40 +158,47 @@ const JamaahUmrohPage = () => {
       sorter: true,
       sortOrder: getSortOrder(filterUmrohs.sortBy, 'createdAt', filterUmrohs.sortOrder)
     },
-    // {
-    //   title: 'Action',
-    //   key: 'operation',
-    //   fixed: 'right',
-    //   width: 100,
-    //   render: (values) => (
-    //     <Space>
-    //       <Tooltip title="Tambah Jamaah">
-    //         <Button
-    //           color='blue'
-    //           variant='text'
-    //           shape="circle"
-    //           size='small'
-    //           icon={<LuUserPlus size={17} />}
-    //           onClick={() => navigate(`/pendaftaran/umroh/daftar-umroh/${values.id}`)}
-    //         />
-    //       </Tooltip>
-    //       <Tooltip title="Edit">
-    //         <Button color='blue' variant='text' shape="circle" size='small' icon={<EditOutlined />} onClick={() => handleOpenFormEdit(values)} />
-    //       </Tooltip>
-    //       <Tooltip title="Delete">
-    //         <Popconfirm
-    //           title={`Hapus umroh ${values.id} ?`}
-    //           placement='bottomRight'
-    //           onConfirm={() => handleDeleteUmroh(values)}
-    //           okText="Yes"
-    //           cancelText="No"
-    //         >
-    //           <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
-    //         </Popconfirm>
-    //       </Tooltip>
-    //     </Space>
-    //   ),
-    // },
+    {
+      title: 'Action',
+      key: 'operation',
+      fixed: 'right',
+      width: 100,
+      render: (values) => (
+        <Space>
+          {/* <Tooltip title="Tambah Jamaah">
+            <Button
+              color='blue'
+              variant='text'
+              shape="circle"
+              size='small'
+              icon={<LuUserPlus size={17} />}
+              onClick={() => navigate(`/pendaftaran/umroh/daftar-umroh/${values.id}`)}
+            />
+          </Tooltip> */}
+          <Tooltip title="Edit">
+            <Button
+              color='blue'
+              variant='text'
+              shape="circle"
+              size='small'
+              icon={<EditOutlined />}
+              onClick={() => navigate(`/pendaftaran/umroh/${kodeUmroh}/jamaah/${values.registerId}`)}
+            />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Popconfirm
+              title={`Hapus umroh ${values.id} ?`}
+              placement='bottomRight'
+              onConfirm={() => handleDeleteUmroh(values)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button danger type="text" shape="circle" size='small' icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip>
+        </Space>
+      ),
+    },
   ];
 
   return (

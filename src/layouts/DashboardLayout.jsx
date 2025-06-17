@@ -130,8 +130,6 @@ const DashboardLayout = () => {
 
   const selectedKeys = [location.pathname];
 
-  console.log('user ===========> ', user)
-
   useEffect(() => {
     if (user?.isDefaultPassword) {
       setOpenForm(true)

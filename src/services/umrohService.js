@@ -44,8 +44,23 @@ export const apiCreateUmroh = async (body) => {
   return response.data;
 };
 
+export const apiEditUmroh = async (body) => {
+  const formData = buildMultipartFormData(body, ['photoIdentity', 'selfPhoto']);
+
+  const response = await axiosInstance.patch('/umroh', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  return response.data;
+};
+
 export const apiFetchUmroh = async (query) => {
   const response = await axiosInstance.get(`/umroh${objToQueryString(query)}`);
+  return response.data;
+};
+
+export const apiFetchUmrohDetail = async (idRegister) => {
+  const response = await axiosInstance.get(`/umroh/${idRegister}`);
   return response.data;
 };
 
@@ -54,8 +69,8 @@ export const apiDeleteUmroh = async (umrohCode) => {
   return response.data;
 };
 
-export const apiEditUmroh = async (umrohCode, payload) => {
-  const response = await axiosInstance.patch(`/umroh/${umrohCode}`, cleanObject(payload));
+export const apiEditUmrohPackage = async (umrohCode, payload) => {
+  const response = await axiosInstance.patch(`/umroh/${umrohCode}/package`, cleanObject(payload));
   return response.data;
 };
 

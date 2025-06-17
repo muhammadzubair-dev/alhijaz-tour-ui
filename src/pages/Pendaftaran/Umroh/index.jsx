@@ -9,7 +9,7 @@ import moment from 'moment';
 import { useState } from 'react';
 import { LuUserPlus } from "react-icons/lu";
 import { useNavigate } from 'react-router-dom';
-import EditUmroh from './components/EditUmroh';
+import FormEditPackage from './components/FormEditPackage';
 import HasPermission from '@/layouts/HasPermission';
 import { MENU_IDS } from '@/constant/menu';
 import useHasPermission from '@/hooks/useHasPermisson';
@@ -271,7 +271,7 @@ const UmrohPage = () => {
           pageSizeOptions: [10, 25, 50, 100],
         }}
       />
-      <EditUmroh open={openForm} data={selectedUmroh} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
+      <FormEditPackage open={openForm} data={selectedUmroh} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
       <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
     </div>
   );
