@@ -1,6 +1,6 @@
 import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
-import { apiDeleteUmroh, apiFetchJamaahUmroh } from '@/services/umrohService';
+import { apiDeleteUmrohJamaah, apiFetchJamaahUmroh } from '@/services/umrohService';
 import getSortOrder from '@/utils/getSortOrder';
 import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -34,9 +34,9 @@ const JamaahUmrohPage = () => {
   });
 
   const deleteUmrohMutation = useMutation({
-    mutationFn: apiDeleteUmroh,
+    mutationFn: apiDeleteUmrohJamaah,
     onSuccess: (data) => {
-      message.success(`Data Umroh ${data.data.umrohCode} telah berhasil dihapus`)
+      message.success(`Data Jamaah Umroh ${data.data.registerId} telah berhasil dihapus`)
       queryClient.invalidateQueries(['umroh'])
     }
   })
@@ -44,11 +44,6 @@ const JamaahUmrohPage = () => {
   const handleCloseForm = () => {
     setSelectedUmroh(null)
     setOpenForm(false)
-  }
-
-  const handleOpenFormEdit = (data) => {
-    setSelectedUmroh(data)
-    setOpenForm(true)
   }
 
   const handleOpenResult = (values) => {
@@ -62,13 +57,6 @@ const JamaahUmrohPage = () => {
     setFilterUmrohs((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value
-    }))
-  }
-
-  const handleChangeStatus = (value) => {
-    setFilterUmrohs((prevState) => ({
-      ...prevState,
-      status: value
     }))
   }
 
@@ -87,8 +75,8 @@ const JamaahUmrohPage = () => {
     refetchUmrohs(filterUmrohs)
   }
 
-  const handleDeleteUmroh = ({ id }) => {
-    deleteUmrohMutation.mutate(id)
+  const handleDeleteUmroh = ({ registerId }) => {
+    deleteUmrohMutation.mutate(registerId)
   }
 
   const columns = [
@@ -187,7 +175,7 @@ const JamaahUmrohPage = () => {
           </Tooltip>
           <Tooltip title="Delete">
             <Popconfirm
-              title={`Hapus umroh ${values.id} ?`}
+              title={`Hapus Jamaah umroh ${values.jamaahName} ?`}
               placement='bottomRight'
               onConfirm={() => handleDeleteUmroh(values)}
               okText="Yes"

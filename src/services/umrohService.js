@@ -60,7 +60,7 @@ export const apiFetchUmroh = async (query) => {
 };
 
 export const apiFetchUmrohDetail = async (idRegister) => {
-  const response = await axiosInstance.get(`/umroh/${idRegister}`);
+  const response = await axiosInstance.get(`/umroh/jamaah/detail/${idRegister}`);
   return response.data;
 };
 
@@ -70,11 +70,16 @@ export const apiDeleteUmroh = async (umrohCode) => {
 };
 
 export const apiEditUmrohPackage = async (umrohCode, payload) => {
-  const response = await axiosInstance.patch(`/umroh/${umrohCode}/package`, cleanObject(payload));
+  const response = await axiosInstance.patch(`/umroh/jamaah/${umrohCode}/package`, cleanObject(payload));
   return response.data;
 };
 
 export const apiFetchJamaahUmroh = async (umrohCode, query) => {
-  const response = await axiosInstance.get(`/umroh/${umrohCode}/jamaah/${objToQueryString(query)}`);
+  const response = await axiosInstance.get(`/umroh/jamaah/${umrohCode}${objToQueryString(query)}`);
+  return response.data;
+};
+
+export const apiDeleteUmrohJamaah = async (registerId) => {
+  const response = await axiosInstance.delete(`/umroh/jamaah/${registerId}`);
   return response.data;
 };

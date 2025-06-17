@@ -221,8 +221,8 @@ const EditUmrohPage = () => {
       reset({
         ...values,
         birthDate: dayjs(birthDate),
-        photoIdentity: buildAntdFileFromUrl(photoIdentity, photoIdentity.split('/').pop()),
-        selfPhoto: buildAntdFileFromUrl(selfPhoto, selfPhoto.split('/').pop())
+        photoIdentity: buildAntdFileFromUrl(photoIdentity, photoIdentity?.split('/').pop()),
+        selfPhoto: buildAntdFileFromUrl(selfPhoto, selfPhoto?.split('/').pop())
       })
     }
   }, [resUmrohDetail])
