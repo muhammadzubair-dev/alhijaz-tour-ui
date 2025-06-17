@@ -47,9 +47,9 @@ const AppRouter = () => (
           <Route path="dashboard" element={<RoleRoute menu={[MENU_IDS.Dashboard]} element={<DashboardPage />} />} />
 
           <Route path="user-management">
-            <Route index element={<RoleRoute menu={[MENU_IDS.UserManagement]} element={<UserPage />} />} />
-            <Route path="agent" element={<RoleRoute menu={[MENU_IDS.Agent]} element={<AgentPage />} />} />
-            <Route path="role" element={<RoleRoute menu={[MENU_IDS.Role]} element={<RolePage />} />} />
+            <Route index element={<RoleRoute menu={[MENU_IDS.StaffList]} element={<UserPage />} />} />
+            <Route path="agent" element={<RoleRoute menu={[MENU_IDS.AgentList]} element={<AgentPage />} />} />
+            <Route path="role" element={<RoleRoute menu={[MENU_IDS.RoleList]} element={<RolePage />} />} />
           </Route>
 
           <Route path="pendaftaran">

@@ -8,6 +8,11 @@ export const apiUserLogin = async (payload) => {
   return response.data;
 };
 
+export const apiUserLogout = async () => {
+  const response = await axiosInstance.post('/users/logout');
+  return response.data;
+};
+
 // User
 export const apiFetchUsers = async (query) => {
   const response = await axiosInstance.get(`/users${objToQueryString(query)}`);

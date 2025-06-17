@@ -73,8 +73,6 @@ const ListMenu = ({ open, onCloseForm, onOpenResult, data }) => {
   });
 
   const treeData = buildTree(resMenu?.data || [])
-  // console.log('dataMenu ======> ', JSON.stringify(dataMenu, null, 2))
-  console.log('data ===============> ', data)
 
   const createRoleMenuMutation = useMutation({
     mutationFn: (payload) => apiCreateRoleMenu(data?.id, payload),
@@ -98,25 +96,38 @@ const ListMenu = ({ open, onCloseForm, onOpenResult, data }) => {
     setAutoExpandParent(false);
   };
 
-  const onCheck = checkedKeysValue => {
-    console.log('onCheck', JSON.stringify(checkedKeysValue, null, 2));
+  const onCheck = (checkedKeysValue) => {
     setCheckedKeys(checkedKeysValue);
   };
 
-  const onSelect = (selectedKeysValue, info) => {
-    console.log('onSelect', info);
+  const onSelect = (selectedKeysValue) => {
     setSelectedKeys(selectedKeysValue);
   };
 
   const handleSubmit = () => {
-    console.log('====>', { data: checkedKeys })
     createRoleMenuMutation.mutate({ data: checkedKeys })
+  }
+
+  function filterDeepestOnly(data = []) {
+    const set = new Set(data);
+    return data.filter((item) => {
+      const parts = item.split('|');
+      // Kalau item punya child (misal: USRM|ROLE → USRM|ROLE|ADD), maka dia akan dihapus
+      for (let i = 1; i < parts.length; i++) {
+        const parent = parts.slice(0, i).join('|');
+        if (set.has(parent)) {
+          // Jika parent ada di set, hapus parent
+          set.delete(parent);
+        }
+      }
+      return set.has(item);
+    });
   }
 
   useEffect(() => {
     const roleMenus = data?.menu;
     if (Array.isArray(roleMenus)) {
-      setCheckedKeys(roleMenus);
+      setCheckedKeys(filterDeepestOnly(roleMenus));
     } else {
       setCheckedKeys([]);
     }

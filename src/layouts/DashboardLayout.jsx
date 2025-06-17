@@ -1,5 +1,7 @@
 import logo from '@/assets/logo.png';
 import { SearchPages, SwitchTheme } from '@/components';
+import { MENU_IDS } from '@/constant/menu';
+import { apiUserLogout } from '@/services/userService';
 import useAuthStore from '@/store/authStore';
 import convertPathToBreadcrumb from '@/utils/convertPathToBreadcrumb';
 import {
@@ -8,6 +10,7 @@ import {
   LogoutOutlined,
   UserOutlined
 } from '@ant-design/icons';
+import { useMutation } from '@tanstack/react-query';
 import { Avatar, Breadcrumb, Button, Divider, Flex, Layout, Menu, Space, theme, Typography } from 'antd';
 import { FaWpforms } from 'react-icons/fa6';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -15,34 +18,35 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 const { Header, Content, Footer, Sider } = Layout;
 const { useToken } = theme;
 
-function getItem(label, key, icon, children) {
+function getItem(label, key, icon, children, permissionKey) {
   return {
     key,
     icon,
     children,
     label,
+    permissionKey
   };
 }
 const items = [
-  getItem('Dashboard', '/dashboard', <HomeOutlined />),
+  getItem('Dashboard', '/dashboard', <HomeOutlined />, null, MENU_IDS.Dashboard),
   getItem('Pendatftaran', 'sub_pendaftaran', <FaWpforms />, [
-    getItem('Umroh', '/pendaftaran/umroh'),
+    getItem('Umroh', '/pendaftaran/umroh', null, null, MENU_IDS.RegisterUmrahList),
     // getItem('Agent', '/user-management/agent'),
     // getItem('Role', '/user-management/role'),
     // getItem('Menu', '/user-management/menu'),
   ]),
   getItem('User Management', 'sub_user_management', <UserOutlined />, [
-    getItem('Staff', '/user-management'),
-    getItem('Agent', '/user-management/agent'),
-    getItem('Role', '/user-management/role'),
+    getItem('Staff', '/user-management', null, null, MENU_IDS.StaffList),
+    getItem('Agent', '/user-management/agent', null, null, MENU_IDS.AgentList),
+    getItem('Role', '/user-management/role', null, null, MENU_IDS.RoleList),
     // getItem('Menu', '/user-management/menu'),
   ]),
   getItem('Data Master', 'sub_data_master', <DatabaseOutlined />, [
-    getItem('Package', '/data-master/package'),
-    getItem('Ticket', '/data-master/ticket'),
-    getItem('Bank', '/data-master/bank'),
-    getItem('Airport', '/data-master/airport'),
-    getItem('Airline', '/data-master/airline'),
+    getItem('Package', '/data-master/package', null, null, MENU_IDS.PackageList),
+    getItem('Ticket', '/data-master/ticket', null, null, MENU_IDS.TicketList),
+    getItem('Bank', '/data-master/bank', null, null, MENU_IDS.BankList),
+    getItem('Airport', '/data-master/airport', null, null, MENU_IDS.AirportList),
+    getItem('Airline', '/data-master/airline', null, null, MENU_IDS.AirlineList),
     // getItem('Social Media', '/data-master/social-media'),
     // getItem('Fee', '/data-master/fee'),
     // getItem('Jamaah', '/data-master/jamaah'),
@@ -61,15 +65,51 @@ const DashboardLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  const logoutUserMutation = useMutation({
+    mutationFn: apiUserLogout,
+    onSuccess: () => {
+      logout()
+    },
+  });
 
   const handleMenuItemClick = (e) => {
     if (e.key) {
       navigate(e.key);
     }
   }
+
+  const handleLogout = (e) => {
+    e.preventDefault()
+    logoutUserMutation.mutate()
+  }
+
+  const hasPermission = (menuId) => user?.menuIds?.includes(menuId);
+
+  const filterMenuItems = (items) => {
+    return items
+      .map(item => {
+        if (item.children) {
+          const filteredChildren = filterMenuItems(item.children);
+          if (filteredChildren.length > 0) {
+            return { ...item, children: filteredChildren };
+          }
+          return null;
+        }
+
+        if (!item.permissionKey || hasPermission(item.permissionKey)) {
+          return item;
+        }
+
+        return null;
+      })
+      .filter(Boolean);
+  };
+
 
   const selectedKeys = [location.pathname];
 
@@ -104,12 +144,12 @@ const DashboardLayout = () => {
               </div>
             </div>
             <div >
-              <Menu selectedKeys={selectedKeys} onClick={handleMenuItemClick} theme='dark' mode="inline" defaultSelectedKeys={['/dashboard']} items={items} />
+              <Menu selectedKeys={selectedKeys} onClick={handleMenuItemClick} theme='dark' mode="inline" defaultSelectedKeys={['/dashboard']} items={filterMenuItems(items)} />
             </div>
           </div>
           <Flex vertical style={{ padding: '0 16px 16px', flexShrink: 0 }}>
             <Divider style={{ backgroundColor: 'rgba(255, 255, 255, 0.20)' }} />
-            <Button color="default" variant="solid" icon={<LogoutOutlined />} block>
+            <Button color="default" variant="solid" icon={<LogoutOutlined />} onClick={handleLogout} block>
               Logout
             </Button>
           </Flex>

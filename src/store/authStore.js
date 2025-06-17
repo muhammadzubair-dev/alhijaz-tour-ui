@@ -18,6 +18,7 @@ const useAuthStore = create(
 
       logout: () => {
         set({ token: null, user: null, isAuthenticated: false });
+        window.location.replace('/login');
       },
     }),
     {
