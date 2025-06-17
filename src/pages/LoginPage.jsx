@@ -7,6 +7,7 @@ import { apiUserLogin, apiFetchCurrentUser } from '@/services/userService';
 import useAuthStore from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { passwordRules } from '@/utils/passwordRules';
 
 const LoginPage = () => {
   const loginSuccess = useAuthStore((state) => state.loginSuccess);
@@ -100,14 +101,7 @@ const LoginPage = () => {
             <Controller
               name="password"
               control={control}
-              rules={{
-                required: 'Password tidak boleh kosong',
-                pattern: {
-                  value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/,
-                  message:
-                    'Password harus memiliki huruf besar, huruf kecil, angka, dan simbol',
-                },
-              }}
+              rules={passwordRules}
               render={({ field }) => (
                 <Input
                   {...field}

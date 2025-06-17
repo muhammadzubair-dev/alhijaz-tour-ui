@@ -1,5 +1,5 @@
 import logo from '@/assets/logo.png';
-import { SearchPages, SwitchTheme } from '@/components';
+import { ResultSuccess, SearchPages, SwitchTheme, ChangePassword } from '@/components';
 import { MENU_IDS } from '@/constant/menu';
 import { apiUserLogout } from '@/services/userService';
 import useAuthStore from '@/store/authStore';
@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import { Avatar, Breadcrumb, Button, Divider, Flex, Layout, Menu, Space, theme, Typography } from 'antd';
+import { useEffect, useState } from 'react';
 import { FaWpforms } from 'react-icons/fa6';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
@@ -64,6 +65,12 @@ const DashboardLayout = () => {
   const { token } = useToken();
   const navigate = useNavigate();
   const location = useLocation();
+  const [openForm, setOpenForm] = useState(false)
+  const [openResult, setOpenResult] = useState({
+    open: false,
+    title: '',
+    subtitle: ''
+  })
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const {
@@ -88,6 +95,17 @@ const DashboardLayout = () => {
     logoutUserMutation.mutate()
   }
 
+  const handleCloseForm = () => {
+    setOpenForm(false)
+  }
+
+  const handleOpenResult = (values) => {
+    setOpenResult((prevState) => ({
+      ...prevState,
+      ...values
+    }))
+  }
+
   const hasPermission = (menuId) => user?.menuIds?.includes(menuId);
 
   const filterMenuItems = (items) => {
@@ -110,8 +128,15 @@ const DashboardLayout = () => {
       .filter(Boolean);
   };
 
-
   const selectedKeys = [location.pathname];
+
+  console.log('user ===========> ', user)
+
+  useEffect(() => {
+    if (user?.isDefaultPassword) {
+      setOpenForm(true)
+    }
+  }, [user?.isDefaultPassword])
 
   return (
     <Layout style={{ height: '100vh' }}>
@@ -180,18 +205,15 @@ const DashboardLayout = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            {/* <div style={{
-              height: 'calc(100vh - 240px)',
-              overflow: 'auto',
-            }}> */}
             <Outlet />
-            {/* </div> */}
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>
           Ant Design ©{new Date().getFullYear()} Created by Ant UED
         </Footer>
       </Layout>
+      <ChangePassword open={openForm} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
+      <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />
     </Layout >
   );
 };

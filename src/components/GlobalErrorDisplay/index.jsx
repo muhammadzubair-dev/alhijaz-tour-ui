@@ -8,7 +8,7 @@ const GlobalErrorDisplay = () => {
 
   const handleGoHome = () => {
     clearError();
-    navigate('/');
+    navigate(-1);
   };
 
   const handleClose = () => {
@@ -35,7 +35,7 @@ const GlobalErrorDisplay = () => {
         subTitle={errorInfo.subTitle || 'Maaf, terjadi kesalahan yang tidak terduga.'}
         extra={[
           <Button type="primary" key="gohome" onClick={handleGoHome}>
-            Kembali ke Beranda
+            Kembali
           </Button>,
           <Button key="close" onClick={handleClose}>
             Tutup

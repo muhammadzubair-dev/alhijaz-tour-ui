@@ -13,6 +13,11 @@ export const apiUserLogout = async () => {
   return response.data;
 };
 
+export const apiUserChangePassword = async (payload) => {
+  const response = await axiosInstance.post('/users/change-password', cleanObject(payload));
+  return response.data;
+};
+
 // User
 export const apiFetchUsers = async (query) => {
   const response = await axiosInstance.get(`/users${objToQueryString(query)}`);
