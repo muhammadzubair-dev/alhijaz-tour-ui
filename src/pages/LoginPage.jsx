@@ -30,7 +30,6 @@ const LoginPage = () => {
     queryKey: ['currentUser'],
     queryFn: apiFetchCurrentUser,
     enabled: false,
-
   });
 
   const loginUserMutation = useMutation({

@@ -121,7 +121,9 @@ const NewUmrohPage = () => {
       setOpenResult({
         open: true,
         title: 'Daftar Umroh Berhasil',
-        subtitle: `Pendaftar umroh baru dengan nama "${data.data.registerName}" telah berhasil ditambahkan ke sistem.`,
+        subtitle: dataJamaah
+          ? `Pendaftar umroh baru dengan ID "${data.data.id}" telah berhasil ditambahkan ke sistem.`
+          : 'Pendaftar umroh baru sedang dalam proses validasi data oleh staf. Mohon menunggu hingga proses selesai.',
       });
     },
   });
@@ -374,6 +376,7 @@ const NewUmrohPage = () => {
                     <Input
                       {...field}
                       allowClear
+                      disabled
                       placeholder="Masukkan Nomor KTP"
                     // onBlur={() => {
                     //   if (field.value) {
@@ -532,7 +535,7 @@ const NewUmrohPage = () => {
                   render={({ field }) => (
                     <DatePicker
                       {...field}
-                      minDate={dayjs()}
+                      maxDate={dayjs()}
                       onChange={(date) => field.onChange(date)}
                       style={{ width: '100%' }}
                       placeholder="Pilih Tanggal Lahir"

@@ -3,7 +3,8 @@ import SearchPages from './SearchPages';
 import SwitchTheme from './SwitchTheme';
 import ResultSuccess from './ResultSuccess';
 import Label from './Label';
-import ChangePassword from './ChangePassword'
+import ChangePassword from './ChangePassword';
+import NotificationBell from './NotificationBell';
 
 export {
   PageLoader,
@@ -11,5 +12,6 @@ export {
   SwitchTheme,
   ResultSuccess,
   Label,
-  ChangePassword
+  ChangePassword,
+  NotificationBell
 };

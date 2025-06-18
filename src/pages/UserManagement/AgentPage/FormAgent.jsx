@@ -82,7 +82,7 @@ const FormAgent = ({ open, onCloseForm, onOpenResult, data }) => {
         extra: data.data.password,
         open: true,
         title: 'Agent Berhasil Ditambahkan',
-        subtitle: `Agent dengan username "${data.data.password}" telah berhasil ditambahkan ke sistem. Berikut adalah kata sandi sementara yang dapat digunakan untuk login.`,
+        subtitle: `Agent dengan username "${data.data.username}" telah berhasil ditambahkan ke sistem. Berikut adalah kata sandi sementara yang dapat digunakan untuk login.`,
       });
     },
   });

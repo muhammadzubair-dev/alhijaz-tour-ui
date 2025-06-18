@@ -1,0 +1,6 @@
+/* NotificationDropdown.module.css */
+
+.noHoverMenu .ant-dropdown-menu-item:hover,
+.noHoverMenu .ant-dropdown-menu-submenu-title:hover {
+  background-color: transparent !important;
+}

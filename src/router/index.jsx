@@ -19,6 +19,7 @@ const EditUmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh/EditUmroh'));
 const JamaahUmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh/JamaahUmroh'));
 const RolePage = lazy(() => import('@/pages/UserManagement/RolePage'));
 const MenuPage = lazy(() => import('@/pages/UserManagement/MenuPage'));
+const TaskPage = lazy(() => import('@/pages/Task'));
 const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage'));
 const BankPage = lazy(() => import('@/pages/DataMaster/BankPage'));
 const AirportPage = lazy(() => import('@/pages/DataMaster/AirportPage'));
@@ -47,10 +48,8 @@ const AppRouter = () => (
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<RoleRoute menu={[MENU_IDS.Dashboard]} element={<DashboardPage />} />} />
 
-          <Route path="user-management">
-            <Route index element={<RoleRoute menu={[MENU_IDS.StaffList]} element={<UserPage />} />} />
-            <Route path="agent" element={<RoleRoute menu={[MENU_IDS.AgentList]} element={<AgentPage />} />} />
-            <Route path="role" element={<RoleRoute menu={[MENU_IDS.RoleList]} element={<RolePage />} />} />
+          <Route path="task">
+            <Route index element={<TaskPage />} />
           </Route>
 
           <Route path="pendaftaran">
@@ -61,6 +60,12 @@ const AppRouter = () => (
               <Route path=":kodeUmroh/jamaah" element={<RoleRoute menu={[MENU_IDS.RegisterUmrahAddByCode]} element={<JamaahUmrohPage />} />} />
               <Route path=":kodeUmroh/jamaah/:idRegister" element={<EditUmrohPage />} />
             </Route>
+          </Route>
+
+          <Route path="user-management">
+            <Route index element={<RoleRoute menu={[MENU_IDS.StaffList]} element={<UserPage />} />} />
+            <Route path="agent" element={<RoleRoute menu={[MENU_IDS.AgentList]} element={<AgentPage />} />} />
+            <Route path="role" element={<RoleRoute menu={[MENU_IDS.RoleList]} element={<RolePage />} />} />
           </Route>
 
           <Route path="data-master">

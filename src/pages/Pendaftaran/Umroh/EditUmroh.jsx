@@ -307,7 +307,7 @@ const EditUmrohPage = () => {
                     {...field}
                     allowClear
                     placeholder="Masukkan Nomor KTP"
-                    disableds
+                    disabled
                   />
                 )}
               />
@@ -460,7 +460,7 @@ const EditUmrohPage = () => {
                 render={({ field }) => (
                   <DatePicker
                     {...field}
-                    minDate={dayjs()}
+                    maxDate={dayjs()}
                     onChange={(date) => field.onChange(date)}
                     style={{ width: '100%' }}
                     placeholder="Pilih Tanggal Lahir"

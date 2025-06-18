@@ -10,6 +10,7 @@ const useAuthStore = create(
 
       loginSuccess: (token) => {
         set({ token, isAuthenticated: false });
+        document.cookie = `token=${token}; path=/; SameSite=Lax;`;
       },
 
       setUserProfile: (profile) => {
@@ -18,6 +19,7 @@ const useAuthStore = create(
 
       logout: () => {
         set({ token: null, user: null, isAuthenticated: false });
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
         window.location.replace('/login');
       },
     }),

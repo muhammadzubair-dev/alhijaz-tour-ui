@@ -1,5 +1,6 @@
 import logo from '@/assets/logo.png';
-import { ResultSuccess, SearchPages, SwitchTheme, ChangePassword } from '@/components';
+import { connectSSE, disconnectSSE } from '@/utils/sse';
+import { ResultSuccess, SearchPages, SwitchTheme, ChangePassword, NotificationBell } from '@/components';
 import { MENU_IDS } from '@/constant/menu';
 import { apiUserLogout } from '@/services/userService';
 import useAuthStore from '@/store/authStore';
@@ -13,6 +14,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import { Avatar, Breadcrumb, Button, Divider, Flex, Layout, Menu, Space, theme, Typography } from 'antd';
 import { useEffect, useState } from 'react';
+import { FaTasks } from 'react-icons/fa';
 import { FaWpforms } from 'react-icons/fa6';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
@@ -30,6 +32,7 @@ function getItem(label, key, icon, children, permissionKey) {
 }
 const items = [
   getItem('Dashboard', '/dashboard', <HomeOutlined />, null, MENU_IDS.Dashboard),
+  getItem('Task', '/task', <FaTasks />),
   getItem('Pendatftaran', 'sub_pendaftaran', <FaWpforms />, [
     getItem('Umroh', '/pendaftaran/umroh', null, null, MENU_IDS.RegisterUmrahList),
     // getItem('Agent', '/user-management/agent'),
@@ -136,6 +139,20 @@ const DashboardLayout = () => {
     }
   }, [user?.isDefaultPassword])
 
+  // ⬇️ Tambahkan ini untuk koneksi SSE
+  useEffect(() => {
+    if (user?.id) {
+      connectSSE(user.id, (data) => {
+        console.log('📩 SSE message received:', data);
+        // 👉 Bisa trigger store, toast, notifikasi, dll.
+      });
+
+      return () => {
+        disconnectSSE();
+      };
+    }
+  }, [user?.id]);
+
   return (
     <Layout style={{ height: '100vh' }}>
       <Sider
@@ -183,6 +200,7 @@ const DashboardLayout = () => {
           <img src={logo} height={35} />
           <Flex align='center' gap={16}>
             <SearchPages />
+            <NotificationBell />
             <SwitchTheme />
           </Flex>
         </Header>
