@@ -6,9 +6,11 @@ import { apiFetchTasks } from '@/services/TaskService';
 import moment from 'moment';
 import { connectSSE, disconnectSSE } from '@/utils/sse';
 import useAuthStore from '@/store/authStore';
+import styles from './index.module.css'; // import css animasi
 
 const NotificationPopover = () => {
-  const authUser = useAuthStore((state) => state.user); // ambil user.id
+  const authUser = useAuthStore((state) => state.user);
+  const [isShaking, setIsShaking] = useState(false);
   const [filterTasks, setFilterTasks] = useState({
     page: 1,
     limit: 5,
@@ -23,69 +25,102 @@ const NotificationPopover = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   const { data: resTasks, isFetching } = useQuery({
-    queryKey: ['tasks', filterTasks.page, filterTasks.limit, filterTasks.sortBy, filterTasks.sortOrder, filterTasks.status],
+    queryKey: ['tasks', filterTasks.page, filterTasks.limit],
     queryFn: () => apiFetchTasks(filterTasks),
     keepPreviousData: true,
-    enabled: !!authUser, // hanya fetch kalau user tersedia
+    enabled: !!authUser,
   });
 
-  const totalPages = resTasks?.paging?.totalPages || 1;
-  const currentPageData = resTasks?.data || [];
-
-  // ⬅️ Saat fetch API selesai, isi awal dan unread
   useEffect(() => {
     if (filterTasks.page === 1) {
-      setAllNotifications(currentPageData);
+      setAllNotifications(resTasks?.data || []);
     } else {
-      setAllNotifications((prev) => [...prev, ...currentPageData]);
+      setAllNotifications((prev) => [...prev, ...(resTasks?.data || [])]);
     }
     setUnreadCount(resTasks?.summary?.unreadCount || 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPageData]);
+  }, [resTasks?.data]);
 
-  // ⬅️ SSE setup
+  const playNotificationSound = () => {
+    const audio = new Audio('/sounds/notification.wav');
+    audio.play().catch(() => { });
+  };
+
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 700);
+  };
+
+  const showNativeNotification = (title, body) => {
+    if (!("Notification" in window)) {
+      alert("Browser tidak mendukung notifikasi.");
+      return;
+    }
+
+    // Minta izin jika belum
+    if (Notification.permission === "granted") {
+      new Notification(title, {
+        body,
+        icon: "/icon.png", // opsional
+      });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then((permission) => {
+        if (permission === "granted") {
+          new Notification(title, {
+            body,
+            icon: "/icon.png",
+          });
+        }
+      });
+    }
+  };
+
   useEffect(() => {
     if (!authUser?.id) return;
 
     connectSSE(
       authUser.id,
       (data) => {
+        console.log('sse =====>', data)
         setAllNotifications((prev) => [data, ...prev]);
         setUnreadCount((prev) => prev + 1);
+        playNotificationSound();
+        triggerShake();
       },
-      (error) => {
-        console.error('SSE Error:', error);
-      }
+      (err) => console.error('SSE error:', err)
     );
 
-    return () => {
-      disconnectSSE();
-    };
+    return () => disconnectSSE();
   }, [authUser?.id]);
 
   const handleLoadMore = () => {
-    if (filterTasks.page < totalPages) {
+    if (resTasks?.paging?.totalPages && filterTasks.page < resTasks.paging.totalPages) {
       setFilterTasks((prev) => ({ ...prev, page: prev.page + 1 }));
     }
   };
+
+  const handleTest = () => {
+    playNotificationSound();
+    triggerShake();
+    showNativeNotification("Notifikasi Baru", "Anda mendapat tugas validasi jamaah.");
+  }
+
+  console.log('allNotifications =====>', allNotifications)
 
   const content = (
     <div style={{ width: 300, maxHeight: 600, overflow: 'auto' }}>
       <List
         header={
           <Flex justify='flex-end'>
-            <Typography.Link style={{ textDecoration: 'underline' }}>
-              Tandai Semua Sudah Dibaca
-            </Typography.Link>
+            <Typography.Link onClick={handleTest}>Tandai Semua Sudah Dibaca</Typography.Link>
           </Flex>
         }
-        itemLayout="horizontal"
         dataSource={allNotifications}
         locale={{ emptyText: 'Tidak ada notifikasi' }}
         footer={
-          filterTasks.page < totalPages && (
+          filterTasks.page < (resTasks?.paging?.totalPages || 1) && (
             <Flex justify='center'>
-              <Typography.Link onClick={handleLoadMore} disabled={isFetching}>
+              <Typography.Link onClick={handleLoadMore}>
                 {isFetching ? 'Loading...' : 'Load More'}
               </Typography.Link>
             </Flex>
@@ -111,7 +146,10 @@ const NotificationPopover = () => {
   return (
     <Popover content={content} trigger="click" placement="bottomRight" arrow={false}>
       <Badge count={unreadCount} offset={[-2, 2]}>
-        <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
+        <BellOutlined
+          className={isShaking ? styles['bell-shake'] : ''}
+          style={{ fontSize: 20, cursor: 'pointer' }}
+        />
       </Badge>
     </Popover>
   );

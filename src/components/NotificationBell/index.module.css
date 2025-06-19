@@ -1,6 +1,29 @@
-/* NotificationDropdown.module.css */
+@keyframes shake {
+  0% {
+    transform: rotate(0deg);
+  }
 
-.noHoverMenu .ant-dropdown-menu-item:hover,
-.noHoverMenu .ant-dropdown-menu-submenu-title:hover {
-  background-color: transparent !important;
+  20% {
+    transform: rotate(-15deg);
+  }
+
+  40% {
+    transform: rotate(15deg);
+  }
+
+  60% {
+    transform: rotate(-10deg);
+  }
+
+  80% {
+    transform: rotate(10deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.bell-shake {
+  animation: shake 0.5s ease-in-out;
 }

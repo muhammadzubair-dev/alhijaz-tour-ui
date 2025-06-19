@@ -1,13 +1,19 @@
 import { Button, Form, Input } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 
-const SearchNIK = ({ onSearchNIK }) => {
-  const { control, handleSubmit, formState: { errors } } = useForm();
+const SearchNIK = ({ onSearchNIK, clearSearchNIK }) => {
+  const { control, handleSubmit, formState: { errors }, reset } = useForm();
 
   const onSubmit = (data) => {
     onSearchNIK(data.nik);
   };
+
+  useEffect(() => {
+    if (clearSearchNIK) {
+      reset()
+    }
+  }, [clearSearchNIK, reset])
 
   return (
     <Form layout="inline" onFinish={handleSubmit(onSubmit)} style={{ width: '100%' }}>

@@ -101,6 +101,7 @@ const NewUmrohPage = () => {
   });
 
   const [isSearchNIK, setIsSearchNIK] = useState(false);
+  const [clearSearchNIK, setClearIsSearchNIK] = useState(false);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [previewImage, setPreviewImage] = useState('');
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -116,6 +117,8 @@ const NewUmrohPage = () => {
     mutationFn: apiCreateUmroh,
     onSuccess: (data) => {
       reset();
+      setClearIsSearchNIK(true)
+      setIsSearchNIK(false);
       setPriceState(0)
       setEquipmentPriceState(0)
       queryClient.invalidateQueries(['register-umroh']);
@@ -217,6 +220,7 @@ const NewUmrohPage = () => {
     if (value.length !== 16) {
       message.error('No ktp panjangnya harus 16 karakter')
     }
+    setClearIsSearchNIK(false)
     setIsSearchNIK(true)
     if (value !== identityNumber) {
       reset()
@@ -326,7 +330,7 @@ const NewUmrohPage = () => {
     <>
       <Row gutter={16} style={{ maxWidth: 1240 }}>
         <Col lg={8}>
-          <SearchNIK onSearchNIK={handleSearchNIK} />
+          <SearchNIK onSearchNIK={handleSearchNIK} clearSearchNIK={clearSearchNIK} />
           {isSearchNIK && dataJamaah && (
             <Typography.Paragraph style={{ color: token.colorSuccess, margin: 0 }}>
               No KTP sudah Terdaftar data-data ktp sudah terisi otomatis
