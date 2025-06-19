@@ -198,8 +198,8 @@ const DashboardLayout = () => {
       <Layout>
         <Header style={{ background: colorBgContainer, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px' }}>
           <img src={logo} height={35} />
-          <Flex align='center' gap={16}>
-            <SearchPages />
+          <Flex align='center' gap={20}>
+            {/* <SearchPages /> */}
             <NotificationBell />
             <SwitchTheme />
           </Flex>

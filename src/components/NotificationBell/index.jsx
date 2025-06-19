@@ -1,35 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Popover, List, Badge, Avatar, Button, Typography, Flex } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
-
-const notifications = [
-  {
-    id: 1,
-    title: 'Pesan baru dari Budi',
-    description: 'Cek pesanmu sekarang.',
-    avatar: 'https://i.pravatar.cc/40?img=1',
-  },
-  {
-    id: 2,
-    title: 'Update sistem',
-    description: 'Sistem akan diperbarui malam ini.',
-    avatar: 'https://i.pravatar.cc/40?img=2',
-  },
-  {
-    id: 1,
-    title: 'Pesan baru dari Budi',
-    description: 'Cek pesanmu sekarang.',
-    avatar: 'https://i.pravatar.cc/40?img=1',
-  },
-  {
-    id: 2,
-    title: 'Update sistem',
-    description: 'Sistem akan diperbarui malam ini.',
-    avatar: 'https://i.pravatar.cc/40?img=2',
-  },
-];
+import { useQuery } from '@tanstack/react-query';
+import { apiFetchTasks } from '@/services/TaskService';
+import moment from 'moment';
 
 const NotificationPopover = () => {
+  const [filterTasks, setFilterTasks] = useState({
+    page: 1,
+    limit: 10,
+    sortBy: null,
+    sortOrder: null,
+    id: '',
+    title: '',
+    status: status, // initial dari props
+  });
+
+  const { data: resTasks } = useQuery({
+    queryKey: ['tasks', filterTasks.page, filterTasks.limit, filterTasks.sortBy, filterTasks.sortOrder, filterTasks.status],
+    queryFn: () => apiFetchTasks(filterTasks),
+  });
+
+  const dataTasks = resTasks?.data || []
+  const unreadCount = resTasks?.summary?.unreadCount || 0
+  const dataNotifications = dataTasks.map(item => ({
+    id: item.id,
+    title: item.type,
+    createdAt: moment(item.createdAt).format('DD MMM YYYY HH:mm'),
+    description: item.notes,
+  }))
+
   const content = (
     <div style={{ width: 300, maxHeight: 600, overflow: 'auto' }}>
       <List
@@ -39,7 +39,7 @@ const NotificationPopover = () => {
           </Flex>
         }
         itemLayout="horizontal"
-        dataSource={notifications}
+        dataSource={dataNotifications}
         locale={{ emptyText: 'Tidak ada notifikasi' }}
         footer={
           <Flex justify='center'>
@@ -49,10 +49,14 @@ const NotificationPopover = () => {
           <List.Item>
             <List.Item.Meta
               // avatar={<Avatar src={item.avatar} />}
-              title={item.title}
+              title={
+                <Flex justify='space-between'>
+                  <span>{item.title}</span>
+                  <span style={{ fontSize: 12, fontWeight: 400 }}>{moment(item.createdAt).fromNow()}</span>
+                </Flex>
+              }
               description={item.description}
             />
-            Aku adalah anak gembala selalu riang serta gembira
           </List.Item>
         )}
       />
@@ -66,7 +70,7 @@ const NotificationPopover = () => {
       placement="bottomRight"
       arrow={false}
     >
-      <Badge count={notifications.length} offset={[-2, 2]}>
+      <Badge count={unreadCount} offset={[-2, 2]}>
         <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
       </Badge>
     </Popover>

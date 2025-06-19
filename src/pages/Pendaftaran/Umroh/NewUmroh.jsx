@@ -18,6 +18,7 @@ import {
   Form,
   Input,
   InputNumber,
+  message,
   Modal,
   Row,
   Select,
@@ -213,6 +214,9 @@ const NewUmrohPage = () => {
   }
 
   const handleSearchNIK = (value) => {
+    if (value.length !== 16) {
+      message.error('No ktp panjangnya harus 16 karakter')
+    }
     setIsSearchNIK(true)
     if (value !== identityNumber) {
       reset()
@@ -288,7 +292,6 @@ const NewUmrohPage = () => {
     if (province && district && subDistrict) refetchNeighborhoods();
   }, [province, district, subDistrict]);
 
-  // Autofill lower levels
   useEffect(() => {
     if (resDistricts && isFromJamaah.current.district) {
       setValue('district', dataJamaah?.district);
@@ -313,13 +316,6 @@ const NewUmrohPage = () => {
     }
   }, [resNeighborhoods]);
 
-  // Pantau semua isLoading
-  // useEffect(() => {
-  //   if (dataProvinces && dataDistricts && dataSubDistricts && dataNeighborhoods) {
-  //     setIsFetchingLocation(false);
-  //   }
-  // }, [loadingProvince, loadingDistrict, loadingSubdistrict, loadingNeighborhood]);
-
   useEffect(() => {
     if (kodeUmroh && dataUmrohCode) {
       setValue('packageId', dataUmrohCode);
@@ -328,29 +324,30 @@ const NewUmrohPage = () => {
 
   return (
     <>
+      <Row gutter={16} style={{ maxWidth: 1240 }}>
+        <Col lg={8}>
+          <SearchNIK onSearchNIK={handleSearchNIK} />
+          {isSearchNIK && dataJamaah && (
+            <Typography.Paragraph style={{ color: token.colorSuccess, margin: 0 }}>
+              No KTP sudah Terdaftar data-data ktp sudah terisi otomatis
+            </Typography.Paragraph>
+          )}
+          {isSearchNIK && !dataJamaah && (
+            <Typography.Paragraph style={{ color: token.colorError, margin: 0 }}>
+              No KTP belum Terdaftar silahkan masukan data-data ktp manual
+            </Typography.Paragraph>
+          )}
+
+        </Col>
+
+      </Row>
+
+      <Divider />
       <Form
         layout="vertical"
         onFinish={handleSubmit(onSubmit)}
       >
-        <Row gutter={16} style={{ maxWidth: 1240 }}>
-          <Col lg={8}>
-            <SearchNIK onSearchNIK={handleSearchNIK} />
-            {isSearchNIK && dataJamaah && (
-              <Typography.Paragraph style={{ color: token.colorSuccess, margin: 0 }}>
-                No KTP sudah Terdaftar data-data ktp sudah terisi otomatis
-              </Typography.Paragraph>
-            )}
-            {isSearchNIK && !dataJamaah && (
-              <Typography.Paragraph style={{ color: token.colorError, margin: 0 }}>
-                No KTP belum Terdaftar silahkan masukan data-data ktp manual
-              </Typography.Paragraph>
-            )}
 
-          </Col>
-
-        </Row>
-
-        <Divider />
 
         {isSearchNIK && (
           <Row gutter={16} style={{ maxWidth: 1240 }}>

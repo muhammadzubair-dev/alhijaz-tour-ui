@@ -17,6 +17,15 @@ const useAuthStore = create(
         set({ user: profile, isAuthenticated: true });
       },
 
+      updateIsDefaultPassword: () => {
+        set((state) => ({
+          user: {
+            ...state.user,
+            isDefaultPassword: false,
+          },
+        }));
+      },
+
       logout: () => {
         set({ token: null, user: null, isAuthenticated: false });
         document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;';
@@ -24,7 +33,7 @@ const useAuthStore = create(
       },
     }),
     {
-      name: 'auth-storage', // nama key di localStorage
+      name: 'auth-storage',
       partialize: (state) => ({
         token: state.token,
         user: state.user,

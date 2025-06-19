@@ -1,8 +1,10 @@
+import { apiUserChangePassword } from '@/services/userService';
+import { useMutation } from '@tanstack/react-query';
 import { Button, Flex, Form, Input, Modal } from 'antd';
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiUserChangePassword } from '@/services/userService';
+
+import useAuthStore from '@/store/authStore';
 import { passwordRules } from '@/utils/passwordRules'; // Pastikan path sesuai
 
 const defaultValues = {
@@ -12,7 +14,7 @@ const defaultValues = {
 };
 
 const ChangePassword = ({ open, onCloseForm, onOpenResult }) => {
-  const queryClient = useQueryClient();
+  const updateIsDefaultPassword = useAuthStore((state) => state.updateIsDefaultPassword);
 
   const {
     control,
@@ -30,7 +32,7 @@ const ChangePassword = ({ open, onCloseForm, onOpenResult }) => {
     onSuccess: () => {
       reset();
       onCloseForm();
-      queryClient.invalidateQueries(['currentUser']);
+      updateIsDefaultPassword();
       onOpenResult({
         open: true,
         title: 'Password Berhasil Diubah',

@@ -1,41 +1,43 @@
-import { Button, Flex, Input, theme, Typography } from 'antd'
-import React, { useState } from 'react'
+import { Button, Form, Input } from 'antd';
+import React from 'react';
+import { useForm, Controller } from 'react-hook-form';
 
 const SearchNIK = ({ onSearchNIK }) => {
-  const { token } = theme.useToken()
-  const [searchNIK, setSearchNIK] = useState('')
+  const { control, handleSubmit, formState: { errors } } = useForm();
 
-  const handleSearch = () => {
-    onSearchNIK(searchNIK)
-  }
+  const onSubmit = (data) => {
+    onSearchNIK(data.nik);
+  };
 
   return (
-    <>
-      <Flex style={{ width: '100%' }} gap={8}>
-        {/* <Input.Search
-          style={{ flex: 1 }}
-          placeholder='Masukan Nomor KTP'
-          value={searchNIK}
-          onChange={(e) => setSearchNIK(e.target.value)}
+    <Form layout="inline" onFinish={handleSubmit(onSubmit)} style={{ width: '100%' }}>
+      <Form.Item
+        validateStatus={errors.nik ? 'error' : ''}
+        help={errors.nik?.message}
+        style={{ flex: 1 }}
+      >
+        <Controller
+          name="nik"
+          control={control}
+          rules={{
+            required: 'Nomor KTP wajib diisi',
+            pattern: {
+              value: /^[0-9]{16}$/,
+              message: 'Nomor KTP harus terdiri dari 16 digit angka',
+            },
+          }}
+          render={({ field }) => (
+            <Input {...field} placeholder="Masukkan Nomor KTP" />
+          )}
         />
-        <Button
-          type='primary'
-          icon={<FaSearch />}
-          onClick={handleSearch}
-        >
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
           Cari
         </Button>
-      </Flex> */}
-        <Input.Search
-          onChange={(e) => setSearchNIK(e.target.value)}
-          placeholder='Masukan Nomor KTP'
-          onSearch={handleSearch}
-          enterButton
-        />
-      </Flex>
-      
-    </>
-  )
-}
+      </Form.Item>
+    </Form>
+  );
+};
 
-export default SearchNIK
+export default SearchNIK;

@@ -3,7 +3,7 @@ import { Tabs } from 'antd';
 import TaskTable from './TaskTable'; // pastikan path sesuai
 
 const TaskTabs = () => {
-  const [activeKey, setActiveKey] = useState('10'); // default tab: All
+  const [activeKey, setActiveKey] = useState('all'); // default tab: All
 
   const tabItems = [
     { key: 'all', label: 'All' },
