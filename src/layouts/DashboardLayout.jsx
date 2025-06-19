@@ -1,5 +1,4 @@
 import logo from '@/assets/logo.png';
-import { connectSSE, disconnectSSE } from '@/utils/sse';
 import { ResultSuccess, SearchPages, SwitchTheme, ChangePassword, NotificationBell } from '@/components';
 import { MENU_IDS } from '@/constant/menu';
 import { apiUserLogout } from '@/services/userService';
@@ -138,20 +137,6 @@ const DashboardLayout = () => {
       setOpenForm(true)
     }
   }, [user?.isDefaultPassword])
-
-  // ⬇️ Tambahkan ini untuk koneksi SSE
-  useEffect(() => {
-    if (user?.id) {
-      connectSSE(user.id, (data) => {
-        console.log('📩 SSE message received:', data);
-        // 👉 Bisa trigger store, toast, notifikasi, dll.
-      });
-
-      return () => {
-        disconnectSSE();
-      };
-    }
-  }, [user?.id]);
 
   return (
     <Layout style={{ height: '100vh' }}>
