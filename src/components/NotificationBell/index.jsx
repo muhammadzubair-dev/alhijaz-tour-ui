@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Popover, List, Badge, Typography, Flex } from 'antd';
+import { Popover, List, Badge, Typography, Flex, theme } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetchTasks } from '@/services/TaskService';
@@ -7,8 +7,10 @@ import moment from 'moment';
 import { connectSSE, disconnectSSE } from '@/utils/sse';
 import useAuthStore from '@/store/authStore';
 import styles from './index.module.css'; // import css animasi
+import { IoIosNotifications } from "react-icons/io";
 
 const NotificationPopover = () => {
+  const { token } = theme.useToken()
   const authUser = useAuthStore((state) => state.user);
   const [isShaking, setIsShaking] = useState(false);
   const [filterTasks, setFilterTasks] = useState({
@@ -81,7 +83,6 @@ const NotificationPopover = () => {
     connectSSE(
       authUser.id,
       (data) => {
-        console.log('sse =====>', data)
         setAllNotifications((prev) => [data, ...prev]);
         setUnreadCount((prev) => prev + 1);
         playNotificationSound();
@@ -104,8 +105,6 @@ const NotificationPopover = () => {
     triggerShake();
     showNativeNotification("Notifikasi Baru", "Anda mendapat tugas validasi jamaah.");
   }
-
-  console.log('allNotifications =====>', allNotifications)
 
   const content = (
     <div style={{ width: 300, maxHeight: 600, overflow: 'auto' }}>
@@ -146,9 +145,9 @@ const NotificationPopover = () => {
   return (
     <Popover content={content} trigger="click" placement="bottomRight" arrow={false}>
       <Badge count={unreadCount} offset={[-2, 2]}>
-        <BellOutlined
+        <IoIosNotifications
           className={isShaking ? styles['bell-shake'] : ''}
-          style={{ fontSize: 20, cursor: 'pointer' }}
+          style={{ fontSize: 30, cursor: 'pointer', color: token.colorTextSecondary }}
         />
       </Badge>
     </Popover>

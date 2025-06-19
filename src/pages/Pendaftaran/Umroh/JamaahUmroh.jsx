@@ -2,7 +2,7 @@ import { ResultSuccess } from '@/components';
 import queryClient from '@/lib/queryClient';
 import { apiDeleteUmrohJamaah, apiFetchJamaahUmroh } from '@/services/umrohService';
 import getSortOrder from '@/utils/getSortOrder';
-import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Input, message, Popconfirm, Space, Table, Tag, Tooltip } from 'antd';
 import moment from 'moment';
@@ -163,6 +163,16 @@ const JamaahUmrohPage = () => {
               onClick={() => navigate(`/pendaftaran/umroh/daftar-umroh/${values.id}`)}
             />
           </Tooltip> */}
+          <Tooltip title="Detail">
+            <Button
+              color='blue'
+              variant='text'
+              shape="circle"
+              size='small'
+              icon={<EyeOutlined />}
+              onClick={() => navigate(`/pendaftaran/umroh/${kodeUmroh}/jamaah/${values.registerId}/detail`)}
+            />
+          </Tooltip>
           <Tooltip title="Edit">
             <Button
               color='blue'
