@@ -1,28 +1,16 @@
 import { ResultSuccess } from '@/components';
 import { apiFetchTasks } from '@/services/TaskService';
 import getSortOrder from '@/utils/getSortOrder';
+import getStatusColor from '@/utils/getStatusColor';
 import { SearchOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Flex, Input, Select, Table, Tag } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case '0':
-      return { color: '#faad14', label: 'Pending' };
-    case '1':
-      return { color: '#1890ff', label: 'In Progress' };
-    case '2':
-      return { color: '#52c41a', label: 'Done' };
-    case '3':
-      return { color: '#ff4d4f', label: 'Rejected' };
-    default:
-      return { color: '#d9d9d9', label: 'Unknown' };
-  }
-};
+import { useNavigate } from 'react-router-dom';
 
 const TaskTable = ({ status }) => {
+  const navigate = useNavigate()
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
@@ -105,13 +93,13 @@ const TaskTable = ({ status }) => {
       key: 'type',
       width: 150,
     },
-    {
-      title: 'Notes',
-      dataIndex: 'notes',
-      key: 'notes',
-      width: 200,
-      render: (val) => val || '-',
-    },
+    // {
+    //   title: 'Notes',
+    //   dataIndex: 'notes',
+    //   key: 'notes',
+    //   width: 200,
+    //   render: (val) => val || '-',
+    // },
     {
       title: 'Status',
       dataIndex: 'status',
@@ -200,7 +188,12 @@ const TaskTable = ({ status }) => {
           showSizeChanger: true,
           current: filterTasks.page,
           pageSizeOptions: [10, 25, 50, 100],
+
         }}
+        onRow={(record) => ({
+          onClick: () => navigate(`/task/${record.id}`),
+          style: { cursor: 'pointer' }, // ubah cursor agar kelihatan bisa diklik
+        })}
       />
 
       <ResultSuccess open={openResult} onOpenResult={setOpenResult} />

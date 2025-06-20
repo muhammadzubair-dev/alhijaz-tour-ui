@@ -1,113 +1,249 @@
+import GENDER from '@/constant/gender';
+import MARRIED_STATUS from '@/constant/marriedStatus';
+import RELATIONSHIP from '@/constant/relationship';
+import TASK_STATUS from '@/constant/taskStatus';
+import queryClient from '@/lib/queryClient';
+import {
+  apiFetchLovAgents, apiFetchLovDistricts, apiFetchLovNeighborhoods,
+  apiFetchLovProvinces, apiFetchLovStaff, apiFetchLovSubDistricts,
+  apiFetchUmrohPackage, apiFetchUmrohPackageRooms
+} from '@/services/lovService';
+import { apiEditTaskStatus, apiFetchTaskDetail } from '@/services/TaskService';
 import { apiFetchUmrohDetail } from '@/services/umrohService';
-import { useQuery } from '@tanstack/react-query';
-import { Col, Descriptions, Divider, Row } from 'antd';
-import React from 'react';
+import getStatusColor from '@/utils/getStatusColor';
+import numberId from '@/utils/numberId';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import {
+  Button, Col, Descriptions, Divider, Dropdown, Flex, Menu, Modal, Row
+} from 'antd';
+import moment from 'moment';
+import { useMemo, useState } from 'react';
+import { FaCaretDown } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 
+const renderText = (value) => value || '-';
+
 const DetailUmrohPage = () => {
-  const { idRegister } = useParams();
+  const { idRegister, taskId } = useParams();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [modalImageUrl, setModalImageUrl] = useState('');
+
+  const showImage = (url) => {
+    setModalImageUrl(url);
+    setIsModalVisible(true);
+  };
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setModalImageUrl('');
+  };
 
   const { data: resUmrohDetail } = useQuery({
     queryKey: ['umroh-detail', idRegister],
     queryFn: () => apiFetchUmrohDetail(idRegister),
+    enabled: !!idRegister
   });
 
-  const data = resUmrohDetail?.data || {};
+  const { data: resTaskJamaahUmroh, refetch: refetchTask } = useQuery({
+    queryKey: ['task-jamaah-umroh', taskId],
+    queryFn: () => apiFetchTaskDetail(taskId),
+    enabled: !!taskId
+  });
 
-  const fullName = [data.firstName, data.middleName, data.lastName].filter(Boolean).join(' ');
-  const genderMap = { '1': 'Laki-laki', '0': 'Perempuan' };
-  const marriedStatusMap = { '0': 'Belum Menikah', '1': 'Menikah' };
-  const relationshipMap = {
-    '0': 'Ayah',
-    '1': 'Ibu',
-    '2': 'Anak Perempuan',
-    '3': 'Anak',
-    '4': 'Saudara Laki-laki',
-    '5': 'Saudara Perempuan',
-    '6': 'Lajang',
-    '7': 'Wog',
-    '8': 'Suami',
-    '9': 'Istri',
+  const editTaskStatus = useMutation({
+    mutationFn: (payload) => apiEditTaskStatus(taskId, { newStatus: Object.values(payload) }),
+    onSuccess: () => {
+      refetchTask()
+    },
+  });
+
+  const data = resUmrohDetail?.data || resTaskJamaahUmroh?.data?.data || {};
+  const statusTask = resTaskJamaahUmroh?.data?.status
+  const { color, label } = getStatusColor(statusTask || '0');
+
+  const { data: agent } = useQuery({
+    queryKey: ['lov-agents', data?.agentId],
+    queryFn: () => apiFetchLovAgents({ agentId: data?.agentId }),
+    enabled: !!data?.agentId,
+  });
+
+  const { data: staff } = useQuery({
+    queryKey: ['lov-staff', data?.staffId],
+    queryFn: () => apiFetchLovStaff({ staffId: data?.staffId }),
+    enabled: !!data?.staffId,
+  });
+
+  const { data: province } = useQuery({
+    queryKey: ['lov-province', data?.province],
+    queryFn: () => apiFetchLovProvinces({ provinceId: data?.province }),
+    enabled: !!data?.province,
+  });
+
+  const { data: district } = useQuery({
+    queryKey: ['lov-districts', data?.province, data?.district],
+    queryFn: () => apiFetchLovDistricts(data?.province, { districtId: data?.district }),
+    enabled: !!data?.province && !!data?.district,
+  });
+
+  const { data: subDistrict } = useQuery({
+    queryKey: ['lov-subDistricts', data?.province, data?.district, data?.subDistrict],
+    queryFn: () => apiFetchLovSubDistricts(data?.province, data?.district, { districtId: data?.subDistrict }),
+    enabled: !!data?.province && !!data?.district && !!data?.subDistrict,
+  });
+
+  const { data: neighborhoods } = useQuery({
+    queryKey: ['lov-neighborhoods', data?.province, data?.district, data?.subDistrict, data?.neighborhoods],
+    queryFn: () =>
+      apiFetchLovNeighborhoods(data?.province, data?.district, data?.subDistrict, {
+        neighborhoodId: data?.neighborhoods,
+      }),
+    enabled: !!data?.province && !!data?.district && !!data?.subDistrict && !!data?.neighborhoods,
+  });
+
+  const { data: packageUmroh } = useQuery({
+    queryKey: ['lov-package', data?.packageId],
+    queryFn: () => apiFetchUmrohPackage({ packageId: data?.packageId }),
+    enabled: !!data?.packageId,
+  });
+
+  const { data: packageRoomPrice } = useQuery({
+    queryKey: ['lov-package-price', data?.packageId, data?.packageRoomPrice],
+    queryFn: () => apiFetchUmrohPackageRooms(data?.packageId, {
+      packageRoomId: data?.packageRoomPrice,
+    }),
+    enabled: !!data?.packageId && !!data?.packageRoomPrice,
+  });
+
+  const fullName = useMemo(() => {
+    return [data.firstName, data.middleName, data.lastName].filter(Boolean).join(' ');
+  }, [data.firstName, data.middleName, data.lastName]);
+
+  const allowedTransitions = {
+    '0': ['1'],       // Pending ➝ In Progress
+    '1': ['2', '3'],  // In Progress ➝ Done or Rejected
   };
 
-  const birthDate = data.birthDate
-    ? new Date(data.birthDate).toLocaleDateString('id-ID', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })
-    : '-';
+
+  const statusMenu = {
+    items: Object.entries(TASK_STATUS).map(([key, label]) => ({
+      key,
+      label,
+      disabled: !allowedTransitions[statusTask]?.includes(key),
+    })),
+
+    onClick: ({ key }) => {
+      if (!allowedTransitions[statusTask]?.includes(key)) {
+        return; // Prevent update jika tidak valid
+      }
+
+      const handleUpdate = () => {
+        editTaskStatus.mutate(key, {
+          onSuccess: () => {
+            refetchTask()
+            queryClient.invalidateQueries('tasks')
+            Modal.success({
+              title: 'Status Diperbarui',
+              content: `Status berhasil diubah menjadi "${TASK_STATUS[key]}"`,
+            });
+          },
+          // onError: (err) => {
+          //   Modal.error({
+          //     title: 'Gagal Mengubah Status',
+          //     content: err?.response?.data?.message || 'Terjadi kesalahan.',
+          //   });
+          // },
+        });
+      };
+
+      if (key === '2') {
+        // Jika status "Done"
+        Modal.confirm({
+          title: 'Konfirmasi Selesai',
+          icon: <ExclamationCircleOutlined />,
+          content: 'Apakah Anda yakin seluruh data jamaah sudah lengkap dan sesuai?',
+          okText: 'Ya, sudah sesuai',
+          cancelText: 'Batal',
+          onOk: handleUpdate,
+        });
+      } else if (key === '3') {
+        // Jika status "Rejected"
+        Modal.confirm({
+          title: 'Konfirmasi Penolakan',
+          icon: <ExclamationCircleOutlined style={{ color: 'red' }} />,
+          content: 'Apakah Anda yakin ingin menolak data jamaah karena tidak sesuai?',
+          okText: 'Ya, tolak data',
+          cancelText: 'Batal',
+          onOk: handleUpdate,
+        });
+      } else {
+        // Untuk status lain, langsung update tanpa konfirmasi
+        handleUpdate();
+      }
+    },
+  };
 
   return (
     <>
+      <Flex justify="flex-end" style={{ marginBottom: 16 }}>
+        {statusTask && (
+          <Dropdown menu={statusMenu} trigger={['click']} placement="bottomRight">
+            <Button
+              size="large"
+              icon={<FaCaretDown />}
+              color={color}
+              variant='solid'
+            >
+              {label}
+            </Button>
+          </Dropdown>
+        )}
+      </Flex>
+
       <Row gutter={16}>
-        {/* <Descriptions title="Informasi Umum" bordered column={1}>
-        <Descriptions.Item label="Umroh Code">{data.umrohCode || '-'}</Descriptions.Item>
-        <Descriptions.Item label="Register ID">{data.registerId || '-'}</Descriptions.Item>
-        <Descriptions.Item label="Remarks">{data.remarks || '-'}</Descriptions.Item>
-
-      </Descriptions>
-
-      <Divider /> */}
         <Col lg={12}>
           <Descriptions title="Informasi Jamaah" bordered column={1}>
-            <Descriptions.Item label="Nomor KTP">{data.identityNumber || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Nama Lengkap">{fullName}</Descriptions.Item>
-            <Descriptions.Item label="Jenis Kelamin">{genderMap[data.gender] || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Status Pernikahan">{marriedStatusMap[data.marriedStatus] || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Nomor KTP">{renderText(data.identityNumber)}</Descriptions.Item>
+            <Descriptions.Item label="Nama Lengkap">{renderText(fullName)}</Descriptions.Item>
+            <Descriptions.Item label="Jenis Kelamin">{GENDER[data.gender] || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Status Pernikahan">{MARRIED_STATUS[data.marriedStatus] || '-'}</Descriptions.Item>
             <Descriptions.Item label="Tempat, Tanggal Lahir">
-              {`${data.birthPlace || '-'}, ${birthDate}`}
+              {`${renderText(data.birthPlace)}, ${data.birthDate ? moment(data.birthDate).format('DD MMMM YYYY') : '-'
+                }`}
             </Descriptions.Item>
-            <Descriptions.Item label="No. Telepon">{data.phoneNumber || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Alamat">{data.address || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Provinsi">{String(data.province || '-')}</Descriptions.Item>
-            <Descriptions.Item label="Kabupaten/Kota">{String(data.district || '-')}</Descriptions.Item>
-            <Descriptions.Item label="Kecamatan">{String(data.subDistrict || '-')}</Descriptions.Item>
-            <Descriptions.Item label="Kelurahan">{String(data.neighborhoods || '-')}</Descriptions.Item>
+            <Descriptions.Item label="No. Telepon">{renderText(data.phoneNumber)}</Descriptions.Item>
+
+            <Descriptions.Item label="Foto KTP">
+              {data.photoIdentity ? (
+                <a onClick={() => showImage(data.photoIdentity)}>Lihat Gambar</a>
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Foto Selfie">
+              {data.selfPhoto ? (
+                <a onClick={() => showImage(data.selfPhoto)}>Lihat Gambar</a>
+              ) : (
+                '-'
+              )}
+            </Descriptions.Item>
+
+            <Descriptions.Item label="Alamat">{renderText(data.address)}</Descriptions.Item>
+            <Descriptions.Item label="Provinsi">{renderText(province?.data?.[0]?.name)}</Descriptions.Item>
+            <Descriptions.Item label="Kabupaten/Kota">{renderText(district?.data?.[0]?.name)}</Descriptions.Item>
+            <Descriptions.Item label="Kecamatan">{renderText(subDistrict?.data?.[0]?.name)}</Descriptions.Item>
+            <Descriptions.Item label="Kelurahan">{renderText(neighborhoods?.data?.[0]?.name)}</Descriptions.Item>
           </Descriptions>
         </Col>
 
         <Col lg={12}>
           <Descriptions title="Informasi Pendaftar" bordered column={1}>
-            <Descriptions.Item label="Nama Pendaftar">{data.registerName || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Telepon Pendaftar">{data.registerPhone || '-'}</Descriptions.Item>
-            <Descriptions.Item label="ID Agen">{data.agentId || '-'}</Descriptions.Item>
-            <Descriptions.Item label="ID Staff">{data.staffId || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Nama Pendaftar">{renderText(data.registerName)}</Descriptions.Item>
+            <Descriptions.Item label="Telepon Pendaftar">{renderText(data.registerPhone)}</Descriptions.Item>
+            <Descriptions.Item label="Nama Agent">{renderText(agent?.data?.[0]?.name)}</Descriptions.Item>
+            <Descriptions.Item label="Staff">{renderText(staff?.data?.[0]?.name)}</Descriptions.Item>
           </Descriptions>
         </Col>
-
-
-        {/* <Divider /> */}
-
-
-
-        {/* <Divider /> */}
-
-        {/* <Descriptions title="Informasi Identitas (KTP)" bordered column={1}>
-
-        <Descriptions.Item label="Foto KTP">
-          {data.photoIdentity ? (
-            <img src={data.photoIdentity} alt="Foto KTP" width={120} />
-          ) : (
-            '-'
-          )}
-        </Descriptions.Item>
-        <Descriptions.Item label="Foto Diri">
-          {data.selfPhoto ? (
-            <img src={data.selfPhoto} alt="Foto Diri" width={120} />
-          ) : (
-            '-'
-          )}
-        </Descriptions.Item>
-      </Descriptions>
-
-      <Divider /> */}
-
-
-
-        {/* <Divider /> */}
-
-
       </Row>
 
       <Divider />
@@ -115,26 +251,44 @@ const DetailUmrohPage = () => {
       <Row gutter={16}>
         <Col lg={12}>
           <Descriptions title="Informasi Paket & Biaya" bordered column={1}>
-            <Descriptions.Item label="Paket Umroh">{data.packageId || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Harga Kamar">{data.packageRoomPrice ?? '-'}</Descriptions.Item>
-            <Descriptions.Item label="Diskon Kantor">{data.officeDiscount ?? '-'}</Descriptions.Item>
-            <Descriptions.Item label="Diskon Agen">{data.agentDiscount ?? '-'}</Descriptions.Item>
-            <Descriptions.Item label="Biaya Lain-lain">{data.otherExpenses ?? '-'}</Descriptions.Item>
+            <Descriptions.Item label="Paket Umroh">
+              {renderText(packageUmroh?.data?.[0]?.name)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Harga Kamar">
+              {numberId(packageRoomPrice?.data?.[0]?.price) || '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Diskon Kantor">
+              {data.officeDiscount ? numberId(data.officeDiscount) : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Diskon Agen">
+              {data.agentDiscount ? numberId(data.agentDiscount) : '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Biaya Lain-lain">
+              {data.otherExpenses ? numberId(data.otherExpenses) : '-'}
+            </Descriptions.Item>
           </Descriptions>
         </Col>
+
         <Col lg={12}>
           <Descriptions title="Informasi Lainnya" bordered column={1}>
-            <Descriptions.Item label="Remarks">{relationshipMap[data.remarks] || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Mahram">{data.mahram || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Kondisi Kesehatan">{data.medicalCondition || '-'}</Descriptions.Item>
-            <Descriptions.Item label="Notes">{data.notes || '-'}</Descriptions.Item>
+            <Descriptions.Item label="Remarks">
+              {RELATIONSHIP[data.remarks] || '-'}
+            </Descriptions.Item>
+            <Descriptions.Item label="Mahram">{renderText(data.mahram)}</Descriptions.Item>
+            <Descriptions.Item label="Kondisi Kesehatan">{renderText(data.medicalCondition)}</Descriptions.Item>
+            <Descriptions.Item label="Notes">{renderText(data.notes)}</Descriptions.Item>
           </Descriptions>
         </Col>
       </Row>
 
-      <Divider />
+      <Modal open={isModalVisible} footer={null} onCancel={closeModal} width={720} centered>
+        <img
+          src={modalImageUrl}
+          alt="Gambar"
+          style={{ width: '100%', maxHeight: '70vh', objectFit: 'contain' }}
+        />
+      </Modal>
     </>
-
   );
 };
 

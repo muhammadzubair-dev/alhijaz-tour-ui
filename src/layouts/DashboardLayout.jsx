@@ -208,10 +208,11 @@ const DashboardLayout = () => {
           >
             <Outlet />
           </div>
+          <Footer style={{ textAlign: 'center' }}>
+            Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          </Footer>
         </Content>
-        <Footer style={{ textAlign: 'center' }}>
-          Ant Design ©{new Date().getFullYear()} Created by Ant UED
-        </Footer>
+
       </Layout>
       <ChangePassword open={openForm} onCloseForm={handleCloseForm} onOpenResult={handleOpenResult} />
       <ResultSuccess open={openResult} onOpenResult={handleOpenResult} />

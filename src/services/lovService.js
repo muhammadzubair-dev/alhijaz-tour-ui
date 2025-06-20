@@ -1,4 +1,5 @@
 import axiosInstance from '@/lib/axios';
+import objToQueryString from '@/utils/objToQueryString';
 
 
 export const apiFetchPackageTypes = async () => {
@@ -61,8 +62,8 @@ export const apiFetchLovPartners = async () => {
   return response.data;
 };
 
-export const apiFetchLovUserAgent = async () => {
-  const response = await axiosInstance.get(`/lov/user-agent`);
+export const apiFetchLovStaff = async (query) => {
+  const response = await axiosInstance.get(`/lov/staff${objToQueryString(query)}`);
   return response.data;
 };
 
@@ -71,24 +72,24 @@ export const apiFetchLovBanks = async () => {
   return response.data;
 };
 
-export const apiFetchLovAgents = async () => {
-  const response = await axiosInstance.get(`/lov/agents`);
+export const apiFetchLovAgents = async (query) => {
+  const response = await axiosInstance.get(`/lov/agents${objToQueryString(query)}`);
   return response.data;
 };
 
-export const apiFetchLovProvinces = async () => {
-  const response = await axiosInstance.get(`/lov/provinces`);
+export const apiFetchLovProvinces = async (query) => {
+  const response = await axiosInstance.get(`/lov/provinces${objToQueryString(query)}`);
   return response.data;
 };
 
-export const apiFetchLovDistricts = async (provinceId) => {
-  const response = await axiosInstance.get(`/lov/provinces/${provinceId}/districts`);
+export const apiFetchLovDistricts = async (provinceId, query) => {
+  const response = await axiosInstance.get(`/lov/provinces/${provinceId}/districts${objToQueryString(query)}`);
   return response.data;
 };
 
-export const apiFetchLovSubDistricts = async (provinceId, districtId) => {
+export const apiFetchLovSubDistricts = async (provinceId, districtId, query) => {
   const response = await axiosInstance.get(
-    `/lov/provinces/${provinceId}/districts/${districtId}/sub-districts`
+    `/lov/provinces/${provinceId}/districts/${districtId}/sub-districts${objToQueryString(query)}`
   );
   return response.data;
 };
@@ -96,21 +97,22 @@ export const apiFetchLovSubDistricts = async (provinceId, districtId) => {
 export const apiFetchLovNeighborhoods = async (
   provinceId,
   districtId,
-  subDistrictId
+  subDistrictId,
+  query
 ) => {
   const response = await axiosInstance.get(
-    `/lov/provinces/${provinceId}/districts/${districtId}/sub-districts/${subDistrictId}/neighborhoods`
+    `/lov/provinces/${provinceId}/districts/${districtId}/sub-districts/${subDistrictId}/neighborhoods${objToQueryString(query)}`
   );
   return response.data;
 };
 
-export const apiFetchUmrohPackage = async () => {
-  const response = await axiosInstance.get(`/lov/umroh-package`);
+export const apiFetchUmrohPackage = async (query) => {
+  const response = await axiosInstance.get(`/lov/umroh-package${objToQueryString(query)}`);
   return response.data;
 };
 
-export const apiFetchUmrohPackageRooms = async (packageId) => {
-  const response = await axiosInstance.get(`/lov/umroh-package/${packageId}/rooms`);
+export const apiFetchUmrohPackageRooms = async (packageId, query) => {
+  const response = await axiosInstance.get(`/lov/umroh-package/${packageId}/rooms${objToQueryString(query)}`);
   return response.data;
 };
 

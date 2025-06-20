@@ -1,5 +1,5 @@
 import queryClient from '@/lib/queryClient';
-import { apiFetchLovAgents, apiFetchLovBanks, apiFetchLovUserAgent, apiFetchRolesByType } from '@/services/lovService';
+import { apiFetchLovAgents, apiFetchLovBanks, apiFetchRolesByType } from '@/services/lovService';
 import { apiCreateAgent, apiUpdateAgent } from '@/services/userService';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Flex, Form, Input, Modal, Select } from 'antd';

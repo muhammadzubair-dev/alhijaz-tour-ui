@@ -51,6 +51,7 @@ const AppRouter = () => (
 
           <Route path="task">
             <Route index element={<TaskPage />} />
+            <Route path=":taskId" element={<DetailUmrohPage />} />
           </Route>
 
           <Route path="pendaftaran">
