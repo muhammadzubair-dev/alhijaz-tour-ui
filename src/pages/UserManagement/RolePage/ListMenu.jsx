@@ -1,5 +1,5 @@
 import React, { Children, useEffect, useState } from 'react';
-import { Button, Flex, Modal, Tree } from 'antd';
+import { Button, Flex, Modal, Tooltip, Tree } from 'antd';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiFetchMenu } from '@/services/lovService';
 import { apiCreateRoleMenu } from '@/services/userService';
@@ -28,8 +28,16 @@ function buildTree(flatData) {
   const tree = [];
 
   flatData.forEach(item => {
-    const { id, name } = item;
-    const node = { title: name, key: id, children: [] };
+    const { id, name, desc } = item;
+    const node = {
+      title: (
+        <Tooltip title={desc || name}>
+          <span>{name}</span>
+        </Tooltip>
+      ),
+      key: id,
+      children: [],
+    };
     idMap[id] = node;
 
     const parts = id.split('|');
@@ -140,10 +148,7 @@ const ListMenu = ({ open, onCloseForm, onOpenResult, data }) => {
       open={open}
       onCancel={onCloseForm}
       footer={null}
-    // onOk={handleOk}
-    // onCancel={handleCancel}
     >
-      {/* <div style={{ height: 16 }} /> */}
       <Tree
         checkable
         onExpand={onExpand}

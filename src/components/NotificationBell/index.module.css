@@ -27,3 +27,17 @@
 .bell-shake {
   animation: shake 0.5s ease-in-out;
 }
+
+.item {
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.hoverable:hover {
+  background-color: var(--hover-bg);
+}
+
+.unread {
+  background-color: var(--unread-bg);
+}

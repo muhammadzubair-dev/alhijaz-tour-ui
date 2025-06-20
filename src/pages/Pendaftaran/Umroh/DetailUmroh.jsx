@@ -1,14 +1,16 @@
 import GENDER from '@/constant/gender';
 import MARRIED_STATUS from '@/constant/marriedStatus';
+import { MENU_IDS } from '@/constant/menu';
 import RELATIONSHIP from '@/constant/relationship';
 import TASK_STATUS from '@/constant/taskStatus';
+import useHasPermission from '@/hooks/useHasPermisson';
 import queryClient from '@/lib/queryClient';
 import {
   apiFetchLovAgents, apiFetchLovDistricts, apiFetchLovNeighborhoods,
   apiFetchLovProvinces, apiFetchLovStaff, apiFetchLovSubDistricts,
   apiFetchUmrohPackage, apiFetchUmrohPackageRooms
 } from '@/services/lovService';
-import { apiEditTaskStatus, apiFetchTaskDetail } from '@/services/TaskService';
+import { apiEditTaskAssignedStatus, apiEditTaskStatus, apiFetchTaskDetail } from '@/services/TaskService';
 import { apiFetchUmrohDetail } from '@/services/umrohService';
 import getStatusColor from '@/utils/getStatusColor';
 import numberId from '@/utils/numberId';
@@ -20,11 +22,16 @@ import {
 import moment from 'moment';
 import { useMemo, useState } from 'react';
 import { FaCaretDown } from 'react-icons/fa';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 
 const renderText = (value) => value || '-';
 
 const DetailUmrohPage = () => {
+  const canEditStatus = useHasPermission([
+    MENU_IDS.TaskAllStatus,
+    MENU_IDS.TaskMeStatus,
+  ])
+  const { pathname } = useLocation()
   const { idRegister, taskId } = useParams();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalImageUrl, setModalImageUrl] = useState('');
@@ -50,8 +57,9 @@ const DetailUmrohPage = () => {
     enabled: !!taskId
   });
 
+  const isTaskAll = pathname.includes('/task/all')
   const editTaskStatus = useMutation({
-    mutationFn: (payload) => apiEditTaskStatus(taskId, { newStatus: Object.values(payload) }),
+    mutationFn: (payload) => isTaskAll ? apiEditTaskStatus(taskId, { newStatus: Object.values(payload) }) : apiEditTaskAssignedStatus(taskId, { newStatus: Object.values(payload) }),
     onSuccess: () => {
       refetchTask()
     },
@@ -123,7 +131,6 @@ const DetailUmrohPage = () => {
     '1': ['2', '3'],  // In Progress ➝ Done or Rejected
   };
 
-
   const statusMenu = {
     items: Object.entries(TASK_STATUS).map(([key, label]) => ({
       key,
@@ -185,7 +192,7 @@ const DetailUmrohPage = () => {
   return (
     <>
       <Flex justify="flex-end" style={{ marginBottom: 16 }}>
-        {statusTask && (
+        {statusTask && canEditStatus && (
           <Dropdown menu={statusMenu} trigger={['click']} placement="bottomRight">
             <Button
               size="large"
@@ -255,7 +262,7 @@ const DetailUmrohPage = () => {
               {renderText(packageUmroh?.data?.[0]?.name)}
             </Descriptions.Item>
             <Descriptions.Item label="Harga Kamar">
-              {numberId(packageRoomPrice?.data?.[0]?.price) || '-'}
+              {numberId(packageRoomPrice?.data?.[0]?.price)}
             </Descriptions.Item>
             <Descriptions.Item label="Diskon Kantor">
               {data.officeDiscount ? numberId(data.officeDiscount) : '-'}

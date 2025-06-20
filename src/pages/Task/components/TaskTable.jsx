@@ -1,5 +1,5 @@
 import { ResultSuccess } from '@/components';
-import { apiFetchTasks } from '@/services/TaskService';
+import { apiFetchTasks, apiFetchTasksAssigned } from '@/services/TaskService';
 import getSortOrder from '@/utils/getSortOrder';
 import getStatusColor from '@/utils/getStatusColor';
 import { SearchOutlined } from '@ant-design/icons';
@@ -7,10 +7,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Button, Flex, Input, Select, Table, Tag } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const TaskTable = ({ status }) => {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const [openResult, setOpenResult] = useState({
     open: false,
     title: '',
@@ -27,17 +28,10 @@ const TaskTable = ({ status }) => {
     status: status, // initial dari props
   });
 
-  // Sync status props ke filterTasks saat props.status berubah
-  useEffect(() => {
-    setFilterTasks((prev) => ({
-      ...prev,
-      status: status,
-    }));
-  }, [status]);
-
+  const isTaskAll = pathname === '/task/all';
   const { data: dataTasks, refetch: refetchTasks } = useQuery({
-    queryKey: ['tasks', filterTasks.page, filterTasks.limit, filterTasks.sortBy, filterTasks.sortOrder, filterTasks.status],
-    queryFn: () => apiFetchTasks(filterTasks),
+    queryKey: [isTaskAll ? 'tasks' : 'task-assigned', filterTasks.page, filterTasks.limit, filterTasks.sortBy, filterTasks.sortOrder, filterTasks.status],
+    queryFn: () => isTaskAll ? apiFetchTasks(filterTasks) : apiFetchTasksAssigned(filterTasks),
     keepPreviousData: false,
   });
 
@@ -45,13 +39,6 @@ const TaskTable = ({ status }) => {
     setFilterTasks((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleChangeStatus = (value) => {
-    setFilterTasks((prev) => ({
-      ...prev,
-      status: value,
     }));
   };
 
@@ -93,19 +80,12 @@ const TaskTable = ({ status }) => {
       key: 'type',
       width: 150,
     },
-    // {
-    //   title: 'Notes',
-    //   dataIndex: 'notes',
-    //   key: 'notes',
-    //   width: 200,
-    //   render: (val) => val || '-',
-    // },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
       width: 100,
-      align: 'center',
+      // align: 'center',
       sorter: true,
       sortOrder: getSortOrder(filterTasks.sortBy, 'status', filterTasks.sortOrder),
       render: (status) => {
@@ -113,6 +93,16 @@ const TaskTable = ({ status }) => {
         return <Tag color={color}>{label}</Tag>;
       },
     },
+    ...(isTaskAll
+      ? [
+        {
+          title: 'Assignee',
+          dataIndex: 'assignedTo',
+          key: 'assignedTo',
+          width: 150,
+        },
+      ]
+      : []),
     {
       title: 'Created By',
       dataIndex: 'createdBy',
@@ -132,6 +122,14 @@ const TaskTable = ({ status }) => {
     },
   ];
 
+  // Sync status props ke filterTasks saat props.status berubah
+  useEffect(() => {
+    setFilterTasks((prev) => ({
+      ...prev,
+      status: status,
+    }));
+  }, [status]);
+
   return (
     <div>
       <Flex justify="space-between" gap={32} style={{ marginBottom: 16 }}>
@@ -144,25 +142,12 @@ const TaskTable = ({ status }) => {
             onChange={handleChangeFilter}
           />
           <Input
-            placeholder="Judul Task"
-            style={{ maxWidth: 200 }}
+            placeholder="Title"
+            style={{ maxWidth: 150 }}
             name="title"
             allowClear
             onChange={handleChangeFilter}
           />
-          {/* <Select
-            allowClear
-            placeholder="Status"
-            style={{ width: 120 }}
-            onChange={handleChangeStatus}
-            value={filterTasks.status}
-            options={[
-              { value: '0', label: 'Pending' },
-              { value: '1', label: 'In Progress' },
-              { value: '3', label: 'Selesai' },
-              { value: '4', label: 'Ditolak' },
-            ]}
-          /> */}
           <Button
             type="primary"
             icon={<SearchOutlined />}
@@ -191,7 +176,7 @@ const TaskTable = ({ status }) => {
 
         }}
         onRow={(record) => ({
-          onClick: () => navigate(`/task/${record.id}`),
+          onClick: () => navigate(`/task/${isTaskAll ? 'all' : 'assigned'}/${record.id}`),
           style: { cursor: 'pointer' }, // ubah cursor agar kelihatan bisa diklik
         })}
       />

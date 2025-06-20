@@ -31,7 +31,11 @@ function getItem(label, key, icon, children, permissionKey) {
 }
 const items = [
   getItem('Dashboard', '/dashboard', <HomeOutlined />, null, MENU_IDS.Dashboard),
-  getItem('Task', '/task', <FaTasks />),
+  getItem('Task', '/task', <FaTasks />, [
+    getItem('My Task', '/task/assigned', null, null, MENU_IDS.TaskMeList),
+    getItem('All Task', '/task/all', null, null, MENU_IDS.TaskAllList),
+    getItem('Role Assignment', '/task/assignment', null, null, MENU_IDS.TaskRoleList),
+  ]),
   getItem('Pendatftaran', 'sub_pendaftaran', <FaWpforms />, [
     getItem('Umroh', '/pendaftaran/umroh', null, null, MENU_IDS.RegisterUmrahList),
     // getItem('Agent', '/user-management/agent'),
@@ -160,8 +164,8 @@ const DashboardLayout = () => {
               <Flex style={{ margin: 20 }} align='center' gap={16}>
                 <Avatar size={48} src='https://api.dicebear.com/9.x/adventurer/svg?seed=Liam&backgroundColor=b6e3f4' style={{ flexShrink: 0 }} />
                 <Space direction='vertical' size={0} style={{ flex: 1 }}>
-                  <Typography.Text ellipsis={true} style={{ width: 125, color: 'rgb(255,255,255)' }}>{user.name}</Typography.Text>
-                  <Typography.Text ellipsis={true} style={{ width: 125, color: 'rgba(255, 255, 255, 0.80)' }}>{user.type === '1' ? 'Agent' : user.type === '0' ? 'Staff' : '-'}</Typography.Text>
+                  <Typography.Text ellipsis={true} style={{ width: 125, color: 'rgb(255,255,255)' }}>{user.name} ( {user.type === '1' ? 'Agent' : user.type === '0' ? 'Staff' : '-'} )</Typography.Text>
+                  <Typography.Text ellipsis={true} style={{ width: 125, color: 'rgba(255, 255, 255, 0.71)' }}>{user.roleNames}</Typography.Text>
                 </Space>
               </Flex>
               <div style={{ padding: '0 20px' }}>
@@ -201,7 +205,7 @@ const DashboardLayout = () => {
           <div
             style={{
               padding: 28,
-              minHeight: 360,
+              minHeight: 'calc(100vh - 200px)',
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
             }}
@@ -209,7 +213,7 @@ const DashboardLayout = () => {
             <Outlet />
           </div>
           <Footer style={{ textAlign: 'center' }}>
-            Ant Design ©{new Date().getFullYear()} Created by Ant UED
+            © 2025 Al-Hijaz. All rights reserved.
           </Footer>
         </Content>
 

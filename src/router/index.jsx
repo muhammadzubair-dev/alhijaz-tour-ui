@@ -21,6 +21,7 @@ const JamaahUmrohPage = lazy(() => import('@/pages/Pendaftaran/Umroh/JamaahUmroh
 const RolePage = lazy(() => import('@/pages/UserManagement/RolePage'));
 const MenuPage = lazy(() => import('@/pages/UserManagement/MenuPage'));
 const TaskPage = lazy(() => import('@/pages/Task'));
+const RoleAssignmentPage = lazy(() => import('@/pages/Task/RoleAssignment'));
 const UnauthorizedPage = lazy(() => import('@/pages/UnauthorizedPage'));
 const BankPage = lazy(() => import('@/pages/DataMaster/BankPage'));
 const AirportPage = lazy(() => import('@/pages/DataMaster/AirportPage'));
@@ -50,8 +51,11 @@ const AppRouter = () => (
           <Route path="dashboard" element={<RoleRoute menu={[MENU_IDS.Dashboard]} element={<DashboardPage />} />} />
 
           <Route path="task">
-            <Route index element={<TaskPage />} />
-            <Route path=":taskId" element={<DetailUmrohPage />} />
+            <Route path='assigned' element={<RoleRoute menu={[MENU_IDS.TaskMeList]} element={<TaskPage />} />} />
+            <Route path="assigned/:taskId" element={<RoleRoute menu={[MENU_IDS.TaskMeList]} element={<DetailUmrohPage />} />} />
+            <Route path='all' element={<RoleRoute menu={[MENU_IDS.TaskAllList]} element={<TaskPage />} />} />
+            <Route path="all/:taskId" element={<RoleRoute menu={[MENU_IDS.TaskAllList]} element={<DetailUmrohPage />} />} />
+            <Route path="assignment" element={<RoleRoute menu={[MENU_IDS.TaskRoleList]} element={<RoleAssignmentPage />} />} />
           </Route>
 
           <Route path="pendaftaran">

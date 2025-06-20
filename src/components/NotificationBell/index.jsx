@@ -1,36 +1,58 @@
 import React, { useEffect, useState } from 'react';
 import { Popover, List, Badge, Typography, Flex, theme } from 'antd';
 import { BellOutlined } from '@ant-design/icons';
-import { useQuery } from '@tanstack/react-query';
-import { apiFetchTasks } from '@/services/TaskService';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { apiFetchTasks, apiFetchTasksAssigned, apiTasksRead } from '@/services/TaskService';
 import moment from 'moment';
 import { connectSSE, disconnectSSE } from '@/utils/sse';
 import useAuthStore from '@/store/authStore';
 import styles from './index.module.css'; // import css animasi
 import { IoIosNotifications } from "react-icons/io";
+import { useNavigate } from 'react-router-dom';
 
 const NotificationPopover = () => {
   const { token } = theme.useToken()
+  const navigate = useNavigate()
   const authUser = useAuthStore((state) => state.user);
   const [isShaking, setIsShaking] = useState(false);
   const [filterTasks, setFilterTasks] = useState({
     page: 1,
-    limit: 5,
+    limit: 2,
     sortBy: null,
     sortOrder: null,
     id: '',
     title: '',
-    status: '0',
   });
 
   const [allNotifications, setAllNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   const { data: resTasks, isFetching } = useQuery({
-    queryKey: ['tasks', filterTasks.page, filterTasks.limit],
-    queryFn: () => apiFetchTasks(filterTasks),
+    queryKey: ['tasks-notification', filterTasks.page, filterTasks.limit],
+    queryFn: () => apiFetchTasksAssigned(filterTasks),
     keepPreviousData: true,
     enabled: !!authUser,
+  });
+
+  const readMutation = useMutation({
+    mutationFn: apiTasksRead,
+    onSuccess: (_, variables) => {
+      if (variables?.taskId) {
+        // ✅ Update 1 task jadi isRead true
+        setAllNotifications((prev) =>
+          prev.map((item) =>
+            item.id === variables.taskId ? { ...item, isRead: true } : item
+          )
+        );
+        setUnreadCount((prev) => Math.max(prev - 1, 0));
+      } else {
+        // ✅ Jika mark semua sebagai read
+        setAllNotifications((prev) =>
+          prev.map((item) => ({ ...item, isRead: true }))
+        );
+        setUnreadCount(0);
+      }
+    },
   });
 
   useEffect(() => {
@@ -100,22 +122,25 @@ const NotificationPopover = () => {
     }
   };
 
-  const handleTest = () => {
-    playNotificationSound();
-    triggerShake();
-    showNativeNotification("Notifikasi Baru", "Anda mendapat tugas validasi jamaah.");
+  const handleReadAll = () => {
+    readMutation.mutate({})
   }
 
   const content = (
     <div style={{ width: 300, maxHeight: 600, overflow: 'auto' }}>
       <List
-        header={
+        header=
+        {unreadCount !== 0 && (
           <Flex justify='flex-end'>
-            <Typography.Link onClick={handleTest}>Tandai Semua Sudah Dibaca</Typography.Link>
+            <Typography.Link onClick={handleReadAll} style={{ textDecoration: 'underline' }}>
+              Tandai Semua Sudah Dibaca
+            </Typography.Link>
           </Flex>
-        }
+        )}
+
         dataSource={allNotifications}
-        locale={{ emptyText: 'Tidak ada notifikasi' }}
+        // locale={{ emptyText: 'Tidak ada notifikasi' }}
+
         footer={
           filterTasks.page < (resTasks?.paging?.totalPages || 1) && (
             <Flex justify='center'>
@@ -126,15 +151,31 @@ const NotificationPopover = () => {
           )
         }
         renderItem={(item) => (
-          <List.Item>
+          <List.Item
+            className={`${styles.item} ${styles.hoverable} ${!item.isRead ? styles.unread : ''}`}
+            onClick={() => {
+              if (!item.isRead) {
+                readMutation.mutate({ taskId: item.id })
+              }
+              navigate(`/task/${item.id}`)
+            }
+            }
+            style={{
+              padding: 16,
+              '--hover-bg': token.colorFillSecondary,
+              '--unread-bg': token.colorInfoBg,
+            }}
+          >
             <List.Item.Meta
               title={
-                <Flex justify='space-between'>
-                  <span>{item.type}</span>
-                  <span style={{ fontSize: 12 }}>{moment(item.createdAt).fromNow()}</span>
+                <Flex justify='space-between' style={{ gap: 12 }}>
+                  <span style={{ fontWeight: 600 }}>{item.type}</span>
+                  <span style={{ fontSize: 12, color: token.colorTextTertiary, flexShrink: 0 }}>{moment(item.createdAt).fromNow()}</span>
                 </Flex>
               }
-              description={item.notes}
+              description={
+                <div style={{ color: token.colorTextSecondary }} dangerouslySetInnerHTML={{ __html: item.notes }} />
+              }
             />
           </List.Item>
         )}

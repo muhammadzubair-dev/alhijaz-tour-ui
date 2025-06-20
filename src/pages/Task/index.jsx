@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { Tabs } from 'antd';
-import TaskTable from './TaskTable'; // pastikan path sesuai
+import { useState } from 'react';
+import TaskTable from './components/TaskTable'; // pastikan path sesuai
 
-const TaskTabs = () => {
+const TaskPage = () => {
   const [activeKey, setActiveKey] = useState('all'); // default tab: All
 
   const tabItems = [
@@ -32,4 +32,4 @@ const TaskTabs = () => {
   );
 };
 
-export default TaskTabs;
+export default TaskPage;
